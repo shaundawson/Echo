@@ -11,9 +11,11 @@ function Login() {
         event.preventDefault(); // Prevent default form submission behavior
 
         try {
-            const response = await axios.post('http://localhost:5000/login', { username, password });
-            console.log(response.data); // Log the response from the server
-            navigate('/dashboard'); // Navigate to dashboard upon successful login
+            await axios.post('http://127.0.0.1:5000/login', { username, password }, { withCredentials: true })
+                .then(response => {
+                    console.log(response.data); // Log the response from the server
+                    navigate('/');  // Navigate to homepage upon successful login
+                });
         } catch (error) {
             console.error('Login failed:', error);
             // Handle login failure (e.g., showing an error message)
@@ -37,8 +39,8 @@ function Login() {
                     </div>
                     <button type="submit" className="button">Login</button>
                 </form>
-                <p>Don't have an account? <a href="/create-account">Create one now</a>.</p> {/* Update href as per routing */}
-                <a href="/" className="button">Back to Homepage</a> {/* Use Link from react-router-dom for SPA navigation */}
+                <p>Don't have an account? <a href="/register">Create one now</a>.</p>
+                <a href="/" className="button">Back to Homepage</a>
             </div>
         </div>
     );
