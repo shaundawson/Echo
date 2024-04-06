@@ -1,4 +1,3 @@
-# If using mysqlclient
 Flask
 Flask-Cors
 Flask-SQLAlchemy

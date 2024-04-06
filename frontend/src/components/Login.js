@@ -14,7 +14,7 @@ function Login() {
             await axios.post('http://127.0.0.1:5000/login', { username, password }, { withCredentials: true })
                 .then(response => {
                     console.log(response.data); // Log the response from the server
-                    navigate('/');  // Navigate to homepage upon successful login
+                    navigate('/profile');  // Navigate to homepage upon successful login
                 });
         } catch (error) {
             console.error('Login failed:', error);

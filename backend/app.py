@@ -1,7 +1,8 @@
-from flask import Flask, request, jsonify, make_response
+from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
 from models import db, User
 from dotenv import load_dotenv
+from services import get_profile
 import os
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -62,6 +63,21 @@ def register():
     db.session.commit()
 
     return jsonify({"message": "Registration successful."}), 201
+
+
+@app.route('/profile', methods=['GET', 'POST'])
+@cross_origin()
+def profile():
+    if request.method == 'GET':
+        # Handle GET request to retrieve user profile
+        user_id = request.args.get('user_id')
+        return get_profile(user_id)
+    elif request.method == 'POST':
+        # Handle POST request to update user profile
+        # Implement this functionality as needed
+        pass
+    else:
+        return jsonify({"message": "Method not allowed"}), 405
 
 
 if __name__ == '__main__':
