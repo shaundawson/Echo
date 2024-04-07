@@ -3,32 +3,35 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom';
 
 function Profile() {
-    const [userData, setUserData] = useState(null);
-    const [bio, setBio] = useState('');
+    const [userData, setUserData] = useState({ username: '', bio: '' });
     const [editMode, setEditMode] = useState(false);
     const { userId } = useParams();
 
     useEffect(() => {
-        if (userId) {
-            axios.get(`http://127.0.0.1:5000/profile/${userId}`)
-                .then(response => {
-                    setUserData(response.data);
-                    setBio(response.data.bio || '');
-                })
-                .catch(error => console.error('Error fetching user data:', error));
-        }
+        const fetchUserData = async () => {
+            try {
+                const response = await axios.get(`http://127.0.0.1:5000/profile/${userId}`);
+                if (response.data) {
+                    setUserData(response.data); // Set the whole user data object
+                }
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+        };
+
+        fetchUserData();
     }, [userId]);
 
     const handleBioChange = (event) => {
-        setBio(event.target.value);
+        setUserData({ ...userData, bio: event.target.value }); // Keep the rest of userData intact
     };
 
     const handleEditSubmit = async () => {
         try {
-            // Assume your API expects a PUT request to update the profile
-            const response = await axios.put(`http://127.0.0.1:5000/profile/${userId}`, { bio });
+            const response = await axios.put(`http://127.0.0.1:5000/profile/${userId}`, { bio: userData.bio });
             console.log('Profile update response:', response.data);
             setEditMode(false); // Exit edit mode on successful save
+            console.log("Exiting edit mode");
         } catch (error) {
             console.error('Error updating profile:', error);
         }
@@ -40,18 +43,18 @@ function Profile() {
                 <h1>User Profile</h1>
             </header>
             <div id="main-content">
-                <h2>Welcome, {userData && userData.username}!</h2>
+                <h2>Welcome, {userData.username}</h2>
                 <div>
                     {editMode ? (
                         <>
-                            <textarea value={bio} onChange={handleBioChange}></textarea>
+                            <textarea value={userData.bio} onChange={handleBioChange}></textarea>
                             <button onClick={handleEditSubmit}>Save</button>
                             <button onClick={() => setEditMode(false)}>Cancel</button>
                         </>
                     ) : (
                         <>
-                            <p>Bio: {bio}</p>
-                            <button onClick={() => setEditMode(true)}>Edit Profile</button>
+                            <p>Bio: {userData.bio}</p>
+                            <button onClick={() => setEditMode(true)}>Edit Bio</button>
                         </>
                     )}
                 </div>

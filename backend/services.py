@@ -11,7 +11,7 @@ def login(username, password):
         return {"message": "Invalid username or password"}, 401
 
 
-def register(username, password, email):
+def register(username, password, email, bio):
     existing_user = User.query.filter_by(username=username).first()
     if existing_user:
         return {"message": "An account with this username already exists."}, 409
@@ -22,7 +22,12 @@ def register(username, password, email):
     try:
         db.session.add(new_user)
         db.session.commit()
-        # After successfully saving the new user, return the user's ID along with the success message
+
+        # Create a new Profile instance for the user.
+        new_profile = Profile(user_id=new_user.id, bio=bio)
+        db.session.add(new_profile)
+        db.session.commit()
+
         return {"message": "Registration successful.", "user_id": new_user.id}, 201
     except Exception as e:
         print(f"Failed to add user {username}. Error: {e}")
@@ -31,36 +36,35 @@ def register(username, password, email):
 
 
 def get_profile(user_id):
-    # Retrieve user profile data from the database
     user = User.query.get(user_id)
-    if user:
-        # Construct the user profile JSON response
+    if user and user.profile:
         profile_data = {
             'username': user.username,
             'email': user.email,
-            # Assuming profile_picture is a field in the User model
-            'profile_picture': user.profile_picture,
-            'bio': user.bio,  # Assuming bio is a field in the User model
-            # Assuming followers is a relationship in the User model
-            'followers': len(user.followers),
-            # Assuming following is a relationship in the User model
-            'following': len(user.following),
+            'bio': user.profile.bio,
+            'user_id': user.profile.user_id,
+            'profile_image': user.profile.profile_image,
         }
-        return jsonify(profile_data), 200
+        return profile_data, 200  # Return a dictionary, not jsonify
     else:
-        return jsonify({"message": "User not found"}), 404
+        return None, 404
 
 
-def update_profile(user_id, bio, profile_picture):
+def update_profile(user_id, bio, profile_image):
     # Retrieve user's profile from the database
     profile = Profile.query.filter_by(user_id=user_id).first()
     if profile:
         # Update the user's profile information
-        if bio:
+        if bio is not None:
             profile.bio = bio
-        if profile_picture:
-            profile.profile_picture = profile_picture
+        if profile_image is not None:
+            profile.profile_image = profile_image
+
+        # Check if any update was made
+        if bio is None and profile_image is None:
+            return jsonify({"message": "No changes detected in the profile data"}), 200
+
         db.session.commit()
-        return {"message": "Profile updated successfully"}, 200
+        return jsonify({"message": "Profile updated successfully"}), 200
     else:
-        return {"message": "Profile not found for the user"}, 404
+        return jsonify({"message": "Profile not found for the user"}), 404

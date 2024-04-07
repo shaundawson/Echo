@@ -3,35 +3,40 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 function Register() {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [email, setEmail] = useState('');
+    const [formData, setFormData] = useState({
+        username: '',
+        password: '',
+        email: '',
+        bio: '', // Combined state object for all form data
+    });
+    // const [profilePicture, setProfilePicture] = useState(null); 
     const navigate = useNavigate();
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prevState => ({
+            ...prevState,
+            [name]: value
+        }));
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         try {
-            const response = await axios.post('http://127.0.0.1:5000/register', {
-                username,
-                password,
-                email,
-            }, {
+            const response = await axios.post('http://127.0.0.1:5000/register', formData, {
                 headers: {
                     'Content-Type': 'application/json'
                 }
             });
 
-            // If registration is successful and a user_id is returned, redirect to the profile page
             if (response.data.user_id) {
                 navigate(`/profile/${response.data.user_id}`);
             } else {
                 console.log(response.data.message);
-                // Handle the case where registration is successful but no user_id is returned
             }
         } catch (error) {
-            console.error('Registration failed:', error.response.data.message);
-            // Here you can handle and display registration errors, e.g., username already exists
+            console.error('Registration failed:', error?.response?.data?.message || error.message);
         }
     };
 
@@ -44,16 +49,21 @@ function Register() {
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
                         <label htmlFor="username">Username:</label>
-                        <input type="text" id="username" name="username" required onChange={(e) => setUsername(e.target.value)} />
+                        <input type="text" id="username" name="username" required value={formData.username} onChange={handleChange} />
                     </div>
                     <div className="form-group">
                         <label htmlFor="password">Password:</label>
-                        <input type="password" id="password" name="password" required onChange={(e) => setPassword(e.target.value)} />
+                        <input type="password" id="password" name="password" required value={formData.password} onChange={handleChange} />
                     </div>
                     <div className="form-group">
                         <label htmlFor="email">Email:</label>
-                        <input type="email" id="email" name="email" required onChange={(e) => setEmail(e.target.value)} />
+                        <input type="email" id="email" name="email" required value={formData.email} onChange={handleChange} />
                     </div>
+                    <div className="form-group">
+                        <label htmlFor="bio">Bio: </label>
+                        <textarea id="bio" name="bio" required value={formData.bio} onChange={handleChange}></textarea>
+                    </div>
+                    {/* For image upload, you might need to handle the state and form submission differently */}
                     <button type="submit" className="button">Register</button>
                 </form>
                 <p>Already have an account? <a href="/login">Login here</a>.</p>

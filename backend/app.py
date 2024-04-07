@@ -1,10 +1,11 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
-from models import db, User
+from models import db, User, Profile
 from dotenv import load_dotenv
 from services import login, get_profile, update_profile, register
 import os
 from werkzeug.security import generate_password_hash
+from flask_migrate import Migrate
 
 
 # Load environment variables from .env file
@@ -15,6 +16,7 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
+migrate = Migrate(app, db)
 
 
 # Configure CORS. This allows all origins. For development only!
@@ -34,11 +36,14 @@ def login_route():
         password = request.json['password']
         user, status_code = login(username, password)
         if user:
-            # Return JSON with user_id for the client to redirect
             return jsonify({"user_id": user['user_id']}), 200
         else:
             return jsonify({"message": "Invalid username or password"}), status_code
-        return 'Login Page' if request.method == 'GET' else ('', 204)
+    elif request.method == 'GET':
+        # Providing a message for GET request or you might want to redirect
+        return jsonify({"message": "GET method is not supported for /login."}), 405
+    else:
+        return '', 204
 
 
 @app.route('/register', methods=['POST', 'GET'])
@@ -49,20 +54,48 @@ def register_route():
         username = data.get('username')
         password = data.get('password')
         email = data.get('email')
-
-        # Use the register function from services.py
-        response, status_code = register(username, password, email)
+        bio = data.get('bio')  # Extract bio data from the request
+        response, status_code = register(username, password, email, bio)
         return jsonify(response), status_code
 
 
-@app.route('/profile/<int:user_id>', methods=['PUT'])
+@app.route('/profile/<int:user_id>', methods=['PUT', 'GET'])
 @cross_origin()
 def update_user_profile(user_id):
-    data = request.json
-    bio = data.get('bio')
-    profile_picture = data.get('profile_picture')
-    message, status_code = update_profile(user_id, bio, profile_picture)
-    return jsonify({"message": message}), status_code
+    if request.method == 'GET':
+        # Fetching and returning user profile data
+        profile_data, status_code = get_profile(user_id)
+        if profile_data:
+            return jsonify(profile_data), status_code
+        else:
+            return jsonify({"message": "Profile not found"}), 404
+    elif request.method == 'PUT':
+        if not request.is_json:
+            return jsonify({"message": "Invalid request format, JSON required."}), 400
+
+        data = request.get_json()
+        bio = data.get('bio')
+        # Assuming 'profile_picture' is optional, hence the use of .get()
+        profile_picture = data.get('profile_picture')
+
+        try:
+            # Ensure the user exists
+            user = User.query.get(user_id)
+            if not user:
+                return jsonify({"message": "User not found"}), 404
+
+            if not user.profile:
+                user.profile = Profile(user_id=user_id)
+            user.profile.bio = bio
+            # Handle 'profile_picture' if necessary
+            db.session.commit()
+
+            return jsonify({"message": "Profile updated successfully"}), 200
+        except Exception as e:
+            # Log the exception to understand what went wrong
+            print(f"Error updating profile: {e}")
+            db.session.rollback()
+            return jsonify({"message": "Internal server error"}), 500
 
 
 if __name__ == '__main__':
