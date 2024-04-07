@@ -11,14 +11,17 @@ function Login() {
         event.preventDefault(); // Prevent default form submission behavior
 
         try {
-            await axios.post('http://127.0.0.1:5000/login', { username, password }, { withCredentials: true })
-                .then(response => {
-                    console.log(response.data); // Log the response from the server
-                    navigate('/profile');  // Navigate to homepage upon successful login
-                });
+            const response = await axios.post('http://127.0.0.1:5000/login', { username, password });
+            if (response.data.user_id) {
+                // Use the URL parameter for user ID to navigate
+                navigate(`/profile/${response.data.user_id}`);
+            } else {
+                console.error('User ID not found in response data');
+                // Handle error
+            }
         } catch (error) {
             console.error('Login failed:', error);
-            // Handle login failure (e.g., showing an error message)
+            // Handle error
         }
     };
 

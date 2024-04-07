@@ -1,5 +1,5 @@
 from app import app
-from services import add_user
+from services import register
 from models import db  # Import the db instance
 
 
@@ -15,7 +15,7 @@ def seed_database():
 
     # Iterate over users and add them using the add_user function
     for user in users:
-        if add_user(user['username'], user['password'], user['email']):
+        if register(user['username'], user['password'], user['email']):
             print(f"User {user['username']} added successfully.")
         else:
             print(f"Failed to add user {user['username']}.")

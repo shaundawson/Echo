@@ -23,10 +23,7 @@ class Playlist(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    # Add foreign key constraint for the songs relationship
     songs = db.relationship('Song', backref='playlist', lazy=True)
-
-    # Define foreign key constraint for the songs relationship
     song_id = db.Column(db.Integer, db.ForeignKey('song.id'), nullable=False)
 
 

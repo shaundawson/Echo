@@ -1,11 +1,12 @@
-// Register.js
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 function Register() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [email, setEmail] = useState('');
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -20,10 +21,17 @@ function Register() {
                     'Content-Type': 'application/json'
                 }
             });
-            console.log(response.data);
-            // Redirect to login page or home page on successful registration
+
+            // If registration is successful and a user_id is returned, redirect to the profile page
+            if (response.data.user_id) {
+                navigate(`/profile/${response.data.user_id}`);
+            } else {
+                console.log(response.data.message);
+                // Handle the case where registration is successful but no user_id is returned
+            }
         } catch (error) {
-            console.error('Registration failed:', error);
+            console.error('Registration failed:', error.response.data.message);
+            // Here you can handle and display registration errors, e.g., username already exists
         }
     };
 
