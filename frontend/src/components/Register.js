@@ -24,7 +24,7 @@ function Register() {
         e.preventDefault();
 
         try {
-            const response = await axios.post('https://dry-dawn-86507-cc866b3e1665.herokuapp.com/register', formData, {
+            const response = await axios.post('http://127.0.0.1:5000/register', formData, {
                 headers: {
                     'Content-Type': 'application/json'
                 }

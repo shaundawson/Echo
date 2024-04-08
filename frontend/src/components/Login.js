@@ -11,7 +11,7 @@ function Login() {
         event.preventDefault(); // Prevent default form submission behavior
 
         try {
-            const response = await axios.post('https://dry-dawn-86507-cc866b3e1665.herokuapp.com/login', { username, password });
+            const response = await axios.post('http://127.0.0.1:5000/login', { username, password });
             if (response.data.user_id) {
                 // Use the URL parameter for user ID to navigate
                 navigate(`/profile/${response.data.user_id}`);
