@@ -10,6 +10,7 @@ from flask_migrate import Migrate
 # Load environment variables from .env file
 load_dotenv()
 
+
 app = Flask(__name__)
 
 # Get the database URL from the environment variable
@@ -79,21 +80,13 @@ def register_route():
 @app.route('/profile/<int:user_id>', methods=['PUT', 'GET'])
 @cross_origin()
 def update_user_profile(user_id):
-    if request.method == 'GET':
-        # Fetching and returning user profile data
-        profile_data, status_code = get_profile(user_id)
-        if profile_data:
-            return jsonify(profile_data), status_code
-        else:
-            return jsonify({"message": "Profile not found"}), 404
-    elif request.method == 'PUT':
+    if request.method == 'PUT':
         if not request.is_json:
             return jsonify({"message": "Invalid request format, JSON required."}), 400
 
         data = request.get_json()
         bio = data.get('bio')
-        # Assuming 'profile_picture' is optional, hence the use of .get()
-        profile_picture = data.get('profile_picture')
+        profile_image = data.get('profile_image') # Extract profile image URL from request JSON
 
         try:
             # Ensure the user exists
@@ -104,16 +97,15 @@ def update_user_profile(user_id):
             if not user.profile:
                 user.profile = Profile(user_id=user_id)
             user.profile.bio = bio
-            # Handle 'profile_picture' if necessary
+            user.profile.profile_image = profile_image # Update profile image URL
             db.session.commit()
 
             return jsonify({"message": "Profile updated successfully"}), 200
         except Exception as e:
-            # Log the exception to understand what went wrong
+            # Log and handle exceptions
             print(f"Error updating profile: {e}")
             db.session.rollback()
             return jsonify({"message": "Internal server error"}), 500
-
 
 if __name__ == '__main__':
      app.run()

@@ -3,14 +3,14 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom';
 
 function Profile() {
-    const [userData, setUserData] = useState({ username: '', bio: '' });
+    const [userData, setUserData] = useState({ username: '', bio: '', profile_picture: '' });
     const [editMode, setEditMode] = useState(false);
     const { userId } = useParams();
 
     useEffect(() => {
         const fetchUserData = async () => {
             try {
-                const response = await axios.get(`https://dry-dawn-86507-cc866b3e1665.herokuapp.com//profile/${userId}`);
+                const response = await axios.get(`https://dry-dawn-86507-cc866b3e1665.herokuapp.com/profile/${userId}`);
                 if (response.data) {
                     setUserData(response.data); // Set the whole user data object
                 }
@@ -28,7 +28,7 @@ function Profile() {
 
     const handleEditSubmit = async () => {
         try {
-            const response = await axios.put(`https://dry-dawn-86507-cc866b3e1665.herokuapp.com//profile/${userId}`, { bio: userData.bio });
+            const response = await axios.put(`https://dry-dawn-86507-cc866b3e1665.herokuapp.com/profile/${userId}`, { bio: userData.bio });
             console.log('Profile update response:', response.data);
             setEditMode(false); // Exit edit mode on successful save
             console.log("Exiting edit mode");
