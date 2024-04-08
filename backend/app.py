@@ -10,12 +10,29 @@ from werkzeug.security import generate_password_hash
 load_dotenv()
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('CLEARDB_DATABASE_URL').replace('mysql://', 'mysql+pymysql://')
+
+# Get the database URL from the environment variable
+database_url = os.environ.get('CLEARDB_DATABASE_URL').replace('mysql://', 'mysql+pymysql://')
+
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Configure SQLAlchemy engine options
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    'pool_recycle': 299,  # Adjust with your requirements
+    'pool_pre_ping': True
+}
+
 db.init_app(app)
 
 # Configure CORS. This allows all origins. For development only!
 CORS(app, support_credentials=True)
+
+@app.cli.command('create_tables')
+def create_tables():
+    """Create database tables from SQLAlchemy models."""
+    db.create_all()
+    print('Tables created.')
 
 
 @app.route('/')
