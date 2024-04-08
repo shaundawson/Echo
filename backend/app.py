@@ -1,13 +1,12 @@
 from flask import Flask, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS, cross_origin
-from backend.models import db, User, Profile
+from models import db, User, Profile
 from dotenv import load_dotenv
-from backend.services import login, get_profile, update_profile, register
+from services import login, get_profile, update_profile, register
 import os
 from werkzeug.security import generate_password_hash
 from flask_migrate import Migrate
-
+from flask_sqlalchemy import SQLAlchemy
 
 # Load environment variables from .env file
 load_dotenv()
@@ -16,6 +15,7 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
     'CLEARDB_DATABASE_URL').replace('mysql://', 'mysql+pymysql://')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db.init_app(app)
 
 db = SQLAlchemy(app)  # create the db object
 migrate = Migrate(app, db)
