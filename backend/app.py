@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from backend.services import login, get_profile, update_profile, register
 import os
 from werkzeug.security import generate_password_hash
+from flask_migrate import Migrate
 
 # Load environment variables from .env file
 load_dotenv()
@@ -24,6 +25,7 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
 }
 
 db.init_app(app)
+migrate = Migrate(app, db)
 
 # Configure CORS. This allows all origins. For development only!
 CORS(app, support_credentials=True)
