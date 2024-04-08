@@ -52,6 +52,9 @@ def register_route():
         bio = data.get('bio')  # Extract bio data from the request
         response, status_code = register(username, password, email, bio)
         return jsonify(response), status_code
+    elif request.method == 'GET':
+    # If you have a specific message or data you want to return for GET requests
+        return jsonify({"message": "GET method for registration is not supported."}), 405
 
 
 @app.route('/profile/<int:user_id>', methods=['PUT', 'GET'])
