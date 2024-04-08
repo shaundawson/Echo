@@ -10,7 +10,7 @@ function Profile() {
     useEffect(() => {
         const fetchUserData = async () => {
             try {
-                const response = await axios.get(`http://127.0.0.1:5000/profile/${userId}`);
+                const response = await axios.get(`https://dry-dawn-86507-cc866b3e1665.herokuapp.com/profile/${userId}`);
                 if (response.data) {
                     setUserData(response.data); // Set the whole user data object
                 }
@@ -28,7 +28,7 @@ function Profile() {
 
     const handleEditSubmit = async () => {
         try {
-            const response = await axios.put(`http://127.0.0.1:5000/profile/${userId}`, { bio: userData.bio });
+            const response = await axios.put(`https://dry-dawn-86507-cc866b3e1665.herokuapp.com/profile/${userId}`, { bio: userData.bio });
             console.log('Profile update response:', response.data);
             setEditMode(false); // Exit edit mode on successful save
             console.log("Exiting edit mode");
