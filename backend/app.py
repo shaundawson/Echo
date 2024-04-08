@@ -1,8 +1,8 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
-from models import db, User, Profile
+from backend.models import db, User, Profile
 from dotenv import load_dotenv
-from services import login, get_profile, update_profile, register
+from backend.services import login, get_profile, update_profile, register
 import os
 from werkzeug.security import generate_password_hash
 
@@ -10,10 +10,8 @@ from werkzeug.security import generate_password_hash
 load_dotenv()
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('CLEARDB_DATABASE_URL')
-cleardb_url = os.environ.get('CLEARDB_DATABASE_URL').replace('mysql://', 'mysql+pymysql://')
-app.config['SQLALCHEMY_DATABASE_URI'] = cleardb_url
-# app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI')
+# app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('CLEARDB_DATABASE_URL')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
