@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
 from .models import db, User, Profile
 from dotenv import load_dotenv
-from services import login, get_profile, update_profile, register
+from .services import login, get_profile, update_profile, register
 import os
 from werkzeug.security import generate_password_hash
 from flask_migrate import Migrate
