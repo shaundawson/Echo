@@ -7,17 +7,14 @@ import os
 from werkzeug.security import generate_password_hash
 from flask_migrate import Migrate
 
-
 # Load environment variables from .env file
 load_dotenv()
 
-
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('CLEARDB_DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 migrate = Migrate(app, db)
-
 
 # Configure CORS. This allows all origins. For development only!
 CORS(app, support_credentials=True)
