@@ -16,7 +16,7 @@ load_dotenv()
 app = Flask(__name__)
 
 # Setup the Flask-JWT-Extended extension
-app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY')ange this to a real secret key
+app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY')
 jwt = JWTManager(app)
 
 # Get the database URL from the environment variable
@@ -35,7 +35,7 @@ db.init_app(app)
 migrate = Migrate(app, db)
 
 # Configure CORS. This allows all origins. For development only!
-CORS(app, support_credentials=True)
+CORS(app, support_credentials=True,resources={r"/api/*": {"origins": "http://localhost:3000"}} )
 
 @app.cli.command('create_tables')
 def create_tables():
