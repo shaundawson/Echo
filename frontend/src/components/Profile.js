@@ -28,9 +28,19 @@ function Profile() {
 
     const handleEditSubmit = async () => {
         try {
+            // Attempt to update the user's bio on the backend
             const response = await axios.put(`https://dry-dawn-86507-cc866b3e1665.herokuapp.com/profile/${userId}`, { bio: userData.bio });
             console.log('Profile update response:', response.data);
-            setEditMode(false); // Exit edit mode on successful save
+
+            // After a successful response, update the local state to reflect the new bio.
+            // This ensures the UI remains consistent with the backend data.
+            setUserData(prevState => ({
+                ...prevState,
+                bio: userData.bio // Update the bio in the state with the new value
+            }));
+
+            // Exit edit mode to show the updated profile view
+            setEditMode(false);
             console.log("Exiting edit mode");
         } catch (error) {
             console.error('Error updating profile:', error);

@@ -51,10 +51,8 @@ def get_profile(user_id):
 
 
 def update_profile(user_id, bio, profile_image):
-    # Retrieve user's profile from the database
     profile = Profile.query.filter_by(user_id=user_id).first()
     if profile:
-        # Update the user's profile information
         if bio is not None:
             profile.bio = bio
         if profile_image is not None:

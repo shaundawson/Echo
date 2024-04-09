@@ -79,7 +79,7 @@ def register_route():
 
 @app.route('/profile/<int:user_id>', methods=['PUT', 'GET'])
 @cross_origin()
-def update_user_profile(user_id):
+def profile_route(user_id):
     if request.method == 'PUT':
         if not request.is_json:
             return jsonify({"message": "Invalid request format, JSON required."}), 400
@@ -96,16 +96,38 @@ def update_user_profile(user_id):
 
             if not user.profile:
                 user.profile = Profile(user_id=user_id)
-            user.profile.bio = bio
-            user.profile.profile_image = profile_image # Update profile image URL
-            db.session.commit()
-
-            return jsonify({"message": "Profile updated successfully"}), 200
+                user.profile.bio = bio
+                user.profile.profile_image = profile_image # Update profile image URL
+                db.session.commit()
+                return jsonify({"message": "Profile updated successfully"}), 200
         except Exception as e:
             # Log and handle exceptions
             print(f"Error updating profile: {e}")
             db.session.rollback()
             return jsonify({"message": "Internal server error"}), 500
+        
+    elif request.method == 'GET':
+        try:
+            user = User.query.get(user_id)
+            if not user:
+                return jsonify({"message": "User not found"}), 404
+            if not user.profile:
+                return jsonify({"message": "Profile not found for this user"}), 404
+            
+            profile_data = {
+                'username': user.username,
+                'bio': user.profile.bio,
+                'profile_image': user.profile.profile_image
+            }
+            return jsonify(profile_data), 200
+        except Exception as e:
+            print(f"Error retrieving user profile: {e}")
+            return jsonify({"message": "Internal server error"}), 500
+    else:
+        return jsonify({"message": "Method not allowed"}), 405
+        
+
+
 
 if __name__ == '__main__':
      app.run()
