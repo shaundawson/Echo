@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
+from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
 from backend.models import db, User, Profile
 from dotenv import load_dotenv
 from backend.services import login, get_profile, update_profile, register
@@ -7,11 +8,16 @@ import os
 from werkzeug.security import generate_password_hash
 from flask_migrate import Migrate
 
+
 # Load environment variables from .env file
 load_dotenv()
 
 
 app = Flask(__name__)
+
+# Setup the Flask-JWT-Extended extension
+app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY')ange this to a real secret key
+jwt = JWTManager(app)
 
 # Get the database URL from the environment variable
 database_url = os.environ.get('CLEARDB_DATABASE_URL').replace('mysql://', 'mysql+pymysql://')
@@ -51,14 +57,21 @@ def login_route():
         password = request.json['password']
         user, status_code = login(username, password)
         if user:
+            access_token = create_access_token(identity=user['user_id']) 
             return jsonify({"user_id": user['user_id']}), 200
         else:
             return jsonify({"message": "Invalid username or password"}), status_code
     elif request.method == 'GET':
-        # Providing a message for GET request or you might want to redirect
         return jsonify({"message": "GET method is not supported for /login."}), 405
     else:
         return '', 204
+
+    if user:
+        # Create JWT token if user is authenticated
+        access_token = create_access_token(identity=user.id)
+        return jsonify(access_token=access_token), 200
+    else:
+        return jsonify({"message": "Invalid credentials"}), 401
 
 
 @app.route('/register', methods=['POST', 'GET'])
@@ -80,6 +93,10 @@ def register_route():
 @app.route('/profile/<int:user_id>', methods=['PUT', 'GET'])
 @cross_origin()
 def profile_route(user_id):
+    current_user_id = get_jwt_identity()
+    if int(current_user_id) != user_id:  # Ensure type match
+        return jsonify({"message": "Unauthorized"}), 403
+    
     if request.method == 'PUT':
         if not request.is_json:
             return jsonify({"message": "Invalid request format, JSON required."}), 400

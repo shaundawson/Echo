@@ -15,16 +15,15 @@ function Login() {
 
         try {
             const response = await axios.post('https://dry-dawn-86507-cc866b3e1665.herokuapp.com/login', { username, password });
-            if (response.data.user_id) {
-                login(response.data); // Update login state
-                navigate(`/profile/${response.data.user_id}`);
+            if (response.data.access_token) {
+                // Update login state with user data and token
+                login({ user: response.data.user, token: response.data.access_token });
+                navigate(`/profile/${response.data.user.user_id}`); // Adjusted to match your data structure
             } else {
-                console.error('User ID not found in response data');
-                // Handle error
+                console.error('Access token not found in response data');
             }
         } catch (error) {
             console.error('Login failed:', error);
-            // Handle error
         }
     };
 
