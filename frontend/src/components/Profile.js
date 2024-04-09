@@ -28,20 +28,39 @@ function Profile() {
 
     const handleEditSubmit = async () => {
         try {
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            };
+
+            // Convert userData.bio to JSON and specify headers
+            const body = JSON.stringify({ bio: userData.bio });
+
             // Attempt to update the user's bio on the backend
-            const response = await axios.put(`https://dry-dawn-86507-cc866b3e1665.herokuapp.com/profile/${userId}`, { bio: userData.bio });
-            console.log('Profile update response:', response.data);
+            const response = await axios.put(
+                `https://dry-dawn-86507-cc866b3e1665.herokuapp.com/profile/${userId}`,
+                body,
+                config
+            );
 
-            // After a successful response, update the local state to reflect the new bio.
-            // This ensures the UI remains consistent with the backend data.
-            setUserData(prevState => ({
-                ...prevState,
-                bio: userData.bio // Update the bio in the state with the new value
-            }));
+            // Check for a successful update response before updating local state
+            if (response.status === 200) {
+                console.log('Profile update response:', response.data);
 
-            // Exit edit mode to show the updated profile view
-            setEditMode(false);
-            console.log("Exiting edit mode");
+                // Update the local state to reflect the new bio
+                setUserData(prevState => ({
+                    ...prevState,
+                    bio: userData.bio // Update the bio in the state with the new value
+                }));
+
+                // Exit edit mode to show the updated profile view
+                setEditMode(false);
+                console.log("Exiting edit mode");
+            } else {
+                // Handle unsuccessful update
+                console.error('Profile update was not successful.');
+            }
         } catch (error) {
             console.error('Error updating profile:', error);
         }

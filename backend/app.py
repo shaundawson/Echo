@@ -85,35 +85,37 @@ def profile_route(user_id):
             return jsonify({"message": "Invalid request format, JSON required."}), 400
 
         data = request.get_json()
-        bio = data.get('bio')
-        profile_image = data.get('profile_image') # Extract profile image URL from request JSON
+        bio = data.get('bio', None)  # Default to None if 'bio' not provided
+        profile_image = data.get('profile_image', None)  # Same for 'profile_image'
 
         try:
-            # Ensure the user exists
             user = User.query.get(user_id)
             if not user:
                 return jsonify({"message": "User not found"}), 404
 
             if not user.profile:
                 user.profile = Profile(user_id=user_id)
+
+            if bio is not None:
                 user.profile.bio = bio
-                user.profile.profile_image = profile_image # Update profile image URL
-                db.session.commit()
-                return jsonify({"message": "Profile updated successfully"}), 200
+            if profile_image is not None:
+                user.profile.profile_image = profile_image
+
+            db.session.commit()
+            return jsonify({"message": "Profile updated successfully"}), 200
         except Exception as e:
-            # Log and handle exceptions
-            print(f"Error updating profile: {e}")
             db.session.rollback()
             return jsonify({"message": "Internal server error"}), 500
-        
+
     elif request.method == 'GET':
         try:
             user = User.query.get(user_id)
             if not user:
                 return jsonify({"message": "User not found"}), 404
+
             if not user.profile:
                 return jsonify({"message": "Profile not found for this user"}), 404
-            
+
             profile_data = {
                 'username': user.username,
                 'bio': user.profile.bio,
@@ -121,13 +123,10 @@ def profile_route(user_id):
             }
             return jsonify(profile_data), 200
         except Exception as e:
-            print(f"Error retrieving user profile: {e}")
             return jsonify({"message": "Internal server error"}), 500
+
     else:
         return jsonify({"message": "Method not allowed"}), 405
-        
-
-
 
 if __name__ == '__main__':
      app.run()
