@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../AuthContext'; // Import useAuth
+
 
 function Register() {
     const [formData, setFormData] = useState({
@@ -9,8 +11,8 @@ function Register() {
         email: '',
         bio: '', // Combined state object for all form data
     });
-    // const [profilePicture, setProfilePicture] = useState(null); 
     const navigate = useNavigate();
+    const { login } = useAuth(); // Destructure login from useAuth
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -31,6 +33,7 @@ function Register() {
             });
 
             if (response.data.user_id) {
+                login(response.data); // Update login state
                 navigate(`/profile/${response.data.user_id}`);
             } else {
                 console.log(response.data.message);

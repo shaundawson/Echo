@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useAuth } from '../AuthContext';
+
 
 function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate(); // Hook for navigating to other routes
+    const { login } = useAuth(); // Destructure login from useAuth
 
     const handleSubmit = async (event) => {
         event.preventDefault(); // Prevent default form submission behavior
@@ -13,7 +16,7 @@ function Login() {
         try {
             const response = await axios.post('https://dry-dawn-86507-cc866b3e1665.herokuapp.com/login', { username, password });
             if (response.data.user_id) {
-                // Use the URL parameter for user ID to navigate
+                login(response.data); // Update login state
                 navigate(`/profile/${response.data.user_id}`);
             } else {
                 console.error('User ID not found in response data');

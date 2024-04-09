@@ -1,5 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, } from 'react-router-dom';
+import { AuthProvider } from './AuthContext';
+import Navbar from './components/Navbar';
 import Home from './components/Home';
 import Login from './components/Login';
 import Explore from './components/Explore';
@@ -8,17 +10,20 @@ import Profile from './components/Profile';
 
 function App() {
   return (
-    <Router>
-      <div>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/explore" element={<Explore />} />
-          <Route path="/profile/:userId" element={<Profile />} />
-        </Routes>
-      </div>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <div>
+          <Navbar />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/explore" element={<Explore />} />
+            <Route path="/profile/:userId" element={<Profile />} />
+          </Routes>
+        </div>
+      </Router>
+    </AuthProvider>
   );
 }
 
