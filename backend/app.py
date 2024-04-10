@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify,session
+from flask import Flask, request, jsonify, session
 from flask_cors import CORS, cross_origin
 from backend.models import db, User, Profile
 
@@ -21,7 +21,7 @@ database_url = os.environ.get('CLEARDB_DATABASE_URL').replace('mysql://', 'mysql
 
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SESSION_COOKIE_SECURE'] = False # True for prod, False for dev
+app.config['SESSION_COOKIE_SECURE'] = True # True for prod, False for dev
 app.config['REMEMBER_COOKIE_SECURE'] = False # True for prod, False for dev
 
 # Configure SQLAlchemy engine options
