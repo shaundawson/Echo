@@ -31,7 +31,7 @@ db.init_app(app)
 migrate = Migrate(app, db)
 
 # Configure CORS. This allows all origins. For development only!
-CORS(app, support_credentials=True)
+CORS(app, support_credentials=True,origins=["http://localhost:3000"])
 
 @app.cli.command('create_tables')
 def create_tables():
@@ -139,6 +139,7 @@ def profile_route(user_id):
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def follow_user(followed_id):
     print("Session Data:", session)
+    print('user_id')
     if 'user_id' not in session:
         return jsonify({"message": "Authentication required."}), 401
 
