@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, session
+from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
 from backend.models import db, User, Profile
 from dotenv import load_dotenv
@@ -38,20 +38,18 @@ def create_tables():
 
 
 @app.route('/')
-@cross_origin()
 def home():
     return 'Welcome to the Flask App!'
 
 
-@app.route('/login', methods=['POST', 'OPTIONS'])
-@cross_origin(support_credentials=True)
+@app.route('/login', methods=['GET', 'POST', 'OPTIONS'])
+@cross_origin(supports_credentials=True)
 def login_route():
     if request.method == 'POST':
         username = request.json['username']
         password = request.json['password']
         user, status_code = login(username, password)
         if user:
-            session['user_id'] = user['user_id']  # Store user_id in session
             return jsonify({"user_id": user['user_id']}), 200
         else:
             return jsonify({"message": "Invalid username or password"}), status_code
@@ -62,7 +60,7 @@ def login_route():
 
 
 @app.route('/register', methods=['POST', 'GET'])
-@cross_origin(supports_credentials=True)
+@cross_origin()
 def register_route():
     if request.method == 'POST':
         data = request.json
@@ -76,7 +74,7 @@ def register_route():
         return jsonify({"message": "GET method for registration is not supported."}), 405
 
 
-@app.route('/profile/<int:user_id>', methods=['PUT', 'GET','OPTIONS'])
+@app.route('/profile/<int:user_id>', methods=['PUT', 'GET'])
 @cross_origin()
 def profile_route(user_id):
     if request.method == 'PUT':
@@ -108,30 +106,20 @@ def profile_route(user_id):
 
     elif request.method == 'GET':
         try:
-
-            current_user_id = session.get('user_id') # Get current user_id from session
-            current_user = User.query.get(current_user_id)
-
             user = User.query.get(user_id)
             if not user:
                 return jsonify({"message": "User not found"}), 404
 
-            is_following = False
-            if current_user:
-                is_following = current_user.is_following(user)
+            if not user.profile:
+                return jsonify({"message": "Profile not found for this user"}), 404
 
             profile_data = {
                 'username': user.username,
                 'bio': user.profile.bio,
-                'profile_image': user.profile.profile_image,
-                'followers_count': user.followers_count(),
-                'following_count': user.following_count(),
-                'is_following': is_following
+                'profile_image': user.profile.profile_image
             }
             return jsonify(profile_data), 200
         except Exception as e:
-            app.logger.error(f"Error fetching user profile: {e}")
-            db.session.rollback()
             return jsonify({"message": "Internal server error"}), 500
 
     else:
@@ -150,7 +138,6 @@ def search_users():
 @app.route('/follow/<int:followed_id>', methods=['POST'])
 @cross_origin()
 def follow_user(followed_id):
-    # Placeholder for auth; replace with actual authenticated user
     current_user_id = request.json.get('current_user_id')
     current_user = User.query.get(current_user_id)
     if not current_user:
@@ -168,7 +155,6 @@ def follow_user(followed_id):
     return jsonify({"message": "Now following."}), 200
 
 @app.route('/unfollow/<int:followed_id>', methods=['POST'])
-@cross_origin()
 def unfollow_user(followed_id):
     current_user_id = request.json.get('current_user_id')
     current_user = User.query.get(current_user_id)

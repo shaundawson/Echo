@@ -3,17 +3,8 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom';
 
 function Profile() {
-    const [userData, setUserData] = useState({
-        username: '',
-        bio: '',
-        profile_picture: '',
-        followersCount: 0,
-        followingCount: 0
-    });
-
+    const [userData, setUserData] = useState({ username: '', bio: '', profile_picture: '' });
     const [editMode, setEditMode] = useState(false);
-    // This state tracks whether the current user is following the profile user
-    const [isFollowing, setIsFollowing] = useState(false);
     const { userId } = useParams();
 
     useEffect(() => {
@@ -21,8 +12,7 @@ function Profile() {
             try {
                 const response = await axios.get(`https://dry-dawn-86507-cc866b3e1665.herokuapp.com/profile/${userId}`);
                 if (response.data) {
-                    setUserData(response.data); // Set the whole user data object, including isFollowing
-                    setIsFollowing(response.data.isFollowing); // Update based on the backend response
+                    setUserData(response.data); // Set the whole user data object
                 }
             } catch (error) {
                 console.error('Error fetching user data:', error);
@@ -31,37 +21,6 @@ function Profile() {
 
         fetchUserData();
     }, [userId]);
-
-    const handleFollow = async () => {
-        try {
-            // Assuming you have a mechanism to identify the current user on the backend, such as a session or token
-            const response = await axios.post(`https://dry-dawn-86507-cc866b3e1665.herokuapp.com/follow/${userId}`);
-            if (response.status === 200) {
-                setIsFollowing(true);
-                setUserData(prevState => ({
-                    ...prevState,
-                    followersCount: prevState.followersCount + 1 // Optimistically update the follower count
-                }));
-            }
-        } catch (error) {
-            console.error('Error following user:', error);
-        }
-    };
-
-    const handleUnfollow = async () => {
-        try {
-            const response = await axios.post(`https://dry-dawn-86507-cc866b3e1665.herokuapp.com/unfollow/${userId}`);
-            if (response.status === 200) {
-                setIsFollowing(false);
-                setUserData(prevState => ({
-                    ...prevState,
-                    followersCount: prevState.followersCount - 1 // update the follower count
-                }));
-            }
-        } catch (error) {
-            console.error('Error unfollowing user:', error);
-        }
-    };
 
     const handleBioChange = (event) => {
         setUserData({ ...userData, bio: event.target.value }); // Keep the rest of userData intact
@@ -114,7 +73,7 @@ function Profile() {
                 <h1>User Profile</h1>
             </header>
             <div id="main-content">
-                <h2>Username: {userData.username}</h2>
+                <h2>Welcome, {userData.username}</h2>
                 <div>
                     {editMode ? (
                         <>
@@ -129,13 +88,6 @@ function Profile() {
                         </>
                     )}
                 </div>
-                <p>Followers: {userData.followersCount}</p>
-                <p>Following: {userData.followingCount}</p>
-                {isFollowing ? (
-                    <button onClick={handleUnfollow}>Unfollow</button>
-                ) : (
-                    <button onClick={handleFollow}>Follow</button>
-                )}
             </div>
         </div>
     );

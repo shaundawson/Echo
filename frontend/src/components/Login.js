@@ -20,9 +20,11 @@ function Login() {
                 navigate(`/profile/${response.data.user_id}`);
             } else {
                 console.error('User ID not found in response data');
+                // Handle error
             }
         } catch (error) {
             console.error('Login failed:', error);
+            // Handle error
         }
     };
 
@@ -35,11 +37,11 @@ function Login() {
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
                         <label htmlFor="username">Username:</label>
-                        <input type="text" id="username" name="username" required onChange={(e) => setUsername(e.target.value)} autoComplete="on" />
+                        <input type="text" id="username" name="username" required onChange={(e) => setUsername(e.target.value)} />
                     </div>
                     <div className="form-group">
                         <label htmlFor="password">Password:</label>
-                        <input type="password" id="password" name="password" required onChange={(e) => setPassword(e.target.value)} autoComplete="on" />
+                        <input type="password" id="password" name="password" required onChange={(e) => setPassword(e.target.value)} />
                     </div>
                     <button type="submit" className="button">Login</button>
                 </form>
