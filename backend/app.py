@@ -1,6 +1,9 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify,session
 from flask_cors import CORS, cross_origin
 from backend.models import db, User, Profile
+
+
+
 from dotenv import load_dotenv
 from backend.services import login, get_profile, update_profile, register
 import os
@@ -11,12 +14,15 @@ from flask_migrate import Migrate
 load_dotenv()
 
 app = Flask(__name__)
+app.secret_key = os.environ.get('FLASK_SECRET_KEY')
 
 # Get the database URL from the environment variable
 database_url = os.environ.get('CLEARDB_DATABASE_URL').replace('mysql://', 'mysql+pymysql://')
 
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SESSION_COOKIE_SECURE'] = False # True for prod, False for dev
+app.config['REMEMBER_COOKIE_SECURE'] = False # True for prod, False for dev
 
 # Configure SQLAlchemy engine options
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
@@ -50,6 +56,7 @@ def login_route():
         password = request.json['password']
         user, status_code = login(username, password)
         if user:
+            session['user_id'] = user['user_id']  # Store the user's ID in the session
             return jsonify({"user_id": user['user_id']}), 200
         else:
             return jsonify({"message": "Invalid username or password"}), status_code
@@ -57,6 +64,11 @@ def login_route():
         return jsonify({"message": "GET method is not supported for /login."}), 405
     else:
         return '', 204
+    
+@app.route('/logout', methods=['POST'])
+def logout():
+    session.pop('user_id', None)  # Remove the user ID from the session
+    return jsonify({"message": "You have been logged out."}), 200
 
 
 @app.route('/register', methods=['POST', 'GET'])
@@ -75,7 +87,7 @@ def register_route():
 
 
 @app.route('/profile/<int:user_id>', methods=['PUT', 'GET'])
-@cross_origin()
+@cross_origin(supports_credentials=True)
 def profile_route(user_id):
     if request.method == 'PUT':
         if not request.is_json:
@@ -126,19 +138,13 @@ def profile_route(user_id):
         return jsonify({"message": "Method not allowed"}), 405
 
         
-@app.route('/search', methods=['GET'])
-@cross_origin()
-def search_users():
-    query = request.args.get('q')
-    if not query:
-        return jsonify({"message": "Missing search query"}), 400
-    users = User.query.filter(User.username.like(f"%{query}%")).all()
-    return jsonify([{"user_id": user.id, "username": user.username} for user in users]), 200
-
-@app.route('/follow/<int:followed_id>', methods=['POST'])
-@cross_origin()
+@app.route('/follow/<int:followed_id>', methods=['POST','GET'])
+@cross_origin(supports_credentials=True)
 def follow_user(followed_id):
-    current_user_id = request.json.get('current_user_id')
+    if 'user_id' not in session:
+        return jsonify({"message": "Authentication required."}), 401
+
+    current_user_id = session['user_id']
     current_user = User.query.get(current_user_id)
     if not current_user:
         return jsonify({"message": "Current user not found."}), 404
@@ -156,7 +162,10 @@ def follow_user(followed_id):
 
 @app.route('/unfollow/<int:followed_id>', methods=['POST'])
 def unfollow_user(followed_id):
-    current_user_id = request.json.get('current_user_id')
+    if 'user_id' not in session:
+        return jsonify({"message": "Authentication required."}), 401
+
+    current_user_id = session['user_id']
     current_user = User.query.get(current_user_id)
     if not current_user:
         return jsonify({"message": "Current user not found."}), 404

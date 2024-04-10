@@ -4,13 +4,18 @@ import { useParams } from 'react-router-dom';
 
 function Profile() {
     const [userData, setUserData] = useState({ username: '', bio: '', profile_picture: '' });
+    const [isFollowing, setIsFollowing] = useState(false);
+    const [followersCount, setFollowersCount] = useState(0);
+    const [followingCount, setFollowingCount] = useState(0);
     const [editMode, setEditMode] = useState(false);
     const { userId } = useParams();
+
 
     useEffect(() => {
         const fetchUserData = async () => {
             try {
-                const response = await axios.get(`https://dry-dawn-86507-cc866b3e1665.herokuapp.com/profile/${userId}`);
+                const response = await axios.get(`https://dry-dawn-86507-cc866b3e1665.herokuapp.com/profile/${userId}`,);
+
                 if (response.data) {
                     setUserData(response.data); // Set the whole user data object
                 }
@@ -66,14 +71,45 @@ function Profile() {
             console.error('Error updating profile:', error);
         }
     };
+    const handleFollow = async () => {
+        try {
+            const response = await axios.post(`https://dry-dawn-86507-cc866b3e1665.herokuapp.com/follow/${userId}`, {}, {
+                withCredentials: true
+            });
+            if (response.status === 200) {
+                setIsFollowing(true);
+                setFollowersCount(followersCount + 1); // Increment followers count
+            } else {
+                console.error('Follow action was unsuccessful.');
+            }
+        } catch (error) {
+            console.error('Error following user:', error);
+        }
+    };
+
+    const handleUnfollow = async () => {
+        try {
+            const response = await axios.post(`https://dry-dawn-86507-cc866b3e1665.herokuapp.com/unfollow/${userId}`, {}, {
+                withCredentials: true
+            });
+            if (response.status === 200) {
+                setIsFollowing(false);
+                setFollowersCount(followersCount - 1); // Decrement followers count
+            } else {
+                console.error('Unfollow action was unsuccessful.');
+            }
+        } catch (error) {
+            console.error('Error unfollowing user:', error);
+        }
+    };
+
 
     return (
         <div>
             <header>
-                <h1>User Profile</h1>
             </header>
             <div id="main-content">
-                <h2>Welcome, {userData.username}</h2>
+                <h2>{userData.username}</h2>
                 <div>
                     {editMode ? (
                         <>
@@ -87,7 +123,16 @@ function Profile() {
                             <button onClick={() => setEditMode(true)}>Edit Bio</button>
                         </>
                     )}
+                    {
+
+                        isFollowing ? (
+                            <button onClick={handleUnfollow}>Unfollow</button>
+                        ) : (
+                            <button onClick={handleFollow}>Follow</button>
+                        )
+                    }
                 </div>
+
             </div>
         </div>
     );
