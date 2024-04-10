@@ -108,17 +108,24 @@ def profile_route(user_id):
 
     elif request.method == 'GET':
         try:
+            current_user_id = request.json.get('current_user_id')  # This is purely illustrative
+            current_user = User.query.get(current_user_id)
+
             user = User.query.get(user_id)
             if not user:
                 return jsonify({"message": "User not found"}), 404
 
-            if not user.profile:
-                return jsonify({"message": "Profile not found for this user"}), 404
+            is_following = False
+            if current_user:
+                is_following = current_user.is_following(user)
 
             profile_data = {
                 'username': user.username,
                 'bio': user.profile.bio,
-                'profile_image': user.profile.profile_image
+                'profile_image': user.profile.profile_image,
+                'followers_count': user.followers_count(),
+                'following_count': user.following_count(),
+                'is_following': is_following
             }
             return jsonify(profile_data), 200
         except Exception as e:
