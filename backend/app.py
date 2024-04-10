@@ -18,8 +18,8 @@ database_url = os.environ.get('CLEARDB_DATABASE_URL').replace('mysql://', 'mysql
 
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SESSION_COOKIE_SECURE'] = False # True for prod, False for dev
-app.config['REMEMBER_COOKIE_SECURE'] = False # True for prod, False for dev
+app.config['SESSION_COOKIE_SECURE'] = True # True for prod, False for dev
+app.config['REMEMBER_COOKIE_SECURE'] = True # True for prod, False for dev
 
 # Configure SQLAlchemy engine options
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
@@ -139,7 +139,6 @@ def profile_route(user_id):
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def follow_user(followed_id):
     print("Session Data:", session)
-    print('user_id')
     if 'user_id' not in session:
         return jsonify({"message": "Authentication required."}), 401
 
