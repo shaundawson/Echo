@@ -138,7 +138,8 @@ def profile_route(user_id):
         return jsonify({"message": "Method not allowed"}), 405
 
         
-@app.route('/follow/<int:followed_id>', methods=['POST'])
+@app.route('/follow/<int:followed_id>', methods=['POST','OPTIONS'])
+@cross_origin(supports_credentials=True)
 def follow_user(followed_id):
     if 'user_id' not in session:
         return jsonify({"message": "Authentication required."}), 401
