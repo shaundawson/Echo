@@ -44,7 +44,7 @@ def home():
 
 
 @app.route('/login', methods=['POST', 'OPTIONS'])
-@cross_origin()
+@cross_origin(support_credentials=True)
 def login_route():
     if request.method == 'POST':
         username = request.json['username']
