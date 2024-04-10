@@ -1,6 +1,5 @@
-from flask import Flask, request, jsonify
+rom flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
-from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
 from backend.models import db, User, Profile
 from dotenv import load_dotenv
 from backend.services import login, get_profile, update_profile, register
@@ -8,16 +7,10 @@ import os
 from werkzeug.security import generate_password_hash
 from flask_migrate import Migrate
 
-
 # Load environment variables from .env file
 load_dotenv()
 
-
 app = Flask(__name__)
-
-# Setup the Flask-JWT-Extended extension
-app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY')
-jwt = JWTManager(app)
 
 # Get the database URL from the environment variable
 database_url = os.environ.get('CLEARDB_DATABASE_URL').replace('mysql://', 'mysql+pymysql://')
@@ -35,7 +28,7 @@ db.init_app(app)
 migrate = Migrate(app, db)
 
 # Configure CORS. This allows all origins. For development only!
-CORS(app, support_credentials=True,resources={r"/api/*": {"origins": "http://localhost:3000"}} )
+CORS(app, support_credentials=True)
 
 @app.cli.command('create_tables')
 def create_tables():
@@ -57,21 +50,14 @@ def login_route():
         password = request.json['password']
         user, status_code = login(username, password)
         if user:
-            access_token = create_access_token(identity=user['user_id']) 
             return jsonify({"user_id": user['user_id']}), 200
         else:
             return jsonify({"message": "Invalid username or password"}), status_code
     elif request.method == 'GET':
+        # Providing a message for GET request or you might want to redirect
         return jsonify({"message": "GET method is not supported for /login."}), 405
     else:
         return '', 204
-
-    if user:
-        # Create JWT token if user is authenticated
-        access_token = create_access_token(identity=user.id)
-        return jsonify(access_token=access_token), 200
-    else:
-        return jsonify({"message": "Invalid credentials"}), 401
 
 
 @app.route('/register', methods=['POST', 'GET'])
@@ -93,10 +79,6 @@ def register_route():
 @app.route('/profile/<int:user_id>', methods=['PUT', 'GET'])
 @cross_origin()
 def profile_route(user_id):
-    current_user_id = get_jwt_identity()
-    if int(current_user_id) != user_id:  # Ensure type match
-        return jsonify({"message": "Unauthorized"}), 403
-    
     if request.method == 'PUT':
         if not request.is_json:
             return jsonify({"message": "Invalid request format, JSON required."}), 400
@@ -144,6 +126,55 @@ def profile_route(user_id):
 
     else:
         return jsonify({"message": "Method not allowed"}), 405
+
+        
+@app.route('/search', methods=['GET'])
+@cross_origin()
+def search_users():
+    query = request.args.get('q')
+    if not query:
+        return jsonify({"message": "Missing search query"}), 400
+    users = User.query.filter(User.username.like(f"%{query}%")).all()
+    return jsonify([{"user_id": user.id, "username": user.username} for user in users]), 200
+
+@app.route('/follow/<int:followed_id>', methods=['POST'])
+@cross_origin()
+def follow_user(followed_id):
+    # Placeholder for auth; replace with actual authenticated user
+    current_user_id = request.json.get('current_user_id')
+    current_user = User.query.get(current_user_id)
+    if not current_user:
+        return jsonify({"message": "Current user not found."}), 404
+
+    user_to_follow = User.query.get(followed_id)
+    if not user_to_follow:
+        return jsonify({"message": "User to follow not found."}), 404
+    
+    if current_user.is_following(user_to_follow):
+        return jsonify({"message": "Already following."}), 400
+    
+    current_user.follow(user_to_follow)
+    db.session.commit()
+    return jsonify({"message": "Now following."}), 200
+
+@app.route('/unfollow/<int:followed_id>', methods=['POST'])
+def unfollow_user(followed_id):
+    current_user_id = request.json.get('current_user_id')
+    current_user = User.query.get(current_user_id)
+    if not current_user:
+        return jsonify({"message": "Current user not found."}), 404
+
+    user_to_unfollow = User.query.get(followed_id)
+    if not user_to_unfollow:
+        return jsonify({"message": "User to unfollow not found."}), 404
+    
+    if not current_user.is_following(user_to_unfollow):
+        return jsonify({"message": "Not following this user."}), 400
+    
+    current_user.unfollow(user_to_unfollow)
+    db.session.commit()
+    return jsonify({"message": "Unfollowed."}), 200
+
 
 if __name__ == '__main__':
      app.run()

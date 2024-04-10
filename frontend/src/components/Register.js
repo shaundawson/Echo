@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../AuthContext';
+import { useAuth } from '../AuthContext'; // Import useAuth
+
 
 function Register() {
     const [formData, setFormData] = useState({
@@ -65,7 +66,6 @@ function Register() {
                         <label htmlFor="bio">Bio: </label>
                         <textarea id="bio" name="bio" required value={formData.bio} onChange={handleChange}></textarea>
                     </div>
-                    {/* For image upload, you might need to handle the state and form submission differently */}
                     <button type="submit" className="button">Register</button>
                 </form>
                 <p>Already have an account? <a href="/login">Login here</a>.</p>
