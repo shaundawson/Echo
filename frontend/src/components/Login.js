@@ -41,7 +41,7 @@ function Login() {
                     </div>
                     <div className="form-group">
                         <label htmlFor="password">Password:</label>
-                        <input type="password" id="password" name="password" required onChange={(e) => setPassword(e.target.value)} />
+                        <input type="password" id="password" name="password" required onChange={(e) => setPassword(e.target.value)} autoComplete="off" />
                     </div>
                     <button type="submit" className="button">Login</button>
                 </form>
