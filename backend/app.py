@@ -49,7 +49,7 @@ def home():
 
 
 @app.route('/login', methods=['GET', 'POST', 'OPTIONS'])
-@cross_origin(supports_credentials=True)
+@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def login_route():
     if request.method == 'POST':
         username = request.json['username']
@@ -87,7 +87,7 @@ def register_route():
 
 
 @app.route('/profile/<int:user_id>', methods=['PUT', 'GET'])
-@cross_origin(supports_credentials=True)
+@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def profile_route(user_id):
     if request.method == 'PUT':
         if not request.is_json:
@@ -139,7 +139,7 @@ def profile_route(user_id):
 
         
 @app.route('/follow/<int:followed_id>', methods=['POST','OPTIONS'])
-@cross_origin(supports_credentials=True)
+@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def follow_user(followed_id):
     if 'user_id' not in session:
         return jsonify({"message": "Authentication required."}), 401
@@ -161,7 +161,7 @@ def follow_user(followed_id):
     return jsonify({"message": "Now following."}), 200
 
 @app.route('/unfollow/<int:followed_id>', methods=['POST'])
-@cross_origin(supports_credentials=True)
+@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def unfollow_user(followed_id):
     if 'user_id' not in session:
         return jsonify({"message": "Authentication required."}), 401
