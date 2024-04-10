@@ -1,28 +1,32 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from flask import Flask, request, jsonify, session
+from flask_cors import CORS, cross_origin
 from backend.models import db, User, Profile
 from dotenv import load_dotenv
-from backend.services import login as login_service, register
+from backend.services import login, register
 import os
+from werkzeug.security import generate_password_hash
 from flask_migrate import Migrate
 
 # Load environment variables from .env file
 load_dotenv()
 
 app = Flask(__name__)
-app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY') 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('CLEARDB_DATABASE_URL').replace('mysql://', 'mysql+pymysql://')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SESSION_COOKIE_SECURE'] = True  # True for prod, False for dev
-app.config['REMEMBER_COOKIE_SECURE'] = True  # True for prod, False for dev
-app.config['JWT_TOKEN_LOCATION'] = ['cookies']
-app.config['JWT_COOKIE_SECURE'] = False  # Set to True in production
-app.config['JWT_COOKIE_CSRF_PROTECT'] = True
-app.config['JWT_ACCESS_COOKIE_PATH'] = '/'
-app.config['JWT_REFRESH_COOKIE_PATH'] = '/token/refresh'
+app.secret_key = os.environ.get('FLASK_SECRET_KEY')
 
-jwt = JWTManager(app)
+# Get the database URL from the environment variable
+database_url = os.environ.get('CLEARDB_DATABASE_URL').replace('mysql://', 'mysql+pymysql://')
+
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SESSION_COOKIE_SECURE'] = True # True for prod, False for dev
+app.config['REMEMBER_COOKIE_SECURE'] = True # True for prod, False for dev
+
+# Configure SQLAlchemy engine options
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    'pool_recycle': 299,  # Adjust with your requirements
+    'pool_pre_ping': True
+}
+
 db.init_app(app)
 migrate = Migrate(app, db)
 
@@ -41,28 +45,31 @@ def home():
     return 'Welcome to the Flask App!'
 
 
-@app.route('/login', methods=['POST'])
-def login():
+@app.route('/login', methods=['GET', 'POST', 'OPTIONS'])
+@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
+def login_route():
     if request.method == 'POST':
-        username = request.json.get('username', None)
-        password = request.json.get('password', None)
-        user, status_code = login_service(username, password)
+        username = request.json['username']
+        password = request.json['password']
+        user, status_code = login(username, password)
         if user:
-            access_token = create_access_token(identity=username)
-            response = jsonify({"login": True, "user_id": user['user_id']})
-            response.set_cookie('access_token_cookie', access_token)
-            return response, 200
+            session['user_id'] = user['user_id']  # Store the user's ID in the session
+            return jsonify({"user_id": user['user_id']}), 200
         else:
             return jsonify({"message": "Invalid username or password"}), status_code
+    elif request.method == 'GET':
+        return jsonify({"message": "GET method is not supported for /login."}), 405
+    else:
+        return '', 204
     
 @app.route('/logout', methods=['POST'])
 def logout():
-    response = jsonify({"logout": True})
-    response.delete_cookie('access_token_cookie')
-    return response
+    session.pop('user_id', None)  # Remove the user ID from the session
+    return jsonify({"message": "You have been logged out."}), 200
 
 
 @app.route('/register', methods=['POST', 'GET'])
+@cross_origin()
 def register_route():
     if request.method == 'POST':
         data = request.json
@@ -77,9 +84,8 @@ def register_route():
 
 
 @app.route('/profile/<int:user_id>', methods=['PUT', 'GET'])
-@jwt_required()  # Require authentication
+@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def profile_route(user_id):
-    current_user_username = get_jwt_identity()  # Get the username of the current user
     if request.method == 'PUT':
         if not request.is_json:
             return jsonify({"message": "Invalid request format, JSON required."}), 400
@@ -130,43 +136,46 @@ def profile_route(user_id):
 
         
 @app.route('/follow/<int:followed_id>', methods=['GET','POST','OPTIONS'])
-@jwt_required()  # Require authentication
+@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def follow_user(followed_id):
-    current_user_username = get_jwt_identity()  # Get the username of the current user from JWT
+    print("Session Data:", session)
+    if 'user_id' not in session:
+        return jsonify({"message": "Authentication required."}), 401
 
-    # Find the current user by their username instead of session
-    current_user = User.query.filter_by(username=current_user_username).first()
+    current_user_id = session['user_id']
+    current_user = User.query.get(current_user_id)
     if not current_user:
         return jsonify({"message": "Current user not found."}), 404
 
     user_to_follow = User.query.get(followed_id)
     if not user_to_follow:
         return jsonify({"message": "User to follow not found."}), 404
-
+    
     if current_user.is_following(user_to_follow):
         return jsonify({"message": "Already following."}), 400
-
+    
     current_user.follow(user_to_follow)
     db.session.commit()
     return jsonify({"message": "Now following."}), 200
 
 @app.route('/unfollow/<int:followed_id>', methods=['POST'])
-@jwt_required()  # Require authentication
+@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def unfollow_user(followed_id):
-    current_user_username = get_jwt_identity()  # Get the username of the current user from JWT
+    if 'user_id' not in session:
+        return jsonify({"message": "Authentication required."}), 401
 
-    # Find the current user by their username instead of session
-    current_user = User.query.filter_by(username=current_user_username).first()
+    current_user_id = session['user_id']
+    current_user = User.query.get(current_user_id)
     if not current_user:
         return jsonify({"message": "Current user not found."}), 404
 
     user_to_unfollow = User.query.get(followed_id)
     if not user_to_unfollow:
         return jsonify({"message": "User to unfollow not found."}), 404
-
+    
     if not current_user.is_following(user_to_unfollow):
         return jsonify({"message": "Not following this user."}), 400
-
+    
     current_user.unfollow(user_to_unfollow)
     db.session.commit()
     return jsonify({"message": "Unfollowed."}), 200
