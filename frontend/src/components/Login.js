@@ -37,7 +37,7 @@ function Login() {
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
                         <label htmlFor="username">Username:</label>
-                        <input type="text" id="username" name="username" required onChange={(e) => setUsername(e.target.value)} />
+                        <input type="text" id="username" name="username" required onChange={(e) => setUsername(e.target.value)} autoComplete="off" />
                     </div>
                     <div className="form-group">
                         <label htmlFor="password">Password:</label>

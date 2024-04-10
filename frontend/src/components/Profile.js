@@ -59,7 +59,7 @@ function Profile() {
                 setEditMode(false);
                 console.log("Exiting edit mode");
             } else {
-                // Handle unsuccessful update (e.g., log or display an error message)
+                // Handle unsuccessful update (display an error message)
                 console.error('Profile update was not successful.');
             }
         } catch (error) {
