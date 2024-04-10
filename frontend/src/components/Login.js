@@ -12,19 +12,20 @@ function Login() {
 
     const handleSubmit = async (event) => {
         event.preventDefault(); // Prevent default form submission behavior
-
         try {
-            const response = await axios.post('https://dry-dawn-86507-cc866b3e1665.herokuapp.com/login', { username, password });
+            const response = await axios.post('https://dry-dawn-86507-cc866b3e1665.herokuapp.com/login', { username, password }, {
+                withCredentials: true
+            });
             if (response.data.user_id) {
                 login(response.data); // Update login state
-                navigate(`/profile/${response.data.user_id}`);
+                navigate(`/profile/${response.data.user_id}`); // Navigate to user's profile
             } else {
                 console.error('User ID not found in response data');
-                // Handle error
+                // Handle error, perhaps show a message to the user
             }
         } catch (error) {
             console.error('Login failed:', error);
-            // Handle error
+            // Handle error, perhaps show a message to the user
         }
     };
 

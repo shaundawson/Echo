@@ -1,11 +1,8 @@
 from flask import Flask, request, jsonify, session
 from flask_cors import CORS, cross_origin
 from backend.models import db, User, Profile
-
-
-
 from dotenv import load_dotenv
-from backend.services import login, get_profile, update_profile, register
+from backend.services import login, register
 import os
 from werkzeug.security import generate_password_hash
 from flask_migrate import Migrate
@@ -138,7 +135,7 @@ def profile_route(user_id):
         return jsonify({"message": "Method not allowed"}), 405
 
         
-@app.route('/follow/<int:followed_id>', methods=['POST','OPTIONS'])
+@app.route('/follow/<int:followed_id>', methods=['GET','POST','OPTIONS'])
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def follow_user(followed_id):
     print("Session Data:", session)

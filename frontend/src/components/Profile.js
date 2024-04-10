@@ -14,10 +14,13 @@ function Profile() {
     useEffect(() => {
         const fetchUserData = async () => {
             try {
-                const response = await axios.get(`https://dry-dawn-86507-cc866b3e1665.herokuapp.com/profile/${userId}`,);
+                const response = await axios.get(`https://dry-dawn-86507-cc866b3e1665.herokuapp.com/profile/${userId}`, {}, {
+                    withCredentials: true
+                });
 
                 if (response.data) {
                     setUserData(response.data); // Set the whole user data object
+                    // console.log(response.data)
                 }
             } catch (error) {
                 console.error('Error fetching user data:', error);
@@ -33,7 +36,6 @@ function Profile() {
 
     const handleEditSubmit = async () => {
         try {
-            // Set headers for the request
             const config = {
                 headers: {
                     'Content-Type': 'application/json'
@@ -124,7 +126,6 @@ function Profile() {
                         </>
                     )}
                     {
-
                         isFollowing ? (
                             <button onClick={handleUnfollow}>Unfollow</button>
                         ) : (
