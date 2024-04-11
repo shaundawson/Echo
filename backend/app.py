@@ -1,7 +1,7 @@
 from flask import Flask, session, request, jsonify
 from flask.sessions import SessionInterface, SecureCookieSession
 import pickle
-from redis import Redis
+import redis
 from flask_cors import CORS, cross_origin
 from backend.models import db, User, Profile, Post
 from dotenv import load_dotenv
