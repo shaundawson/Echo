@@ -1,10 +1,10 @@
 from flask import Flask, request, jsonify, session
 from flask_cors import CORS, cross_origin
 from flask_session import Session  
+from redis import Redis
 from backend.models import db, User, Profile, Post
 from dotenv import load_dotenv
 from backend.services import login, register
-from redis import Redis
 import os
 from werkzeug.security import generate_password_hash
 from flask_migrate import Migrate
@@ -22,9 +22,10 @@ CORS(app, support_credentials=True,origins=["http://localhost:3000"])
 
 app.secret_key = os.environ.get('FLASK_SECRET_KEY')
 app.config['SESSION_TYPE'] = 'redis'  # Use Redis for session storage
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)  # Or any other duration
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 app.config['SESSION_USE_SIGNER'] = True
 app.config['SESSION_REDIS'] = Redis.from_url(os.environ.get('REDIS_URL'))  # Configure Redis URL
+
 
 Session(app)  # Initialize session management
 
@@ -33,8 +34,8 @@ database_url = os.environ.get('CLEARDB_DATABASE_URL').replace('mysql://', 'mysql
 
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SESSION_COOKIE_SECURE'] = False # True for prod, False for dev
-app.config['REMEMBER_COOKIE_SECURE'] = False # True for prod, False for dev
+app.config['SESSION_COOKIE_SECURE'] = True # True for prod, False for dev
+app.config['REMEMBER_COOKIE_SECURE'] = True # True for prod, False for dev
 
 # Configure SQLAlchemy engine options
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
