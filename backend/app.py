@@ -1,7 +1,7 @@
 from flask import Flask, session, request, jsonify
 from flask.sessions import SessionInterface, SecureCookieSession
+from redis import Redis
 import pickle
-import redis
 from flask_cors import CORS, cross_origin
 from backend.models import db, User, Profile, Post
 from dotenv import load_dotenv
@@ -28,9 +28,8 @@ app.config['SESSION_USE_SIGNER'] = False
 app.config['SESSION_REDIS'] = Redis.from_url(os.environ.get('REDIS_URL'))  # Configure Redis URL
 
 
-# Session management with Flask's built-in support instead of Flask-Session
-from flask.sessions import SecureCookieSessionInterface
-class RedisSessionInterface(SecureCookieSessionInterface):
+# Session management with Flask's built-in support 
+class RedisSessionInterface(SessionInterface):
     def open_session(self, app, request):
         s_id = request.cookies.get(app.session_cookie_name)
         if s_id:
@@ -50,7 +49,7 @@ class RedisSessionInterface(SecureCookieSessionInterface):
         app.config['SESSION_REDIS'].setex(name=session.sid, value=val, time=app.permanent_session_lifetime)
         response.set_cookie(app.session_cookie_name, session.sid, expires=cookie_exp, httponly=True, domain=domain)
 
-app.session_interface = RedisSessionInterface()
+app.session_interface = RedisSessionInterface(SessionInterface)
 
 # Get the database URL from the environment variable
 database_url = os.environ.get('CLEARDB_DATABASE_URL').replace('mysql://', 'mysql+pymysql://')
