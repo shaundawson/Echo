@@ -1,7 +1,7 @@
-from flask import Flask, request, jsonify, session
-from flask_cors import CORS, cross_origin
-from flask_session.__init__ import Session
 from redis import Redis
+from flask import Flask, request, jsonify, session
+from flask_session import Session
+from flask_cors import CORS, cross_origin
 from backend.models import db, User, Profile, Post
 from dotenv import load_dotenv
 from backend.services import login, register
@@ -22,9 +22,10 @@ CORS(app, support_credentials=True,origins=["http://localhost:3000"])
 
 app.secret_key = os.environ.get('FLASK_SECRET_KEY')
 app.config['SESSION_TYPE'] = 'redis'  # Use Redis for session storage
-app.config['SESSION_REDIS'] = Redis.from_url(os.environ.get('REDIS_URL'))  # Configure Redis URL
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 app.config['SESSION_USE_SIGNER'] = True
+app.config['SESSION_REDIS'] = Redis.from_url(os.environ.get('REDIS_URL'))  # Configure Redis URL
+
 
 app.config.from_object(__name__)
 Session(app)  # Initialize session management
