@@ -9,6 +9,8 @@ import os
 from werkzeug.security import generate_password_hash
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+from datetime import timedelta
+
 
 # Load environment variables from .env file
 load_dotenv()
@@ -20,7 +22,7 @@ CORS(app, support_credentials=True,origins=["http://localhost:3000"])
 
 app.secret_key = os.environ.get('FLASK_SECRET_KEY')
 app.config['SESSION_TYPE'] = 'redis'  # Use Redis for session storage
-app.config['SESSION_PERMANENT'] = True
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)  # Or any other duration
 app.config['SESSION_USE_SIGNER'] = True
 app.config['SESSION_REDIS'] = Redis.from_url(os.environ.get('REDIS_URL'))  # Configure Redis URL
 
