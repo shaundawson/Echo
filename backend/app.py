@@ -1,5 +1,6 @@
 from flask import Flask, session, request, jsonify
-from flask_session import Session
+from flask.sessions import SessionInterface, SecureCookieSession
+import pickle
 from redis import Redis
 from flask_cors import CORS, cross_origin
 from backend.models import db, User, Profile, Post
@@ -23,11 +24,33 @@ CORS(app, support_credentials=True,origins=["http://localhost:3000"])
 app.secret_key = os.environ.get('FLASK_SECRET_KEY')
 app.config['SESSION_TYPE'] = 'redis'  # Use Redis for session storage
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
-app.config['SESSION_USE_SIGNER'] = True
+app.config['SESSION_USE_SIGNER'] = False
 app.config['SESSION_REDIS'] = Redis.from_url(os.environ.get('REDIS_URL'))  # Configure Redis URL
 
 
-Session(app)  # Initialize session management
+# Session management with Flask's built-in support instead of Flask-Session
+from flask.sessions import SecureCookieSessionInterface
+class RedisSessionInterface(SecureCookieSessionInterface):
+    def open_session(self, app, request):
+        s_id = request.cookies.get(app.session_cookie_name)
+        if s_id:
+            stored_data = app.config['SESSION_REDIS'].get(s_id)
+            if stored_data is not None:
+                return self.session_class.loads(stored_data)
+        return self.session_class()
+
+    def save_session(self, app, session, response):
+        domain = self.get_cookie_domain(app)
+        if not session:
+            app.config['SESSION_REDIS'].delete(response.headers.get('Set-Cookie'))
+            response.delete_cookie(app.session_cookie_name, domain=domain)
+            return
+        cookie_exp = self.get_expiration_time(app, session)
+        val = session.dumps()
+        app.config['SESSION_REDIS'].setex(name=session.sid, value=val, time=app.permanent_session_lifetime)
+        response.set_cookie(app.session_cookie_name, session.sid, expires=cookie_exp, httponly=True, domain=domain)
+
+app.session_interface = RedisSessionInterface()
 
 # Get the database URL from the environment variable
 database_url = os.environ.get('CLEARDB_DATABASE_URL').replace('mysql://', 'mysql+pymysql://')
