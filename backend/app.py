@@ -22,11 +22,11 @@ CORS(app, support_credentials=True,origins=["http://localhost:3000"])
 
 app.secret_key = os.environ.get('FLASK_SECRET_KEY')
 app.config['SESSION_TYPE'] = 'redis'  # Use Redis for session storage
+app.config['SESSION_REDIS'] = Redis.from_url(os.environ.get('REDIS_URL'))  # Configure Redis URL
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 app.config['SESSION_USE_SIGNER'] = True
-app.config['SESSION_REDIS'] = Redis.from_url(os.environ.get('REDIS_URL'))  # Configure Redis URL
 
-
+app.config.from_object(__name__)
 Session(app)  # Initialize session management
 
 # Get the database URL from the environment variable
