@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, session
 from flask_cors import CORS, cross_origin
-from backend.models import db, User, Profile
+from backend.models import db, User, Profile, Post
 from dotenv import load_dotenv
 from backend.services import login, register
 import os
@@ -133,6 +133,70 @@ def profile_route(user_id):
 
     else:
         return jsonify({"message": "Method not allowed"}), 405
+    
+    
+@app.route('/post', methods=['POST'])
+@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
+def create_post():
+    if 'user_id' not in session:
+        return jsonify({"message": "Authentication required."}), 401
+
+    user_id = session['user_id']
+    data = request.get_json()
+    song_recommendation = data.get('song_recommendation')
+    description = data.get('description')
+
+    try:
+        post = Post(song_recommendation=song_recommendation, description=description, user_id=user_id)
+        db.session.add(post)
+        db.session.commit()
+        return jsonify({"message": "Post created successfully", "post_id": post.id}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": "Failed to create post", "error": str(e)}), 500
+    
+@app.route('/post/<int:post_id>', methods=['DELETE'])
+@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
+def delete_post(post_id):
+    if 'user_id' not in session:
+        return jsonify({"message": "Authentication required."}), 401
+
+    user_id = session['user_id']
+    post = Post.query.filter_by(id=post_id, user_id=user_id).first()
+
+    if not post:
+        return jsonify({"message": "Post not found or you do not have permission to delete this post"}), 404
+
+    try:
+        db.session.delete(post)
+        db.session.commit()
+        return jsonify({"message": "Post deleted successfully"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": "Failed to delete post", "error": str(e)}), 500
+    
+@app.route('/feed', methods=['GET', 'POST', 'OPTIONS'])
+@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
+def get_feed():
+    if 'user_id' not in session:
+        return jsonify({"message": "Authentication required."}), 401
+    user_id = session['user_id']
+    user = User.query.get(user_id)
+
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+
+    followed_users_ids = [u.id for u in user.followed.all()]
+    posts = Post.query.filter(Post.user_id.in_(followed_users_ids)).all()
+
+    feed = [{
+        "id": post.id,
+        "song_recommendation": post.song_recommendation,
+        "description": post.description,
+        "user_id": post.user_id
+    } for post in posts]
+
+    return jsonify(feed), 200
 
         
 @app.route('/follow/<int:followed_id>', methods=['GET','POST','OPTIONS'])

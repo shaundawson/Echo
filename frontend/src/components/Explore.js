@@ -8,10 +8,7 @@ function Explore() {
 
     const handleSearch = (event) => {
         event.preventDefault();
-        // Handle search logic here. For example:
         console.log(`Searching for: ${searchTerm}`);
-        // After search logic, you might want to navigate or update state with search results
-        // navigate('/search-results'); // Navigate to a route displaying search results
     };
 
     return (

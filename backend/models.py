@@ -1,4 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
 # Initialize SQLAlchemy db object
 db = SQLAlchemy()
@@ -46,6 +47,7 @@ class Profile(db.Model):
     bio = db.Column(db.String(255))
     profile_image = db.Column(db.String(255))
     
+    
 class Playlist(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -59,6 +61,8 @@ class Post(db.Model):
     song_recommendation = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(255))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
 
 
 class Artist(db.Model):
