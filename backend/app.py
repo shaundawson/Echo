@@ -4,7 +4,7 @@ from flask_session import Session
 from backend.models import db, User, Profile, Post
 from dotenv import load_dotenv
 from backend.services import login, register
-import redis
+from redis import Redis
 import os
 from werkzeug.security import generate_password_hash
 from flask_migrate import Migrate
