@@ -1,4 +1,4 @@
-from redis import Redis
+import Redis
 from flask import Flask, request, jsonify, session
 from flask_session import Session
 from flask_cors import CORS, cross_origin
