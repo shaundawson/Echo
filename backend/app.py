@@ -4,18 +4,24 @@ from flask_session import Session
 from backend.models import db, User, Profile, Post
 from dotenv import load_dotenv
 from backend.services import login, register
+import redis
 import os
 from werkzeug.security import generate_password_hash
 from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
 
 # Load environment variables from .env file
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('FLASK_SECRET_KEY')
+# Configure CORS. This allows all origins. For development only!
+CORS(app, support_credentials=True,origins=["http://localhost:3000"])
 
-# Additional session configuration
-app.config['SESSION_TYPE'] = 'filesystem'  # Store sessions on the filesystem
+
+app.secret_key = os.environ.get('FLASK_SECRET_KEY')
+app.config['SESSION_TYPE'] = 'redis'  # Use Redis for session storage
+app.config['SESSION_REDIS'] = Redis.from_url(os.environ.get('REDIS_URL'))  # Configure Redis URL
+
 Session(app)  # Initialize session management
 
 # Get the database URL from the environment variable
@@ -35,8 +41,7 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
 db.init_app(app)
 migrate = Migrate(app, db)
 
-# Configure CORS. This allows all origins. For development only!
-CORS(app, support_credentials=True,origins=["http://localhost:3000"])
+
 
 @app.cli.command('create_tables')
 def create_tables():
