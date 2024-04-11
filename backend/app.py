@@ -1,12 +1,12 @@
 from flask import Flask, session, request, jsonify
 from flask.sessions import SessionInterface, SecureCookieSession
-from redis import Redis
 import pickle
 from flask_cors import CORS, cross_origin
 from backend.models import db, User, Profile, Post
 from dotenv import load_dotenv
 from backend.services import login, register
 import os
+import redis
 from werkzeug.security import generate_password_hash
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
@@ -25,7 +25,7 @@ app.secret_key = os.environ.get('FLASK_SECRET_KEY')
 app.config['SESSION_TYPE'] = 'redis'  # Use Redis for session storage
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 app.config['SESSION_USE_SIGNER'] = False
-app.config['SESSION_REDIS'] = Redis.from_url(os.environ.get('REDIS_URL'))  # Configure Redis URL
+app.config['SESSION_REDIS'] = redis.from_url(os.environ.get('REDIS_URL'))  # Configure Redis URL
 
 
 # Session management with Flask's built-in support 
