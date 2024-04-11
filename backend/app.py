@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, session
 from flask_cors import CORS, cross_origin
-from flask_session import Session  
+from flask_session.__init__ import Session
 from redis import Redis
 from backend.models import db, User, Profile, Post
 from dotenv import load_dotenv
