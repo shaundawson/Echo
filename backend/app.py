@@ -1,6 +1,6 @@
-import Redis
-from flask import Flask, request, jsonify, session
+from flask import Flask, session, request, jsonify
 from flask_session import Session
+from redis import Redis
 from flask_cors import CORS, cross_origin
 from backend.models import db, User, Profile, Post
 from dotenv import load_dotenv
@@ -27,7 +27,6 @@ app.config['SESSION_USE_SIGNER'] = True
 app.config['SESSION_REDIS'] = Redis.from_url(os.environ.get('REDIS_URL'))  # Configure Redis URL
 
 
-app.config.from_object(__name__)
 Session(app)  # Initialize session management
 
 # Get the database URL from the environment variable
@@ -61,11 +60,14 @@ def home():
     return 'Welcome to Echo'
 
 
-@app.route('/show-session', methods=['GET'])
-def show_session():
-    """Route to show session data for debugging."""
-    session_data = dict(session)  # Convert session ImmutableDict to a regular dict
-    return jsonify(session_data)
+@app.route('set', methods=['GET'])
+def set():
+    session['key'] = 'value'
+    return 'ok'
+
+@app.route('/get/')
+def get():
+    return session.get('key', 'not set')
 
 
 @app.route('/login', methods=['GET', 'POST', 'OPTIONS'])
