@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, session
 from flask_cors import CORS, cross_origin
+from flask_session import Session  
 from backend.models import db, User, Profile, Post
 from dotenv import load_dotenv
 from backend.services import login, register
@@ -12,6 +13,10 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY')
+
+# Additional session configuration
+app.config['SESSION_TYPE'] = 'filesystem'  # Store sessions on the filesystem
+Session(app)  # Initialize session management
 
 # Get the database URL from the environment variable
 database_url = os.environ.get('CLEARDB_DATABASE_URL').replace('mysql://', 'mysql+pymysql://')
@@ -42,7 +47,14 @@ def create_tables():
 
 @app.route('/')
 def home():
-    return 'Welcome to the Flask App!'
+    return 'Welcome to Echo'
+
+
+@app.route('/show-session', methods=['GET'])
+def show_session():
+    """Route to show session data for debugging."""
+    session_data = dict(session)  # Convert session ImmutableDict to a regular dict
+    return jsonify(session_data)
 
 
 @app.route('/login', methods=['GET', 'POST', 'OPTIONS'])
