@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, session
 from flask_cors import CORS, cross_origin
-from backend.models import db, User, Profile
+from backend.models import db, User, Profile, Post
 from flask_restful import Api, Resource, reqparse
 from dotenv import load_dotenv
 from backend.services import login, register
@@ -135,52 +135,40 @@ def profile_route(user_id):
     else:
         return jsonify({"message": "Method not allowed"}), 405
 
-        
-@app.route('/follow/<int:followed_id>', methods=['GET','POST','OPTIONS'])
+@app.route('/post', methods=['POST'])
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
-def follow_user(followed_id):
-    print("Session Data:", session)
+def add_post():
     if 'user_id' not in session:
-        return jsonify({"message": "Authentication required."}), 401
+        return jsonify({"message": "Authentication required"}), 401
 
-    current_user_id = session['user_id']
-    current_user = User.query.get(current_user_id)
-    if not current_user:
-        return jsonify({"message": "Current user not found."}), 404
+    data = request.json
+    song_recommendation = data.get('song_recommendation')
+    description = data.get('description')
+    if not song_recommendation:
+        return jsonify({"message": "Song recommendation is required"}), 400
 
-    user_to_follow = User.query.get(followed_id)
-    if not user_to_follow:
-        return jsonify({"message": "User to follow not found."}), 404
-    
-    if current_user.is_following(user_to_follow):
-        return jsonify({"message": "Already following."}), 400
-    
-    current_user.follow(user_to_follow)
+    new_post = Post(
+        song_recommendation=song_recommendation,
+        description=description,
+        user_id=session['user_id']
+    )
+    db.session.add(new_post)
     db.session.commit()
-    return jsonify({"message": "Now following."}), 200
+    return jsonify({"message": "Post added successfully"}), 201
 
-@app.route('/unfollow/<int:followed_id>', methods=['POST'])
+@app.route('/post/<int:post_id>', methods=['DELETE'])
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
-def unfollow_user(followed_id):
+def delete_post(post_id):
     if 'user_id' not in session:
-        return jsonify({"message": "Authentication required."}), 401
+        return jsonify({"message": "Authentication required"}), 401
 
-    current_user_id = session['user_id']
-    current_user = User.query.get(current_user_id)
-    if not current_user:
-        return jsonify({"message": "Current user not found."}), 404
+    post = Post.query.get_or_404(post_id)
+    if post.user_id != session['user_id']:
+        return jsonify({"message": "Unauthorized"}), 403
 
-    user_to_unfollow = User.query.get(followed_id)
-    if not user_to_unfollow:
-        return jsonify({"message": "User to unfollow not found."}), 404
-    
-    if not current_user.is_following(user_to_unfollow):
-        return jsonify({"message": "Not following this user."}), 400
-    
-    current_user.unfollow(user_to_unfollow)
+    db.session.delete(post)
     db.session.commit()
-    return jsonify({"message": "Unfollowed."}), 200
-
+    return jsonify({"message": "Post deleted successfully"}), 200
 
 if __name__ == '__main__':
      app.run()
