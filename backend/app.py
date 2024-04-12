@@ -1,55 +1,18 @@
-from flask import Flask, session, request, jsonify
-from flask.sessions import SessionInterface, SecureCookieSession
-import pickle
+from flask import Flask, request, jsonify, session
 from flask_cors import CORS, cross_origin
-from backend.models import db, User, Profile, Post
+from backend.models import db, User, Profile
+from flask_restful import Api, Resource, reqparse
 from dotenv import load_dotenv
 from backend.services import login, register
 import os
-import redis
 from werkzeug.security import generate_password_hash
 from flask_migrate import Migrate
-from flask_sqlalchemy import SQLAlchemy
-from datetime import timedelta
-
 
 # Load environment variables from .env file
 load_dotenv()
 
 app = Flask(__name__)
-# Configure CORS. This allows all origins. For development only!
-CORS(app, support_credentials=True,origins=["http://localhost:3000"])
-
-
 app.secret_key = os.environ.get('FLASK_SECRET_KEY')
-app.config['SESSION_TYPE'] = 'redis'  # Use Redis for session storage
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
-app.config['SESSION_USE_SIGNER'] = False
-app.config['SESSION_REDIS'] = redis.from_url(os.environ.get('REDIS_URL'))  # Configure Redis URL
-
-
-# Session management with Flask's built-in support 
-class RedisSessionInterface(SessionInterface):
-    def open_session(self, app, request):
-        s_id = request.cookies.get(app.session_cookie_name)
-        if s_id:
-            stored_data = app.config['SESSION_REDIS'].get(s_id)
-            if stored_data is not None:
-                return self.session_class.loads(stored_data)
-        return self.session_class()
-
-    def save_session(self, app, session, response):
-        domain = self.get_cookie_domain(app)
-        if not session:
-            app.config['SESSION_REDIS'].delete(response.headers.get('Set-Cookie'))
-            response.delete_cookie(app.session_cookie_name, domain=domain)
-            return
-        cookie_exp = self.get_expiration_time(app, session)
-        val = session.dumps()
-        app.config['SESSION_REDIS'].setex(name=session.sid, value=val, time=app.permanent_session_lifetime)
-        response.set_cookie(app.session_cookie_name, session.sid, expires=cookie_exp, httponly=True, domain=domain)
-
-app.session_interface = RedisSessionInterface(SessionInterface)
 
 # Get the database URL from the environment variable
 database_url = os.environ.get('CLEARDB_DATABASE_URL').replace('mysql://', 'mysql+pymysql://')
@@ -68,28 +31,12 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
 db.init_app(app)
 migrate = Migrate(app, db)
 
-
-
-@app.cli.command('create_tables')
-def create_tables():
-    """Create database tables from SQLAlchemy models."""
-    db.create_all()
-    print('Tables created.')
-
+# Configure CORS. This allows all origins. For development only!
+CORS(app, support_credentials=True,origins=["http://localhost:3000"])
 
 @app.route('/')
 def home():
-    return 'Welcome to Echo'
-
-
-@app.route('set', methods=['GET'])
-def set():
-    session['key'] = 'value'
-    return 'ok'
-
-@app.route('/get/')
-def get():
-    return session.get('key', 'not set')
+    return 'Welcome to the Flask App!'
 
 
 @app.route('/login', methods=['GET', 'POST', 'OPTIONS'])
@@ -113,6 +60,13 @@ def login_route():
 def logout():
     session.pop('user_id', None)  # Remove the user ID from the session
     return jsonify({"message": "You have been logged out."}), 200
+
+@app.route('/protected', methods=['GET'])
+def protected():
+    if 'username' in session:
+        return jsonify(message='Protected data'), 200
+    else:
+        return jsonify(message='Unauthorized access'), 401
 
 
 @app.route('/register', methods=['POST', 'GET'])
@@ -180,70 +134,6 @@ def profile_route(user_id):
 
     else:
         return jsonify({"message": "Method not allowed"}), 405
-    
-    
-@app.route('/post', methods=['POST'])
-@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
-def create_post():
-    if 'user_id' not in session:
-        return jsonify({"message": "Authentication required."}), 401
-
-    user_id = session['user_id']
-    data = request.get_json()
-    song_recommendation = data.get('song_recommendation')
-    description = data.get('description')
-
-    try:
-        post = Post(song_recommendation=song_recommendation, description=description, user_id=user_id)
-        db.session.add(post)
-        db.session.commit()
-        return jsonify({"message": "Post created successfully", "post_id": post.id}), 200
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"message": "Failed to create post", "error": str(e)}), 500
-    
-@app.route('/post/<int:post_id>', methods=['DELETE'])
-@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
-def delete_post(post_id):
-    if 'user_id' not in session:
-        return jsonify({"message": "Authentication required."}), 401
-
-    user_id = session['user_id']
-    post = Post.query.filter_by(id=post_id, user_id=user_id).first()
-
-    if not post:
-        return jsonify({"message": "Post not found or you do not have permission to delete this post"}), 404
-
-    try:
-        db.session.delete(post)
-        db.session.commit()
-        return jsonify({"message": "Post deleted successfully"}), 200
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"message": "Failed to delete post", "error": str(e)}), 500
-    
-@app.route('/feed', methods=['GET', 'POST', 'OPTIONS'])
-@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
-def get_feed():
-    if 'user_id' not in session:
-        return jsonify({"message": "Authentication required."}), 401
-    user_id = session['user_id']
-    user = User.query.get(user_id)
-
-    if not user:
-        return jsonify({"message": "User not found"}), 404
-
-    followed_users_ids = [u.id for u in user.followed.all()]
-    posts = Post.query.filter(Post.user_id.in_(followed_users_ids)).all()
-
-    feed = [{
-        "id": post.id,
-        "song_recommendation": post.song_recommendation,
-        "description": post.description,
-        "user_id": post.user_id
-    } for post in posts]
-
-    return jsonify(feed), 200
 
         
 @app.route('/follow/<int:followed_id>', methods=['GET','POST','OPTIONS'])
