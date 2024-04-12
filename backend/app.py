@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, session
 from flask_cors import CORS, cross_origin
 from backend.models import db, User, Profile, Post
+from auth import auth
 from flask_restful import Api, Resource, reqparse
 from dotenv import load_dotenv
 from backend.services import login, register
@@ -13,6 +14,9 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY')
+
+# Register the Blueprint
+app.register_blueprint(auth, url_prefix='/auth')
 
 # Get the database URL from the environment variable
 database_url = os.environ.get('CLEARDB_DATABASE_URL').replace('mysql://', 'mysql+pymysql://')
