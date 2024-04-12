@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useAuth } from '../AuthContext';
 
 
 function Login() {
@@ -13,7 +12,7 @@ function Login() {
     const handleSubmit = async (event) => {
         event.preventDefault(); // Prevent default form submission behavior
         try {
-            const response = await axios.post('https://dry-dawn-86507-cc866b3e1665.herokuapp.com/login', { username, password }, {
+            const response = await axios.post('https://dry-dawn-86507-cc866b3e1665.herokuapp.com/login/auth', { username, password }, {
                 withCredentials: true
             });
             if (response.data.user_id) {

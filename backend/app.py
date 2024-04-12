@@ -1,13 +1,14 @@
-from flask import Flask, request, jsonify, session
-from flask_cors import CORS, cross_origin
+from flask import Flask
+from flask_cors import CORS
 from backend.models import db, User, Profile, Post
 from auth import auth
 from flask_restful import Api, Resource, reqparse
 from dotenv import load_dotenv
-from backend.services import login, register
+from backend.services import register
 import os
 from werkzeug.security import generate_password_hash
 from flask_migrate import Migrate
+
 
 # Load environment variables from .env file
 load_dotenv()
@@ -41,36 +42,6 @@ CORS(app, support_credentials=True,origins=["http://localhost:3000"])
 @app.route('/')
 def home():
     return 'Welcome to the Flask App!'
-
-
-@app.route('/login', methods=['GET', 'POST', 'OPTIONS'])
-@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
-def login_route():
-    if request.method == 'POST':
-        username = request.json['username']
-        password = request.json['password']
-        user, status_code = login(username, password)
-        if user:
-            session['user_id'] = user['user_id']  # Store the user's ID in the session
-            return jsonify({"user_id": user['user_id']}), 200
-        else:
-            return jsonify({"message": "Invalid username or password"}), status_code
-    elif request.method == 'GET':
-        return jsonify({"message": "GET method is not supported for /login."}), 405
-    else:
-        return '', 204
-    
-@app.route('/logout', methods=['POST'])
-def logout():
-    session.pop('user_id', None)  # Remove the user ID from the session
-    return jsonify({"message": "You have been logged out."}), 200
-
-@app.route('/protected', methods=['GET'])
-def protected():
-    if 'username' in session:
-        return jsonify(message='Protected data'), 200
-    else:
-        return jsonify(message='Unauthorized access'), 401
 
 
 @app.route('/register', methods=['POST', 'GET'])
