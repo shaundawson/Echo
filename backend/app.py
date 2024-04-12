@@ -16,7 +16,7 @@ app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY')
 
 # Initialize Redis client for session management
-redis_url = os.environ.get('REDIS_URL', 'redis://localhost:6379')
+redis_url = os.environ.get('REDIS_URI')
 redis_client = redis.Redis.from_url(redis_url)
 
 # Configure Redis for storing the session data on the server-side
