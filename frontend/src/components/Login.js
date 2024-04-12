@@ -1,30 +1,28 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-
+import { useAuth } from '../AuthContext';
 
 function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const navigate = useNavigate(); // Hook for navigating to other routes
-    const { login } = useAuth(); // Destructure login from useAuth
+    const navigate = useNavigate();
+    const { setUser } = useAuth(); // Destructure login from useAuth
 
     const handleSubmit = async (event) => {
         event.preventDefault(); // Prevent default form submission behavior
         try {
-            const response = await axios.post('https://dry-dawn-86507-cc866b3e1665.herokuapp.com/login/auth', { username, password }, {
+            const response = await axios.post('https://dry-dawn-86507-cc866b3e1665.herokuapp.com/auth/login', { username, password }, {
                 withCredentials: true
             });
-            if (response.data.user_id) {
-                login(response.data); // Update login state
-                navigate(`/profile/${response.data.user_id}`); // Navigate to user's profile
+            if (response.status === 200) {
+                setUser({ username });  // Update the user state to reflect login
+                navigate(`/profile`);  // Navigate to the user's profile page
             } else {
-                console.error('User ID not found in response data');
-                // Handle error, perhaps show a message to the user
+                console.error('Login failed:', response.data.message);
             }
         } catch (error) {
-            console.error('Login failed:', error);
-            // Handle error, perhaps show a message to the user
+            console.error('Login failed:', error.response ? error.response.data.message : 'Server Error');
         }
     };
 
