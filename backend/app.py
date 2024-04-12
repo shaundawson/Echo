@@ -1,24 +1,29 @@
+import os
 import redis
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, session
 from uuid import uuid4
 from backend.models import db, User, Profile
 from flask_restful import Api, Resource, reqparse
 from dotenv import load_dotenv
 from backend.services import login, register
-import os
 from werkzeug.security import generate_password_hash
 from flask_migrate import Migrate
 from flask_cors import CORS, cross_origin
-
 # Load environment variables
 load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY')
 
-# Establish a Redis connection
-redis_url = os.environ.get('REDIS_URL')
-redis_client = redis.from_url(redis_url, decode_responses=True)
+# Initialize Redis client for session management
+redis_url = os.environ.get('REDIS_URL', 'redis://localhost:6379')
+redis_client = redis.Redis.from_url(redis_url)
+
+# Configure Redis for storing the session data on the server-side
+app.config['SESSION_TYPE'] = 'redis'
+app.config['SESSION_PERMANENT'] = False
+app.config['SESSION_USE_SIGNER'] = True
+app.config['SESSION_REDIS'] = redis_client
 
 # Configure database
 database_url = os.environ.get('CLEARDB_DATABASE_URL').replace('mysql://', 'mysql+pymysql://')
@@ -33,7 +38,7 @@ CORS(app, support_credentials=True, origins=["http://localhost:3000"])
 
 def create_redis_session(user_id):
     session_id = str(uuid4())
-    redis_client.set(session_id, user_id, ex=3600)  # Set with an expiration of 1 hour
+    redis_client.set(session_id, user_id)  # Set with an expiration of 1 hour
     return session_id
 
 def get_redis_session_user_id(session_id):
