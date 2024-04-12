@@ -1,5 +1,4 @@
 import os
-import redis
 from flask import Flask, request, jsonify, session
 from uuid import uuid4
 from backend.models import db, User, Profile
@@ -9,6 +8,8 @@ from backend.services import login, register
 from werkzeug.security import generate_password_hash
 from flask_migrate import Migrate
 from flask_cors import CORS, cross_origin
+from venv.bin import redis
+
 # Load environment variables
 load_dotenv()
 
