@@ -1,53 +1,41 @@
-from flask import Flask, request, jsonify, session, url_for, redirect,json,send_from_directory
+from flask import Flask, request, jsonify, session, url_for, redirect, json, send_from_directory
 from flask_cors import CORS, cross_origin
 from backend.models import db, User, Profile, Post
-from backend.services import login, register, spotify_callback_handler
+from backend.services import login, register
 import os
 from flask_migrate import Migrate
 from authlib.integrations.flask_client import OAuth
 
-# Initialize Flask and OAuth
-app = Flask(__name__)
+app = Flask(__name__, static_folder='path_to_your_react_build')
 app.secret_key = os.environ.get('FLASK_SECRET_KEY')
 oauth = OAuth(app)
 
-# Spotify OAuth configuration
-spotify = oauth.register(
-    'spotify',
-    client_id=os.getenv('SPOTIFY_CLIENT_ID'),
-    client_secret=os.getenv('SPOTIFY_CLIENT_SECRET'),
-    authorize_url='https://accounts.spotify.com/authorize',
-    access_token_url='https://accounts.spotify.com/api/token',
-    redirect_uri=url_for('spotify_callback', _external=True),
-    client_kwargs={'scope': 'user-read-private user-read-email'},
-)
-
-# Configure database
-database_url = os.environ.get('CLEARDB_DATABASE_URL').replace('mysql://', 'mysql+pymysql://')
-app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('CLEARDB_DATABASE_URL').replace('mysql://', 'mysql+pymysql://')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
 app.config['SESSION_COOKIE_NAME'] = 'session'
-app.config['SESSION_COOKIE_SECURE'] = True # True for prod, False for dev
-app.config['REMEMBER_COOKIE_SECURE'] = True # True for prod, False for dev
-app.config['SESSION_COOKIE_HTTPONLY'] = True  # Prevents JavaScript access to session cookie
-app.config['SESSION_COOKIE_SAMESITE'] = 'None' # 'None' if cookies should be sent in all cross-origin requests
-
-
-# Configure SQLAlchemy engine options
-app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-    'pool_recycle': 299,  
-    'pool_pre_ping': True
-}
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['REMEMBER_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'None'
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'pool_recycle': 299, 'pool_pre_ping': True}
 
 db.init_app(app)
 migrate = Migrate(app, db)
-
-# Configure CORS
 CORS(app, support_credentials=True, origins=["http://localhost:3000"])
 
+def get_spotify_oauth():
+    if 'spotify' not in oauth.clients:
+        oauth.register(
+            'spotify',
+            client_id=os.getenv('SPOTIFY_CLIENT_ID'),
+            client_secret=os.getenv('SPOTIFY_CLIENT_SECRET'),
+            authorize_url='https://accounts.spotify.com/authorize',
+            access_token_url='https://accounts.spotify.com/api/token',
+            redirect_uri=url_for('spotify_callback', _external=True),
+            client_kwargs={'scope': 'user-read-private user-read-email'},
+        )
+    return oauth.clients['spotify']
 
-# App Routes
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def serve(path):
@@ -64,8 +52,7 @@ def login_route():
         password = request.json['password']
         user, status_code = login(username, password)
         if user:
-            session['user_id'] = user['user_id']  # Store the user's ID in the session
-            print("Logged in user_id:", session['user_id'])  # Debug print
+            session['user_id'] = user['user_id']
             return jsonify({"user_id": user['user_id']}), 200
         else:
             return jsonify({"message": "Invalid username or password"}), status_code
@@ -73,43 +60,28 @@ def login_route():
         return jsonify({"message": "GET method is not supported for /login."}), 405
     else:
         return '', 204
-    
-# @app.route('/logout', methods=['POST'])
-# def logout():
-#     session.pop('user_id', None)  # Clear the session
-#     return jsonify({"message": "Logged out successfully"}), 200
 
 @app.route('/register', methods=['POST'])
 def register_route():
     data = request.json
     result, status = register(data['username'], data['password'], data['email'], data.get('bio', ''))
     if status == 200:
-        return redirect(url_for('register_spotify'))
+        return redirect(url_for('profile_route', user_id=result.get('user_id')))
     return jsonify(result), status
     
 @app.route('/register/spotify')
 def register_spotify():
-    redirect_uri = url_for('spotify_callback', _external=True)
-    return spotify.authorize_redirect(redirect_uri)
+    spotify_oauth = get_spotify_oauth()
+    return spotify_oauth.authorize_redirect()
 
 @app.route('/spotify_callback')
 def spotify_callback():
-    token = spotify.authorize_access_token()
+    spotify_oauth = get_spotify_oauth()
+    token = spotify_oauth.authorize_access_token()
     if not token:
         return jsonify({"message": "Failed to authenticate with Spotify"}), 401
-    
-    # Retrieve user details from session or where it was stored
-    user_details = json.loads(session.get('userDetails'))
-    
-    # Register user in the database
-    response, status = register(user_details['username'], user_details['password'], user_details['email'], '')
-    
-    if status != 201:
-        return jsonify(response), status
-    
-    # Assuming the user ID is returned on successful registration
-    user_id = response.get('user_id')
-    return redirect(f"http://localhost:3000/profile/{user_id}")
+    # Additional logic here to handle token and user data
+    return jsonify({"token": token})
 
 @app.route('/profile/<int:user_id>', methods=['PUT', 'GET'])
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
