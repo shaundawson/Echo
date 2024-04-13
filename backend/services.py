@@ -4,6 +4,8 @@ from werkzeug.security import check_password_hash, generate_password_hash
 import logging 
 import os
 
+# Import the `spotify` object from where it is instantiated
+from .app import spotify
 
 def login(username, password):
     user = User.query.filter_by(username=username).first()

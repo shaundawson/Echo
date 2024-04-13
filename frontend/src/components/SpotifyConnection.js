@@ -6,7 +6,7 @@ function SpotifyConnection() {
 
     useEffect(() => {
         // Check if the user is connected to Spotify
-        axios.get('/api/check-spotify-connection')
+        axios.get('https://dry-dawn-86507-cc866b3e1665.herokuapp.com/api/check-spotify-connection')
             .then(response => {
                 setIsConnected(response.data.isConnected);
             })
