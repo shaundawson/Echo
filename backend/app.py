@@ -7,8 +7,8 @@ from flask_session import Session
 from uuid import uuid4
 from flask_restful import Api, Resource, reqparse
 from dotenv import load_dotenv
-from backend.services import login, register
-from backend.models import db, User, Profile
+from .services import login, register
+from .models import db, User, Profile
 from werkzeug.security import generate_password_hash
 from flask_migrate import Migrate
 from flask_cors import CORS, cross_origin
