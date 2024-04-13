@@ -5,7 +5,7 @@ import logging
 import os
 
 # Import the `spotify` object from where it is instantiated
-from .app import spotify
+from backend.app import spotify
 
 def login(username, password):
     user = User.query.filter_by(username=username).first()
