@@ -6,9 +6,8 @@ from flask_session import Session
 from uuid import uuid4
 from flask_restful import Api, Resource, reqparse
 from dotenv import load_dotenv
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 from flask_cors import CORS, cross_origin
-from services import login, register
 from models import db, User, Profile
 from flask_migrate import Migrate
 
@@ -53,9 +52,38 @@ def get_redis_session_user_id(session_id):
     """Retrieve the user ID associated with the given session ID."""
     return redis_client.get(session_id)
 
+def login(username, password):
+    user = User.query.filter_by(username=username).first()
+    if user and check_password_hash(user.password, password):
+        return {"message": "Login successful", "user_id": user.id}, 200
+    else:
+        return {"message": "Invalid username or password"}, 401
+
+def register(username, password, email, bio):
+    existing_user = User.query.filter_by(username=username).first()
+    if existing_user:
+        return {"message": "An account with this username already exists."}, 409
+
+    hashed_password = generate_password_hash(password)
+    new_user = User(username=username, password=hashed_password, email=email)
+
+    try:
+        db.session.add(new_user)
+        db.session.commit()
+
+        # Create a new Profile instance for the user.
+        new_profile = Profile(user_id=new_user.id, bio=bio)
+        db.session.add(new_profile)
+        db.session.commit()
+
+        return {"message": "Registration successful.", "user_id": new_user.id}, 201
+    except Exception as e:
+        db.session.rollback()
+        return {"message": "Failed to register user."}, 500
+
 @app.route('/')
 def home():
-    return 'Welcome to the Flask App!'
+    return 'Welcome to the Echo App!'
 
 @app.route('/login', methods=['POST'])
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
