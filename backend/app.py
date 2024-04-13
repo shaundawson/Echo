@@ -1,7 +1,7 @@
 import os
 from datetime import timedelta
-from services import login, register
-from models import db, User, Profile
+from .services import login, register
+from .models import db, User, Profile
 
 from redis import Redis, ConnectionPool
 from flask import Flask, request, jsonify, session, redirect, url_for
@@ -55,7 +55,7 @@ def get_redis_session_user_id(session_id):
     return redis_client.get(session_id)
 
 
-@app.route('/login', methods=['GET','POST'])
+@app.route('/login', methods=['POST'])
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def login_route():
     username = request.json['username']
@@ -65,7 +65,7 @@ def login_route():
         session_id = create_redis_session(user['user_id'])
         response = jsonify({"user_id": user['user_id']})
         print("Session ID created:", session_id)  # Log the session ID
-        response.set_cookie('session_id', session_id, httponly=True, secure=True)  # Secure flag for HTTPS
+        response.set_cookie('session_id', session_id, httponly=True, secure=False)  # Secure flag for HTTPS
         return response, 200
     else:
         return jsonify({"message": "Invalid username or password"}), status_code
