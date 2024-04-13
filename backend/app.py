@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, session
 from flask_cors import CORS, cross_origin
-from backend.models import db, User, Profile
+from backend.models import db, User, Profile, Post
 from backend.services import login, register
 import os
 from flask_migrate import Migrate
@@ -121,6 +121,34 @@ def profile_route(user_id):
 
     else:
         return jsonify({"message": "Method not allowed"}), 405
+    
+@app.route('/post', methods=['POST'])
+@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
+def create_post():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"message": "Authentication required."}), 401
+    data = request.json
+    new_post = Post(
+        user_id=user_id,
+        song_recommendation=data['song_recommendation'],
+        description=data.get('description', '')
+    )
+    db.session.add(new_post)
+    db.session.commit()
+    return jsonify({"message": "Post created successfully", "post_id": new_post.id})
+
+@app.route('/post/<int:post_id>', methods=['DELETE'])
+@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
+def delete_post(post_id):
+    post = Post.query.get(post_id)
+    if not post:
+        return jsonify({"message": "Post not found"}), 404
+    if post.user_id != session.get('user_id'):
+        return jsonify({"message": "Unauthorized"}), 403
+    db.session.delete(post)
+    db.session.commit()
+    return jsonify({"message": "Post deleted successfully"}), 200
 
         
 @app.route('/follow/<int:followed_id>', methods=['GET','POST','OPTIONS'])
