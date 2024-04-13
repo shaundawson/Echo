@@ -21,7 +21,7 @@ app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY')
 
 # Initialize Redis client for session management
-redis_url = os.environ.get('REDIS_URI')
+redis_url = os.environ.get('REDIS_URL')
 redis_client = redis.Redis.from_url(redis_url)
 
 # Configure Redis for storing the session data on the server-side
@@ -44,14 +44,17 @@ migrate = Migrate(app, db)
 CORS(app, support_credentials=True, origins=["http://localhost:3000"])
 
 def create_redis_session(user_id):
+    """Create a unique session ID and store it in Redis."""
     session_id = str(uuid4())
-    redis_client.set(session_id, user_id)  # Set with an expiration of 1 hour
+    redis_client.set(session_id, user_id, ex=3600)  # Expires in 3600 seconds = 1 hour
     return session_id
 
 def get_redis_session_user_id(session_id):
+    """Retrieve the user ID associated with the given session ID."""
     return redis_client.get(session_id)
 
-@app.route('/login', methods=['POST'])
+
+@app.route('/login', methods=['GET','POST'])
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def login_route():
     username = request.json['username']
@@ -60,6 +63,7 @@ def login_route():
     if user:
         session_id = create_redis_session(user['user_id'])
         response = jsonify({"user_id": user['user_id']})
+        print("Session ID created:", session_id)  # Log the session ID
         response.set_cookie('session_id', session_id, httponly=True, secure=True)  # Secure flag for HTTPS
         return response, 200
     else:
@@ -68,17 +72,9 @@ def login_route():
 @app.route('/logout', methods=['POST'])
 def logout():
     session_id = request.cookies.get('session_id')
-    redis_client.delete(session_id)
+    if session_id:
+        redis_client.delete(session_id)
     return jsonify({"message": "Logged out successfully"}), 200
-
-@app.route('/protected', methods=['GET'])
-def protected():
-    session_id = request.cookies.get('session_id')
-    user_id = get_redis_session_user_id(session_id)
-    if user_id:
-        return jsonify({"message": "Access to protected content", "user_id": user_id}), 200
-    else:
-        return jsonify({"message": "Unauthorized"}), 401
 
 @app.route('/register', methods=['POST', 'GET'])
 @cross_origin()
