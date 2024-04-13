@@ -1,9 +1,8 @@
-import os
-from datetime import timedelta
-from flask import Flask, request, jsonify, session, redirect, url_for
+from flask import Flask, request, jsonify, session
 from flask_cors import CORS, cross_origin
-from models import db, User, Profile
-from services import login, register, get_profile, update_profile
+from backend.models import db, User, Profile
+from backend.services import login, register
+import os
 from flask_migrate import Migrate
 
 # Create the Flask application
@@ -14,6 +13,15 @@ app.secret_key = os.environ.get('FLASK_SECRET_KEY')
 database_url = os.environ.get('CLEARDB_DATABASE_URL').replace('mysql://', 'mysql+pymysql://')
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+app.config['SESSION_COOKIE_SECURE'] = False # True for prod, False for dev
+app.config['REMEMBER_COOKIE_SECURE'] = False # True for prod, False for dev
+
+# Configure SQLAlchemy engine options
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    'pool_recycle': 299,  
+    'pool_pre_ping': True
+}
 
 db.init_app(app)
 migrate = Migrate(app, db)
@@ -26,15 +34,27 @@ CORS(app, support_credentials=True, origins=["http://localhost:3000"])
 def home():
     return 'Welcome to the Echo App!'
 
-@app.route('/login', methods=['POST'])
+@app.route('/login', methods=['GET', 'POST', 'OPTIONS'])
+@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def login_route():
-    username = request.json.get('username')
-    password = request.json.get('password')
-    user, status_code = login(username, password)
-    if user:
-        session['user_id'] = user['user_id']  # Store user ID in session
-        return jsonify(user), status_code
-    return jsonify({"message": "Invalid username or password"}), status_code
+    if request.method == 'POST':
+        username = request.json['username']
+        password = request.json['password']
+        user, status_code = login(username, password)
+        if user:
+            session['user_id'] = user['user_id']  # Store the user's ID in the session
+            return jsonify({"user_id": user['user_id']}), 200
+        else:
+            return jsonify({"message": "Invalid username or password"}), status_code
+    elif request.method == 'GET':
+        return jsonify({"message": "GET method is not supported for /login."}), 405
+    else:
+        return '', 204
+    
+@app.route('/logout', methods=['POST'])
+def logout():
+    session.pop('user_id', None)  # Remove the user ID from the session
+    return jsonify({"message": "You have been logged out."}), 200
 
 @app.route('/logout', methods=['POST'])
 def logout():
