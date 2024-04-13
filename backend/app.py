@@ -1,6 +1,5 @@
 import os
 from datetime import timedelta
-import redis
 from redis import Redis, ConnectionPool
 from flask import Flask, request, jsonify, session, redirect, url_for
 from flask_session import Session
