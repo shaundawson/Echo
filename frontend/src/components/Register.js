@@ -23,23 +23,8 @@ function Register() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        try {
-            const response = await axios.post('https://dry-dawn-86507-cc866b3e1665.herokuapp.com/register', formData, {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (response.data.user_id) {
-                login(response.data); // Update login state
-                navigate(`/profile/${response.data.user_id}`);
-            } else {
-                console.log(response.data.message);
-            }
-        } catch (error) {
-            console.error('Registration failed:', error?.response?.data?.message || error.message);
-        }
+        // Redirect to backend route that initiates Spotify login
+        window.location.href = 'https://dry-dawn-86507-cc866b3e1665.herokuapp.com/register/spotify';
     };
 
     return (
