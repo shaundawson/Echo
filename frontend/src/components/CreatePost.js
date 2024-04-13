@@ -1,12 +1,18 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useAuth } from '../AuthContext';
+
 
 function CreatePost() {
     const [songRecommendation, setSongRecommendation] = useState('');
     const [description, setDescription] = useState('');
+    const [error, setError] = useState(''); // State to hold error message
+    const [isSubmitting, setIsSubmitting] = useState(false); // State to manage submission status
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsSubmitting(true);
+        setError(''); // Reset error message
         try {
             const config = {
                 headers: {
@@ -16,11 +22,14 @@ function CreatePost() {
             };
             const body = JSON.stringify({ song_recommendation: songRecommendation, description });
             await axios.post('https://dry-dawn-86507-cc866b3e1665.herokuapp.com/post', body, config);
-            // Handle success
             alert('Post created successfully!');
+            setSongRecommendation(''); // Clear fields on success
+            setDescription('');
         } catch (error) {
             console.error('Failed to create post:', error.response?.data);
+            setError('Failed to create post: ' + (error.response?.data?.message || error.message));
         }
+        setIsSubmitting(false);
     };
 
     return (
@@ -44,7 +53,8 @@ function CreatePost() {
                         required
                     ></textarea>
                 </div>
-                <button type="submit">Post</button>
+                {error && <p style={{ color: 'red' }}>{error}</p>}
+                <button type="submit" disabled={isSubmitting}>Post</button>
             </form>
         </div>
     );

@@ -7,6 +7,7 @@ import Login from './components/Login';
 import Explore from './components/Explore';
 import Register from './components/Register';
 import Profile from './components/Profile';
+import CreatePost from './components/CreatePost';
 import Feed from './components/Feed';
 
 
@@ -25,6 +26,7 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/explore" element={<Explore />} />
             <Route path="/profile/:userId" element={<Profile />} />
+            <Route path="/create-post" element={<CreatePost />} />
             <Route path="/feed" element={<Feed />} />
           </Routes>
         </div>
