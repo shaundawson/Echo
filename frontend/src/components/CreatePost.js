@@ -21,7 +21,6 @@ function CreatePost() {
                 withCredentials: true,
             };
             const body = JSON.stringify({ song_recommendation: songRecommendation, description });
-            await axios.post('https://dry-dawn-86507-cc866b3e1665.herokuapp.com/post', body, config);
             alert('Post created successfully!');
             setSongRecommendation(''); // Clear fields on success
             setDescription('');
