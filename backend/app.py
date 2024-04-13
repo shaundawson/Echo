@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, session, url_for, redirect,json
+from flask import Flask, request, jsonify, session, url_for, redirect,json,send_from_directory
 from flask_cors import CORS, cross_origin
 from backend.models import db, User, Profile, Post
 from backend.services import login, register, spotify_callback_handler
@@ -48,9 +48,13 @@ CORS(app, support_credentials=True, origins=["http://localhost:3000"])
 
 
 # App Routes
-@app.route('/')
-def home():
-    return 'Welcome to the Echo App!'
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve(path):
+    if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
+        return send_from_directory(app.static_folder, path)
+    else:
+        return send_from_directory(app.static_folder, 'index.html')
 
 @app.route('/login', methods=['GET', 'POST', 'OPTIONS'])
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])

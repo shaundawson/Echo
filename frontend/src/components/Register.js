@@ -8,6 +8,8 @@ function Register() {
         password: '',
         email: '',
     });
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState('');
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -20,16 +22,29 @@ function Register() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // First save formData to local storage or manage state
-        sessionStorage.setItem('userDetails', JSON.stringify(formData));
-        // Redirect to backend route that initiates Spotify login
-        window.location.href = '/register/spotify';
+        setIsLoading(true);
+        try {
+            // Here you might want to send the data to your backend first to check if the username/email is available
+            // For example:
+            // const response = await axios.post('/api/validate-user', { username, email });
+            // if (response.data.isValid) {
+            sessionStorage.setItem('userDetails', JSON.stringify(formData));
+            window.location.href = '/register/spotify';
+            // } else {
+            //     setError('Username or email is already taken');
+            //     setIsLoading(false);
+            // }
+        } catch (err) {
+            setError('Failed to register. Please try again.');
+            setIsLoading(false);
+        }
     };
 
     return (
         <div>
             <header><h1>Register</h1></header>
             <div id="main-content">
+                {error && <p className="error">{error}</p>}
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
                         <label htmlFor="username">Username:</label>
@@ -43,7 +58,9 @@ function Register() {
                         <label htmlFor="email">Email:</label>
                         <input type="email" id="email" name="email" required value={formData.email} onChange={handleChange} />
                     </div>
-                    <button type="submit" className="button">Register</button>
+                    <button type="submit" className="button" disabled={isLoading}>
+                        {isLoading ? 'Registering...' : 'Register'}
+                    </button>
                 </form>
                 <p>Already have an account? <a href="/login">Login here</a>.</p>
                 <a href="/" className="button">Back to Homepage</a>
