@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
+import SpotifyConnection from './SpotifyConnection'; // Adjust the path as necessary
+
 
 function Profile() {
     const { currentUser } = useAuth();
@@ -9,12 +11,10 @@ function Profile() {
         username: '',
         bio: '',
         profile_picture: '',
-        spotifyPlaylistsCount: 0,  // Number of Spotify playlists
-        spotifyFollowersCount: 0,  // Number of Spotify followers
-        spotifyFollowingCount: 0,  // Number of Spotify followings
+        spotifyPlaylistsCount: 0,
+        spotifyFollowersCount: 0,
+        spotifyFollowingCount: 0,
     });
-    const [isFollowing, setIsFollowing] = useState(false);
-    const [editMode, setEditMode] = useState(false);
     const { userId } = useParams();
 
     useEffect(() => {
@@ -40,52 +40,14 @@ function Profile() {
         fetchUserData();
     }, [userId, currentUser]);
 
-    const handleBioChange = (event) => {
-        setUserData({ ...userData, bio: event.target.value });
-    };
-
-    const handleEditSubmit = async () => {
-        try {
-            const config = {
-                headers: { 'Content-Type': 'application/json' }
-            };
-            const body = JSON.stringify({ bio: userData.bio });
-            const response = await axios.put(`https://dry-dawn-86507-cc866b3e1665.herokuapp.com/profile/${userId}`, body, config);
-
-            if (response.status === 200) {
-                console.log('Profile update response:', response.data);
-                setUserData(prevState => ({ ...prevState, bio: userData.bio }));
-                setEditMode(false);
-            } else {
-                console.error('Profile update was not successful.');
-            }
-        } catch (error) {
-            console.error('Error updating profile:', error);
-        }
-    };
-
     return (
         <div>
             <header></header>
             <div id="main-content">
                 <h2>{userData.username}</h2>
-                <img src={userData.profile_picture} alt={`${userData.username}'s profile`} />
+                <SpotifyConnection />
                 <div>
-                    {editMode ? (
-                        <>
-                            <textarea value={userData.bio} onChange={handleBioChange}></textarea>
-                            <button onClick={handleEditSubmit}>Save</button>
-                            <button onClick={() => setEditMode(false)}>Cancel</button>
-                        </>
-                    ) : (
-                        <>
-                            <p>Bio: {userData.bio}</p>
-                            <p>Spotify Playlists: {userData.spotifyPlaylistsCount}</p>
-                            <p>Spotify Followers: {userData.spotifyFollowersCount}</p>
-                            <p>Following on Spotify: {userData.spotifyFollowingCount}</p>
-                            <button onClick={() => setEditMode(true)}>Edit Bio</button>
-                        </>
-                    )}
+                    {/* Profile information and edit form */}
                 </div>
             </div>
         </div>

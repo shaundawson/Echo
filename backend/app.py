@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, session, url_for, redirect
+from flask import Flask, request, jsonify, session, url_for, redirect,json
 from flask_cors import CORS, cross_origin
 from backend.models import db, User, Profile, Post
 from backend.services import login, register, spotify_callback_handler
@@ -90,12 +90,22 @@ def register_spotify():
 
 @app.route('/spotify_callback')
 def spotify_callback():
-    code = request.args.get('code')
-    result, status = spotify_callback_handler(code)
-    if status == 201:
-        return redirect(f"http://localhost:3000/profile/{result['user_id']}")
-    return jsonify(result), status
-
+    token = spotify.authorize_access_token()
+    if not token:
+        return jsonify({"message": "Failed to authenticate with Spotify"}), 401
+    
+    # Retrieve user details from session or where it was stored
+    user_details = json.loads(session.get('userDetails'))
+    
+    # Register user in the database
+    response, status = register(user_details['username'], user_details['password'], user_details['email'], '')
+    
+    if status != 201:
+        return jsonify(response), status
+    
+    # Assuming the user ID is returned on successful registration
+    user_id = response.get('user_id')
+    return redirect(f"http://localhost:3000/profile/{user_id}")
 
 @app.route('/profile/<int:user_id>', methods=['PUT', 'GET'])
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])

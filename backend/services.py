@@ -15,20 +15,19 @@ def login(username, password):
 
 
 def register(username, password, email, bio):
-    # Check if user already exists
     existing_user = User.query.filter_by(username=username).first()
     if existing_user:
-        logging.error(f"Registration attempt for existing username: {username}")
         return {"message": "An account with this username already exists."}, 409
 
-    # Store form data in session for completion after Spotify auth
-    session['reg_data'] = {
-        'username': username,
-        'password': generate_password_hash(password),
-        'email': email,
-        'bio': bio
-    }
-    return {"message": "Redirect to Spotify for authentication."}, 200
+    hashed_password = generate_password_hash(password)
+    new_user = User(username=username, password=hashed_password, email=email)
+    db.session.add(new_user)
+    db.session.commit()
+
+    new_profile = Profile(user_id=new_user.id, bio=bio)
+    db.session.add(new_profile)
+    db.session.commit()
+    return {"message": "Registration successful.", "user_id": new_user.id}, 201
 
 def complete_registration(spotify_data):
     reg_data = session.pop('reg_data', None)

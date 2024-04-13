@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../AuthContext'; // Import useAuth
-
 
 function Register() {
     const [formData, setFormData] = useState({
@@ -11,7 +9,6 @@ function Register() {
         email: '',
     });
     const navigate = useNavigate();
-    const { login } = useAuth(); // Destructure login from useAuth
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -23,15 +20,15 @@ function Register() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        // First save formData to local storage or manage state
+        sessionStorage.setItem('userDetails', JSON.stringify(formData));
         // Redirect to backend route that initiates Spotify login
-        window.location.href = 'https://dry-dawn-86507-cc866b3e1665.herokuapp.com/register/spotify';
+        window.location.href = '/register/spotify';
     };
 
     return (
         <div>
-            <header>
-                <h1>Register</h1>
-            </header>
+            <header><h1>Register</h1></header>
             <div id="main-content">
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
