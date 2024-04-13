@@ -1,15 +1,18 @@
+import React from 'react';
+
 function Post({ postData }) {
-    // Check if postData exists before trying to access its properties
+    // Early return pattern for loading state
     if (!postData) {
         return <div>Loading...</div>;
     }
 
+    // Destructure postData for cleaner access to properties
+    const { song_recommendation, description } = postData;
+
     return (
         <div>
-            {/* Corrected property name to match backend response */}
-            <h2>{postData.song_recommendation}</h2>
-            {/* Assuming you want to show the description as well */}
-            <p>{postData.description}</p>
+            <h2>{song_recommendation}</h2>
+            <p>{description}</p>
         </div>
     );
 }
