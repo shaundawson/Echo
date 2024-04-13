@@ -1,35 +1,14 @@
 import os
 from datetime import timedelta
-from redis import Redis, ConnectionPool
 from flask import Flask, request, jsonify, session, redirect, url_for
-from flask_session import Session
-from uuid import uuid4
-from flask_restful import Api, Resource, reqparse
-from dotenv import load_dotenv
-from werkzeug.security import generate_password_hash, check_password_hash
 from flask_cors import CORS, cross_origin
 from models import db, User, Profile
+from services import login, register, get_profile, update_profile
 from flask_migrate import Migrate
-
-# Load environment variables
-load_dotenv()
 
 # Create the Flask application
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY')
-
-# Initialize Redis client for session management
-redis_url = os.environ.get('REDIS_URL')
-connection_pool = ConnectionPool.from_url(redis_url, decode_responses=True, ssl_cert_reqs=None)
-redis_client = Redis(connection_pool=connection_pool)
-
-# Configure Redis for storing the session data on the server-side
-app.config['SESSION_TYPE'] = 'redis'
-app.config['SESSION_PERMANENT'] = False
-app.config['SESSION_USE_SIGNER'] = True
-app.config['SESSION_REDIS'] = redis_client
-
-server_session = Session(app)
 
 # Configure database
 database_url = os.environ.get('CLEARDB_DATABASE_URL').replace('mysql://', 'mysql+pymysql://')
@@ -42,69 +21,24 @@ migrate = Migrate(app, db)
 # Configure CORS
 CORS(app, support_credentials=True, origins=["http://localhost:3000"])
 
-def create_redis_session(user_id):
-    """Create a unique session ID and store it in Redis."""
-    session_id = str(uuid4())
-    redis_client.set(session_id, user_id, ex=3600)  # Expires in 3600 seconds = 1 hour
-    return session_id
-
-def get_redis_session_user_id(session_id):
-    """Retrieve the user ID associated with the given session ID."""
-    return redis_client.get(session_id)
-
-def login(username, password):
-    user = User.query.filter_by(username=username).first()
-    if user and check_password_hash(user.password, password):
-        return {"message": "Login successful", "user_id": user.id}, 200
-    else:
-        return {"message": "Invalid username or password"}, 401
-
-def register(username, password, email, bio):
-    existing_user = User.query.filter_by(username=username).first()
-    if existing_user:
-        return {"message": "An account with this username already exists."}, 409
-
-    hashed_password = generate_password_hash(password)
-    new_user = User(username=username, password=hashed_password, email=email)
-
-    try:
-        db.session.add(new_user)
-        db.session.commit()
-
-        # Create a new Profile instance for the user.
-        new_profile = Profile(user_id=new_user.id, bio=bio)
-        db.session.add(new_profile)
-        db.session.commit()
-
-        return {"message": "Registration successful.", "user_id": new_user.id}, 201
-    except Exception as e:
-        db.session.rollback()
-        return {"message": "Failed to register user."}, 500
-
+# App Routes
 @app.route('/')
 def home():
     return 'Welcome to the Echo App!'
 
 @app.route('/login', methods=['POST'])
-@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def login_route():
-    username = request.json['username']
-    password = request.json['password']
+    username = request.json.get('username')
+    password = request.json.get('password')
     user, status_code = login(username, password)
     if user:
-        session_id = create_redis_session(user['user_id'])
-        response = jsonify({"user_id": user['user_id']})
-        print("Session ID created:", session_id)  # Log the session ID
-        response.set_cookie('session_id', session_id, httponly=True, secure=False)  # Secure flag for HTTPS
-        return response, 200
-    else:
-        return jsonify({"message": "Invalid username or password"}), status_code
+        session['user_id'] = user['user_id']  # Store user ID in session
+        return jsonify(user), status_code
+    return jsonify({"message": "Invalid username or password"}), status_code
 
 @app.route('/logout', methods=['POST'])
 def logout():
-    session_id = request.cookies.get('session_id')
-    if session_id:
-        redis_client.delete(session_id)
+    session.pop('user_id', None)  # Clear the session
     return jsonify({"message": "Logged out successfully"}), 200
 
 @app.route('/register', methods=['POST', 'GET'])
