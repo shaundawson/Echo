@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, session, url_for
+from flask import Flask, request, jsonify, session, url_for, redirect
 from flask_cors import CORS, cross_origin
 from backend.models import db, User, Profile, Post
 from backend.services import login, register
@@ -96,12 +96,37 @@ def register_spotify():
 
 @app.route('/spotify_callback')
 def spotify_callback():
-    token = spotify.authorize_access_token()
-    # Fetch Spotify data
-    resp = spotify.get('https://api.spotify.com/v1/me')
-    profile_data = resp.json()
-    # Process and store the data in your database
-    return jsonify(profile_data)
+    try:
+        # Obtain token using the authorization code
+        token = spotify.authorize_access_token()
+        
+        # Fetch user data from Spotify
+        resp = spotify.get('https://api.spotify.com/v1/me')
+        profile_data = resp.json()
+        
+
+        if 'user_id' not in session:
+            return redirect(url_for('login_route', message='User not logged in'))
+
+        user_id = session['user_id']
+        user = User.query.get(user_id)
+        
+        if not user:
+            return redirect(url_for('register_route', error='No corresponding local user found'))
+        
+    
+        user.spotify_id = profile_data.get('id')
+        user.spotify_email = profile_data.get('email')  # Make sure your user model can store this information
+        user.profile_image = profile_data['images'][0]['url'] if profile_data.get('images') else None
+
+        db.session.commit()
+        
+        # Redirect to the user's profile page or another appropriate page
+        return redirect(f"http://localhost:3000/profile/{user_id}")
+    except Exception as e:
+        print(f"Failed during Spotify callback: {e}")
+        # It's a good idea to handle exceptions and errors more gracefully in production code
+        return redirect(url_for('home', error='Failed to handle Spotify callback'))
 
 
 @app.route('/profile/<int:user_id>', methods=['PUT', 'GET'])

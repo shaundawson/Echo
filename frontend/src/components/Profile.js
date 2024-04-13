@@ -5,18 +5,22 @@ import { useAuth } from '../AuthContext';
 
 function Profile() {
     const { currentUser } = useAuth();
-    const [userData, setUserData] = useState({ username: '', bio: '', profile_picture: '' });
+    const [userData, setUserData] = useState({
+        username: '',
+        bio: '',
+        profile_picture: '',
+        spotifyPlaylistsCount: 0,  // Number of Spotify playlists
+        spotifyFollowersCount: 0,  // Number of Spotify followers
+        spotifyFollowingCount: 0,  // Number of Spotify followings
+    });
     const [isFollowing, setIsFollowing] = useState(false);
-    const [followersCount, setFollowersCount] = useState(0);
-    const [followingCount, setFollowingCount] = useState(0);
     const [editMode, setEditMode] = useState(false);
     const { userId } = useParams();
 
     useEffect(() => {
-        // Check if currentUser exists inside useEffect
         if (!currentUser) {
             console.log("No authenticated user.");
-            return;  // Just return early if no user
+            return;
         }
 
         const fetchUserData = async () => {
@@ -26,7 +30,7 @@ function Profile() {
                 });
 
                 if (response.data) {
-                    setUserData(response.data); // Set the whole user data object
+                    setUserData(response.data); // Assumes response.data includes Spotify data
                 }
             } catch (error) {
                 console.error('Error fetching user data:', error);
@@ -34,12 +38,7 @@ function Profile() {
         };
 
         fetchUserData();
-    }, [userId, currentUser]); // Include currentUser in the dependency array
-
-    if (!currentUser) {
-        // Render this message outside of useEffect
-        return <div>Please log in to view this page.</div>;
-    }
+    }, [userId, currentUser]);
 
     const handleBioChange = (event) => {
         setUserData({ ...userData, bio: event.target.value });
@@ -48,23 +47,14 @@ function Profile() {
     const handleEditSubmit = async () => {
         try {
             const config = {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
+                headers: { 'Content-Type': 'application/json' }
             };
             const body = JSON.stringify({ bio: userData.bio });
-            const response = await axios.put(
-                `https://dry-dawn-86507-cc866b3e1665.herokuapp.com/profile/${userId}`,
-                body,
-                config
-            );
+            const response = await axios.put(`https://dry-dawn-86507-cc866b3e1665.herokuapp.com/profile/${userId}`, body, config);
 
             if (response.status === 200) {
                 console.log('Profile update response:', response.data);
-                setUserData(prevState => ({
-                    ...prevState,
-                    bio: userData.bio
-                }));
+                setUserData(prevState => ({ ...prevState, bio: userData.bio }));
                 setEditMode(false);
             } else {
                 console.error('Profile update was not successful.');
@@ -79,6 +69,7 @@ function Profile() {
             <header></header>
             <div id="main-content">
                 <h2>{userData.username}</h2>
+                <img src={userData.profile_picture} alt={`${userData.username}'s profile`} />
                 <div>
                     {editMode ? (
                         <>
@@ -89,6 +80,9 @@ function Profile() {
                     ) : (
                         <>
                             <p>Bio: {userData.bio}</p>
+                            <p>Spotify Playlists: {userData.spotifyPlaylistsCount}</p>
+                            <p>Spotify Followers: {userData.spotifyFollowersCount}</p>
+                            <p>Following on Spotify: {userData.spotifyFollowingCount}</p>
                             <button onClick={() => setEditMode(true)}>Edit Bio</button>
                         </>
                     )}

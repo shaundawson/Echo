@@ -1,6 +1,7 @@
 from backend.models import db, User, Profile
 from flask import jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
+import logging 
 
 
 def login(username, password):
@@ -12,27 +13,32 @@ def login(username, password):
 
 
 def register(username, password, email, bio):
-    existing_user = User.query.filter_by(username=username).first()
-    if existing_user:
-        return {"message": "An account with this username already exists."}, 409
-
-    hashed_password = generate_password_hash(password)
-    new_user = User(username=username, password=hashed_password, email=email)
-
     try:
+        # Check if user already exists
+        existing_user = User.query.filter_by(username=username).first()
+        if existing_user:
+            logging.error(f"Registration attempt for existing username: {username}")
+            return {"message": "An account with this username already exists."}, 409
+
+        # Hash the password before storing it
+        hashed_password = generate_password_hash(password)
+
+        # Create new user instance
+        new_user = User(username=username, password=hashed_password, email=email)
         db.session.add(new_user)
         db.session.commit()
 
-        # Create a new Profile instance for the user.
+        # Optionally create a profile for the new user
         new_profile = Profile(user_id=new_user.id, bio=bio)
         db.session.add(new_profile)
         db.session.commit()
-
+        logging.info(f"New user registered successfully: {username}")
         return {"message": "Registration successful.", "user_id": new_user.id}, 201
+
     except Exception as e:
-        print(f"Failed to add user {username}. Error: {e}")
         db.session.rollback()
-        return {"message": "Failed to register user."}, 500
+        logging.error(f"Failed to register user {username}: {e}")
+        return {"message": "Failed to register user.", "error": str(e)}, 500
 
 
 def get_profile(user_id):
