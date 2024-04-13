@@ -9,7 +9,6 @@ function Register() {
         username: '',
         password: '',
         email: '',
-        bio: '', // Combined state object for all form data
     });
     const navigate = useNavigate();
     const { login } = useAuth(); // Destructure login from useAuth
@@ -61,10 +60,6 @@ function Register() {
                     <div className="form-group">
                         <label htmlFor="email">Email:</label>
                         <input type="email" id="email" name="email" required value={formData.email} onChange={handleChange} />
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="bio">Bio: </label>
-                        <textarea id="bio" name="bio" required value={formData.bio} onChange={handleChange}></textarea>
                     </div>
                     <button type="submit" className="button">Register</button>
                 </form>
