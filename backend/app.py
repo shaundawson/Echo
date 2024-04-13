@@ -1,8 +1,5 @@
 import os
 from datetime import timedelta
-from .services import login, register
-from .models import db, User, Profile
-
 from redis import Redis, ConnectionPool
 from flask import Flask, request, jsonify, session, redirect, url_for
 from flask_session import Session
@@ -10,8 +7,10 @@ from uuid import uuid4
 from flask_restful import Api, Resource, reqparse
 from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash
-from flask_migrate import Migrate
 from flask_cors import CORS, cross_origin
+from services import login, register
+from models import db, User, Profile
+from flask_migrate import Migrate
 
 # Load environment variables
 load_dotenv()
