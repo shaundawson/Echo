@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 
 const Navbar = () => {
@@ -17,12 +18,23 @@ const Navbar = () => {
 
     return (
         <nav>
-            <div>{currentUser.username}</div> {/* Display the user's username */}
             <div>
-                <button onClick={handleLogout}>Log Out</button>
+                <Link to="/">Home</Link> {/* Existing link */}
+                {currentUser && <Link to="/create-post">Create Post</Link>} {/* Add this line */}
+                {currentUser ? (
+                    <>
+                        <Link to={`/profile/${currentUser.user_id}`}>Profile</Link>
+                        <button onClick={handleLogout}>Log Out</button>
+                    </>
+                ) : (
+                    <>
+                        <Link to="/login">Login</Link>
+                        <Link to="/register">Register</Link>
+                    </>
+                )}
             </div>
         </nav>
     );
-};
+}
 
 export default Navbar;
