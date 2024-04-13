@@ -1,5 +1,6 @@
 import os
 from datetime import timedelta
+import redis
 from redis import Redis, ConnectionPool
 from flask import Flask, request, jsonify, session, redirect, url_for
 from flask_session import Session
@@ -53,6 +54,9 @@ def get_redis_session_user_id(session_id):
     """Retrieve the user ID associated with the given session ID."""
     return redis_client.get(session_id)
 
+@app.route('/')
+def home():
+    return 'Welcome to the Flask App!'
 
 @app.route('/login', methods=['POST'])
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
