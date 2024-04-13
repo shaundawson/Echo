@@ -1,14 +1,14 @@
 import os
 from datetime import timedelta
+from services import login, register
+from models import db, User, Profile
 
-import redis
+from redis import Redis, ConnectionPool
 from flask import Flask, request, jsonify, session, redirect, url_for
 from flask_session import Session
 from uuid import uuid4
 from flask_restful import Api, Resource, reqparse
 from dotenv import load_dotenv
-from .services import login, register
-from .models import db, User, Profile
 from werkzeug.security import generate_password_hash
 from flask_migrate import Migrate
 from flask_cors import CORS, cross_origin
@@ -22,7 +22,8 @@ app.secret_key = os.environ.get('FLASK_SECRET_KEY')
 
 # Initialize Redis client for session management
 redis_url = os.environ.get('REDIS_URL')
-redis_client = redis.Redis.from_url(redis_url)
+connection_pool = ConnectionPool.from_url(redis_url, decode_responses=True, ssl_cert_reqs=None)
+redis_client = Redis(connection_pool=connection_pool)
 
 # Configure Redis for storing the session data on the server-side
 app.config['SESSION_TYPE'] = 'redis'
