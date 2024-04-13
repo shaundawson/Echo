@@ -136,13 +136,17 @@ def create_post():
         return jsonify({"message": "Authentication required."}), 401
     data = request.json
     new_post = Post(
-        user_id=user_id,
+        user_id=session['user_id'],
         song_recommendation=data['song_recommendation'],
         description=data.get('description', '')
     )
     db.session.add(new_post)
-    db.session.commit()
-    return jsonify({"message": "Post created successfully", "post_id": new_post.id})
+    try:
+        db.session.commit()
+        return jsonify({"message": "Post created successfully", "post_id": new_post.id}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": "Failed to create post", "error": str(e)}), 500
 
 @app.route('/post/<int:post_id>', methods=['DELETE'])
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
