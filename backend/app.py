@@ -6,20 +6,20 @@ import os
 from flask_migrate import Migrate
 from authlib.integrations.flask_client import OAuth
 
-# Create the Flask application
+# Initialize Flask and OAuth
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY')
-
 oauth = OAuth(app)
+
+# Spotify OAuth configuration
 spotify = oauth.register(
     'spotify',
     client_id=os.getenv('SPOTIFY_CLIENT_ID'),
     client_secret=os.getenv('SPOTIFY_CLIENT_SECRET'),
     authorize_url='https://accounts.spotify.com/authorize',
     access_token_url='https://accounts.spotify.com/api/token',
-    refresh_token_url=None,
-    redirect_uri=os.getenv('SPOTIFY_REDIRECT_URI'),
-    client_kwargs={'scope': 'user-read-private user-read-email user-follow-read user-library-read playlist-modify-private playlist-modify-public'},
+    redirect_uri=url_for('spotify_callback', _external=True),
+    client_kwargs={'scope': 'user-read-private user-read-email'},
 )
 
 # Configure database

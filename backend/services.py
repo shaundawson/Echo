@@ -2,8 +2,7 @@ from backend.models import db, User, Profile
 from flask import jsonify, session
 from werkzeug.security import check_password_hash, generate_password_hash
 import logging 
-from oauth_clients import spotify
-
+import os
 
 
 def login(username, password):
