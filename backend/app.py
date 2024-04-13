@@ -74,6 +74,17 @@ def register_spotify():
     spotify_oauth = get_spotify_oauth()
     return spotify_oauth.authorize_redirect()
 
+@app.route('/api/check-spotify-connection')
+def check_spotify_connection():
+    # Add logic to check if the user is connected to Spotify
+    # Check if the user has a valid Spotify access token
+    if 'spotify_access_token' in session:
+        # User is connected to Spotify
+        return jsonify({'isConnected': True})
+    else:
+        # User is not connected to Spotify
+        return jsonify({'isConnected': False})
+
 @app.route('/spotify_callback')
 def spotify_callback():
     spotify_oauth = get_spotify_oauth()
