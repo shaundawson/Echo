@@ -1,4 +1,4 @@
-from models import db, User, Profile
+from backend.models import db, User, Profile
 from flask import jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
 
