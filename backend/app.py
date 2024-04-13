@@ -14,8 +14,12 @@ database_url = os.environ.get('CLEARDB_DATABASE_URL').replace('mysql://', 'mysql
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+app.config['SESSION_COOKIE_NAME'] = 'session'
 app.config['SESSION_COOKIE_SECURE'] = True # True for prod, False for dev
 app.config['REMEMBER_COOKIE_SECURE'] = True # True for prod, False for dev
+app.config['SESSION_COOKIE_HTTPONLY'] = True  # Prevents JavaScript access to session cookie
+app.config['SESSION_COOKIE_SAMESITE'] = 'None' # 'None' if cookies should be sent in all cross-origin requests
+
 
 # Configure SQLAlchemy engine options
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
