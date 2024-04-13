@@ -51,10 +51,10 @@ def login_route():
     else:
         return '', 204
     
-@app.route('/logout', methods=['POST'])
-def logout():
-    session.pop('user_id', None)  # Clear the session
-    return jsonify({"message": "Logged out successfully"}), 200
+# @app.route('/logout', methods=['POST'])
+# def logout():
+#     session.pop('user_id', None)  # Clear the session
+#     return jsonify({"message": "Logged out successfully"}), 200
 
 @app.route('/register', methods=['POST', 'GET'])
 @cross_origin()
