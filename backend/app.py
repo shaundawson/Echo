@@ -43,6 +43,7 @@ def login_route():
         user, status_code = login(username, password)
         if user:
             session['user_id'] = user['user_id']  # Store the user's ID in the session
+            print("Logged in user_id:", session['user_id'])  # Debug print
             return jsonify({"user_id": user['user_id']}), 200
         else:
             return jsonify({"message": "Invalid username or password"}), status_code
@@ -125,6 +126,7 @@ def profile_route(user_id):
 @app.route('/post', methods=['POST'])
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def create_post():
+    print("Session user_id at /post:", session.get('user_id'))  # Debug print
     user_id = session.get('user_id')
     if not user_id:
         return jsonify({"message": "Authentication required."}), 401
