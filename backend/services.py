@@ -1,7 +1,9 @@
 from backend.models import db, User, Profile
-from flask import jsonify
+from flask import jsonify, session
 from werkzeug.security import check_password_hash, generate_password_hash
 import logging 
+from oauth_clients import spotify
+
 
 
 def login(username, password):
@@ -13,33 +15,54 @@ def login(username, password):
 
 
 def register(username, password, email, bio):
+    # Check if user already exists
+    existing_user = User.query.filter_by(username=username).first()
+    if existing_user:
+        logging.error(f"Registration attempt for existing username: {username}")
+        return {"message": "An account with this username already exists."}, 409
+
+    # Store form data in session for completion after Spotify auth
+    session['reg_data'] = {
+        'username': username,
+        'password': generate_password_hash(password),
+        'email': email,
+        'bio': bio
+    }
+    return {"message": "Redirect to Spotify for authentication."}, 200
+
+def complete_registration(spotify_data):
+    reg_data = session.pop('reg_data', None)
+    if not reg_data:
+        return {"message": "Registration timeout or unauthorized access"}, 400
+
+    # Create new user with both form and Spotify data
+    new_user = User(
+        username=reg_data['username'],
+        password=reg_data['password'],
+        email=reg_data['email']
+    )
+    db.session.add(new_user)
+    
+    new_profile = Profile(
+        user_id=new_user.id,
+        bio=reg_data['bio'],
+        profile_image=spotify_data.get('images')[0]['url'] if spotify_data.get('images') else None
+    )
+    db.session.add(new_profile)
     try:
-        # Check if user already exists
-        existing_user = User.query.filter_by(username=username).first()
-        if existing_user:
-            logging.error(f"Registration attempt for existing username: {username}")
-            return {"message": "An account with this username already exists."}, 409
-
-        # Hash the password before storing it
-        hashed_password = generate_password_hash(password)
-
-        # Create new user instance
-        new_user = User(username=username, password=hashed_password, email=email)
-        db.session.add(new_user)
         db.session.commit()
-
-        # Optionally create a profile for the new user
-        new_profile = Profile(user_id=new_user.id, bio=bio)
-        db.session.add(new_profile)
-        db.session.commit()
-        logging.info(f"New user registered successfully: {username}")
-        return {"message": "Registration successful.", "user_id": new_user.id}, 201
-
+        logging.info(f"New user registered with Spotify integration: {new_user.username}")
+        return {"message": "User registered successfully.", "user_id": new_user.id}, 201
     except Exception as e:
         db.session.rollback()
-        logging.error(f"Failed to register user {username}: {e}")
-        return {"message": "Failed to register user.", "error": str(e)}, 500
+        logging.error(f"Failed to complete registration for {new_user.username}: {e}")
+        return {"message": "Registration failed", "error": str(e)}, 500
 
+def spotify_callback_handler(code):
+    # Assume `spotify` is your OAuth client set up elsewhere in your services
+    token = spotify.authorize_access_token(code)
+    spotify_data = spotify.get('https://api.spotify.com/v1/me').json()
+    return complete_registration(spotify_data)
 
 def get_profile(user_id):
     user = User.query.get(user_id)

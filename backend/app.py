@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, session, url_for, redirect
 from flask_cors import CORS, cross_origin
 from backend.models import db, User, Profile, Post
-from backend.services import login, register
+from backend.services import login, register, spotify_callback_handler
 import os
 from flask_migrate import Migrate
 from authlib.integrations.flask_client import OAuth
@@ -75,19 +75,13 @@ def login_route():
 #     session.pop('user_id', None)  # Clear the session
 #     return jsonify({"message": "Logged out successfully"}), 200
 
-@app.route('/register', methods=['POST', 'GET'])
-@cross_origin()
+@app.route('/register', methods=['POST'])
 def register_route():
-    if request.method == 'POST':
-        data = request.json
-        username = data.get('username')
-        password = data.get('password')
-        email = data.get('email')
-        bio = data.get('bio')  # Extract bio data from the request
-        response, status_code = register(username, password, email, bio)
-        return jsonify(response), status_code
-    elif request.method == 'GET':
-        return jsonify({"message": "GET method for registration is not supported."}), 405
+    data = request.json
+    result, status = register(data['username'], data['password'], data['email'], data.get('bio', ''))
+    if status == 200:
+        return redirect(url_for('register_spotify'))
+    return jsonify(result), status
     
 @app.route('/register/spotify')
 def register_spotify():
@@ -96,37 +90,11 @@ def register_spotify():
 
 @app.route('/spotify_callback')
 def spotify_callback():
-    try:
-        # Obtain token using the authorization code
-        token = spotify.authorize_access_token()
-        
-        # Fetch user data from Spotify
-        resp = spotify.get('https://api.spotify.com/v1/me')
-        profile_data = resp.json()
-        
-
-        if 'user_id' not in session:
-            return redirect(url_for('login_route', message='User not logged in'))
-
-        user_id = session['user_id']
-        user = User.query.get(user_id)
-        
-        if not user:
-            return redirect(url_for('register_route', error='No corresponding local user found'))
-        
-    
-        user.spotify_id = profile_data.get('id')
-        user.spotify_email = profile_data.get('email')  # Make sure your user model can store this information
-        user.profile_image = profile_data['images'][0]['url'] if profile_data.get('images') else None
-
-        db.session.commit()
-        
-        # Redirect to the user's profile page or another appropriate page
-        return redirect(f"http://localhost:3000/profile/{user_id}")
-    except Exception as e:
-        print(f"Failed during Spotify callback: {e}")
-        # It's a good idea to handle exceptions and errors more gracefully in production code
-        return redirect(url_for('home', error='Failed to handle Spotify callback'))
+    code = request.args.get('code')
+    result, status = spotify_callback_handler(code)
+    if status == 201:
+        return redirect(f"http://localhost:3000/profile/{result['user_id']}")
+    return jsonify(result), status
 
 
 @app.route('/profile/<int:user_id>', methods=['PUT', 'GET'])
