@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, session
+from flask import Flask, request, jsonify, session, url_for
 from flask_cors import CORS, cross_origin
 from backend.models import db, User, Profile, Post
 from backend.services import login, register
@@ -89,18 +89,19 @@ def register_route():
     elif request.method == 'GET':
         return jsonify({"message": "GET method for registration is not supported."}), 405
     
-@app.route('/login/spotify')
-def login_spotify():
-    return spotify.authorize_redirect(redirect_uri=url_for('authorize', _external=True))
+@app.route('/register/spotify')
+def register_spotify():
+    redirect_uri = url_for('spotify_callback', _external=True)
+    return spotify.authorize_redirect(redirect_uri)
 
-@app.route('/authorize')
-def authorize():
+@app.route('/spotify_callback')
+def spotify_callback():
     token = spotify.authorize_access_token()
+    # Fetch Spotify data
     resp = spotify.get('https://api.spotify.com/v1/me')
     profile_data = resp.json()
-    # Handle user registration or linking based on profile_data
-    # Save necessary data to your database
-    return jsonify(profile_data)  # or redirect to another page
+    # Process and store the data in your database
+    return jsonify(profile_data)
 
 
 @app.route('/profile/<int:user_id>', methods=['PUT', 'GET'])
