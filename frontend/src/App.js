@@ -10,7 +10,7 @@ import Profile from './components/Profile';
 import CreatePost from './components/CreatePost';
 import Feed from './components/Feed';
 import Post from './components/Post';
-import UserFeed from './components/Post';
+import UserFeed from './components/UserFeed';
 
 
 

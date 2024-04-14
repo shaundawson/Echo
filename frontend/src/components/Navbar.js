@@ -1,6 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 
 const Navbar = () => {
@@ -13,24 +12,21 @@ const Navbar = () => {
     };
 
     if (!currentUser) {
-        return null; // Do not display the navbar if there is no logged-in user
+        // Do not display the navbar if there is no logged-in user
+        return null;
     }
 
     return (
         <nav>
             <div>
                 <Link to="/">Home</Link> {/* Existing link */}
-                {currentUser && <Link to="/create-post">Create Post</Link>} {/* Link for creating posts */}
-                {currentUser && <Link to="/feed">Your Posts</Link>} {/* Link to view all posts by the user */}
-                {currentUser ? (
+                {currentUser && (
                     <>
+                        <Link to="/create-post">Create Post</Link> {/* Link for creating posts */}
+                        <Link to="/feed">Your Posts</Link> {/* Link to view all posts by the user */}
+                        <Link to="/users">All Users</Link> {/* Link to view all users and their bios */}
                         <Link to={`/profile/${currentUser.user_id}`}>Profile</Link>
                         <button onClick={handleLogout}>Log Out</button>
-                    </>
-                ) : (
-                    <>
-                        <Link to="/login">Login</Link>
-                        <Link to="/register">Register</Link>
                     </>
                 )}
             </div>
