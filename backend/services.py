@@ -3,13 +3,13 @@ from flask import jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime, timedelta, timezone
 from cryptography.fernet import Fernet
+import os
 
 # Generate and save the key in a secure location only once during the setup
 def generate_key():
-    key = Fernet.generate_key()
-    with open("secret.key", "wb") as key_file:
-        key_file.write(key)
-
+    key = os.environ.get('SECRET_KEY')
+    if key is None:
+        raise ValueError("No SECRET_KEY set in environment")
 
 def load_key():
     return open("secret.key", "rb").read()
