@@ -40,7 +40,7 @@ def home():
     return 'Welcome to the Echo App!'
 
 @app.route('/config')
-@cross_origin()
+@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def get_config():
     client_id = os.environ.get('SPOTIFY_CLIENT_ID')
     redirect_uri = os.environ.get('SPOTIFY_REDIRECT_URI')
@@ -58,7 +58,7 @@ def get_config():
     })
 
 @app.route('/callback/spotify')
-@cross_origin()
+@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def spotify_callback():
     if 'user_id' not in session:
         return "User not logged in", 401
@@ -103,7 +103,7 @@ def login_route():
         return '', 204
     
 @app.route('/register', methods=['POST'])
-@cross_origin()
+@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def register_route():
     if request.method == 'POST':
         data = request.json
