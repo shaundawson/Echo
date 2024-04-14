@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, session, url_for, redirect
 from flask_cors import CORS, cross_origin
 from backend.models import db, User, Profile, Post
-from backend.services import login, register, save_spotify_tokens
+from backend.services import login, register, save_spotify_tokens, get_spotify_tokens,
 import os
 from flask_migrate import Migrate
 import requests
@@ -64,14 +64,6 @@ def spotify_callback():
 
     # Redirect to user's profile page
     return redirect(f'/profile/{user_id}')
-    
-    tokens = response.json()
-
-    # Save tokens securely associated with user_id
-    save_spotify_tokens(user_id, tokens['access_token'], tokens['refresh_token'], tokens['expires_in'])
-
-    # Redirect to user's profile page
-    return redirect(f'/profile/{user_id}')
 
 @app.route('/login', methods=['GET', 'POST', 'OPTIONS'])
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
@@ -91,12 +83,7 @@ def login_route():
     else:
         return '', 204
     
-# @app.route('/logout', methods=['POST'])
-# def logout():
-#     session.pop('user_id', None)  # Clear the session
-#     return jsonify({"message": "Logged out successfully"}), 200
-
-@app.route('/register', methods=['POST', 'GET'])
+@app.route('/register', methods=['POST'])
 @cross_origin()
 def register_route():
     if request.method == 'POST':
@@ -105,10 +92,16 @@ def register_route():
         password = data.get('password')
         email = data.get('email')
         bio = data.get('bio')  # Extract bio data from the request
+
+        # Check if user can be registered
         response, status_code = register(username, password, email, bio)
-        return jsonify(response), status_code
-    elif request.method == 'GET':
-        return jsonify({"message": "GET method for registration is not supported."}), 405
+        if status_code == 201:
+            # User can be registered, initiate Spotify auth
+            return jsonify({
+                "spotify_auth_url": "https://accounts.spotify.com/authorize?response_type=code&client_id=SPOTIFY_CLIENT_ID&scope=SPOTIFY_REQUIRED_SCOPES&redirect_uri=SPOTIFY_REDIRECT_URI"
+            }), status_code
+        else:
+            return jsonify(response), status_code
 
 
 @app.route('/profile/<int:user_id>', methods=['PUT', 'GET'])
