@@ -5,14 +5,10 @@ from datetime import datetime, timedelta, timezone
 from cryptography.fernet import Fernet
 import os
 
-# Generate and save the key in a secure location only once during the setup
-def generate_key():
+def load_key():
     key = os.environ.get('SECRET_KEY')
     if key is None:
         raise ValueError("No SECRET_KEY set in environment")
-
-def load_key():
-    return open("secret.key", "rb").read()
 
 # Function to create a cipher object
 def create_cipher():
