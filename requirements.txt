@@ -93,7 +93,6 @@ typing_extensions==4.10.0
 tzdata==2023.3
 uritemplate==4.1.1
 urllib3==1.26.15
-urlencode
 uuid==1.30
 watchdog==4.0.0
 websocket-client==1.7.0
