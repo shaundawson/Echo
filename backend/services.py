@@ -36,8 +36,8 @@ def save_spotify_tokens(user_id, access_token, refresh_token, expires_in):
     if user:
         user.spotify_access_token = encrypted_access_token
         user.spotify_refresh_token = encrypted_refresh_token
-        # Store the token expiration with explicit UTC timezone
-        user.spotify_token_expiration = datetime.now(timezone.utc) + timedelta(seconds=expires_in)
+        # Ensure expires_in is an integer before creating a timedelta
+        user.spotify_token_expiration = datetime.now(timezone.utc) + timedelta(seconds=int(expires_in))
         db.session.commit()
 
 def get_spotify_tokens(user_id):
