@@ -68,7 +68,7 @@ def register(username, password, email, bio):
         db.session.commit()
 
         # Create a new Profile instance for the user.
-        new_profile = Profile(user_id=new_user.id, bio=bio)
+        new_profile = Profile(user_id=new_user.id)
         db.session.add(new_profile)
         db.session.commit()
 
