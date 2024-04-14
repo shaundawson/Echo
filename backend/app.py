@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, session, url_for, redirect
 from flask_cors import CORS, cross_origin
 from backend.models import db, User, Profile, Post
-from backend.services import login, register, save_spotify_tokens, get_spotify_tokens,
+from backend.services import login, register, save_spotify_tokens
 import os
 from flask_migrate import Migrate
 import requests
