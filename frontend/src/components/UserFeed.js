@@ -5,7 +5,7 @@ function UserFeed() {
     const [users, setUsers] = useState([]);
 
     useEffect(() => {
-        axios.get('http://localhost:5000/users', { withCredentials: true })
+        axios.get('https://dry-dawn-86507-cc866b3e1665.herokuapp.com/users', { withCredentials: true })
             .then(response => {
                 setUsers(response.data);
             })
