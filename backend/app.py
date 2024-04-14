@@ -132,6 +132,31 @@ def profile_route(user_id):
         return jsonify({"message": "Method not allowed"}), 405
 
 
+@app.route('/posts', methods=['GET'])
+@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
+def get_posts():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"message": "Authentication required."}), 401
+
+    try:
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({"message": "User not found"}), 404
+
+        posts = [
+            {
+                "id": post.id,
+                "song_recommendation": post.song_recommendation,
+                "description": post.description,
+                "created_at": post.created_at.isoformat()
+            } for post in user.posts
+        ]
+        return jsonify(posts), 200
+    except Exception as e:
+        return jsonify({"message": "Internal server error", "error": str(e)}), 500
+
+
 @app.route('/post', methods=['POST'])
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def create_post():
