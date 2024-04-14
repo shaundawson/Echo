@@ -10,6 +10,11 @@ import requests
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY')
 
+
+SPOTIFY_CLIENT_ID = os.environ.get('SPOTIFY_CLIENT_ID')
+SPOTIFY_CLIENT_SECRET = os.environ.get('SPOTIFY_CLIENT_SECRET')
+SPOTIFY_REDIRECT_URI = os.environ.get('SPOTIFY_REDIRECT_URI')
+
 # Configure database
 database_url = os.environ.get('CLEARDB_DATABASE_URL').replace('mysql://', 'mysql+pymysql://')
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
@@ -91,15 +96,16 @@ def register_route():
         username = data.get('username')
         password = data.get('password')
         email = data.get('email')
-        bio = data.get('bio')  # Extract bio data from the request
+        bio = data.get('bio')
+        spotify_access_token = data.get('spotifyAccessToken')
+        spotify_refresh_token = data.get('spotifyRefreshToken')
+        spotify_expires_in = data.get('spotifyExpiresIn')
 
-        # Check if user can be registered
         response, status_code = register(username, password, email, bio)
         if status_code == 201:
-            # User can be registered, initiate Spotify auth
-            return jsonify({
-                "spotify_auth_url": "https://accounts.spotify.com/authorize?response_type=code&client_id=SPOTIFY_CLIENT_ID&scope=SPOTIFY_REQUIRED_SCOPES&redirect_uri=SPOTIFY_REDIRECT_URI"
-            }), status_code
+            user_id = response.get('user_id')
+            save_spotify_tokens(user_id, spotify_access_token, spotify_refresh_token, spotify_expires_in)
+            return jsonify(response), status_code
         else:
             return jsonify(response), status_code
 

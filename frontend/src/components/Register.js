@@ -9,6 +9,9 @@ function Register() {
         username: '',
         password: '',
         email: '',
+        spotifyAccessToken: '',
+        spotifyRefreshToken: '',
+        spotifyExpiresIn: ''
     });
     const navigate = useNavigate();
     const { login } = useAuth(); // Destructure login from useAuth
@@ -21,8 +24,14 @@ function Register() {
         }));
     };
 
+    const handleSpotifyAuth = async () => {
+        // This URL should be the one generated for Spotify authentication
+        window.location = `https://accounts.spotify.com/authorize?client_id=SPOTIFY_CLIENT_ID&response_type=code&redirect_uri=SPOTIFY_REDIRECT_URI&scope=SPOTIFY_REQUIRED_SCOPES`;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+
 
         try {
             const response = await axios.post('https://dry-dawn-86507-cc866b3e1665.herokuapp.com/register', formData, {
@@ -48,6 +57,7 @@ function Register() {
                 <h1>Register</h1>
             </header>
             <div id="main-content">
+                <button onClick={handleSpotifyAuth}>Connect to Spotify</button>
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
                         <label htmlFor="username">Username:</label>
@@ -63,8 +73,6 @@ function Register() {
                     </div>
                     <button type="submit" className="button">Register</button>
                 </form>
-                <p>Already have an account? <a href="/login">Login here</a>.</p>
-                <a href="/" className="button">Back to Homepage</a>
             </div>
         </div>
     );
