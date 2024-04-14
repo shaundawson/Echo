@@ -114,7 +114,7 @@ def register_route():
         spotify_refresh_token = data.get('spotifyRefreshToken')
         spotify_expires_in = data.get('spotifyExpiresIn')
 
-        response, status_code = register(username, password, email, bio)
+        response, status_code = register(username, password, email)
         if status_code == 201:
             user_id = response.get('user_id')
             save_spotify_tokens(user_id, spotify_access_token, spotify_refresh_token, spotify_expires_in)
