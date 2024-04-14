@@ -55,7 +55,7 @@ def login(username, password):
     else:
         return {"message": "Invalid username or password"}, 401
     
-def register(username, password, email, bio):
+def register(username, password, email):
     existing_user = User.query.filter_by(username=username).first()
     if existing_user:
         return {"message": "An account with this username already exists."}, 409
