@@ -1,9 +1,10 @@
-from flask import Flask, request, jsonify, session
+from flask import Flask, request, jsonify, session, url_for, redirect
 from flask_cors import CORS, cross_origin
 from backend.models import db, User, Profile, Post
-from backend.services import login, register
+from backend.services import login, register, save_spotify_tokens
 import os
 from flask_migrate import Migrate
+import requests
 
 # Create the Flask application
 app = Flask(__name__)
@@ -37,6 +38,40 @@ CORS(app, support_credentials=True, origins=["http://localhost:3000"])
 @app.route('/')
 def home():
     return 'Welcome to the Echo App!'
+
+@app.route('/callback/spotify')
+def spotify_callback():
+    if 'user_id' not in session:
+        return "User not logged in", 401
+
+    user_id = session['user_id']
+    code = request.args.get('code')
+    redirect_uri = url_for('spotify_callback', _external=True)
+    token_url = 'https://accounts.spotify.com/api/token'
+    
+    response = requests.post(token_url, data={
+        'grant_type': 'authorization_code',
+        'code': code,
+        'redirect_uri': redirect_uri,
+        'client_id': os.getenv('SPOTIFY_CLIENT_ID'),
+        'client_secret': os.getenv('SPOTIFY_CLIENT_SECRET'),
+    })
+    
+    tokens = response.json()
+
+    # Save tokens securely associated with user_id
+    save_spotify_tokens(user_id, tokens['access_token'], tokens['refresh_token'], tokens['expires_in'])
+
+    # Redirect to user's profile page
+    return redirect(f'/profile/{user_id}')
+    
+    tokens = response.json()
+
+    # Save tokens securely associated with user_id
+    save_spotify_tokens(user_id, tokens['access_token'], tokens['refresh_token'], tokens['expires_in'])
+
+    # Redirect to user's profile page
+    return redirect(f'/profile/{user_id}')
 
 @app.route('/login', methods=['GET', 'POST', 'OPTIONS'])
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])

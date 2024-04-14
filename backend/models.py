@@ -22,6 +22,9 @@ class User(db.Model):
         primaryjoin=(followers.c.follower_id == id),
         secondaryjoin=(followers.c.followed_id == id),
         backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
+    spotify_access_token = db.Column(db.String(255))  # Store Spotify access token
+    spotify_refresh_token = db.Column(db.String(255))  # Store Spotify refresh token
+    spotify_token_expiration = db.Column(db.DateTime)  # Store expiration time of the access token
     
     def follow(self, user):
         if not self.is_following(user):

@@ -1,7 +1,51 @@
 from backend.models import db, User, Profile
 from flask import jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
+from datetime import datetime, timedelta, timezone
+from cryptography.fernet import Fernet
 
+# Generate and save the key in a secure location only once during the setup
+def generate_key():
+    key = Fernet.generate_key()
+    with open("secret.key", "wb") as key_file:
+        key_file.write(key)
+
+def load_key():
+    return open("secret.key", "rb").read()
+
+# Function to create a cipher object
+def create_cipher():
+    key = load_key()
+    return Fernet(key)
+
+# Encrypt data
+def encrypt_data(data):
+    cipher = create_cipher()
+    return cipher.encrypt(data.encode())
+
+# Decrypt data
+def decrypt_data(encrypted_data):
+    cipher = create_cipher()
+    return cipher.decrypt(encrypted_data).decode()
+
+def save_spotify_tokens(user_id, access_token, refresh_token, expires_in):
+    encrypted_access_token = encrypt_data(access_token)
+    encrypted_refresh_token = encrypt_data(refresh_token)
+    user = User.query.get(user_id)
+    if user:
+        user.spotify_access_token = encrypted_access_token
+        user.spotify_refresh_token = encrypted_refresh_token
+        # Store the token expiration with explicit UTC timezone
+        user.spotify_token_expiration = datetime.now(timezone.utc) + timedelta(seconds=expires_in)
+        db.session.commit()
+
+def get_spotify_tokens(user_id):
+    user = User.query.get(user_id)
+    if user:
+        decrypted_access_token = decrypt_data(user.spotify_access_token)
+        decrypted_refresh_token = decrypt_data(user.spotify_refresh_token)
+        return decrypted_access_token, decrypted_refresh_token, user.spotify_token_expiration
+    return None, None, None
 
 def login(username, password):
     user = User.query.filter_by(username=username).first()
@@ -9,8 +53,7 @@ def login(username, password):
         return {"message": "Login successful", "user_id": user.id}, 200
     else:
         return {"message": "Invalid username or password"}, 401
-
-
+    
 def register(username, password, email, bio):
     existing_user = User.query.filter_by(username=username).first()
     if existing_user:
