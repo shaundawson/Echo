@@ -57,7 +57,7 @@ def get_config():
         "spotifyScopes": os.environ.get('SPOTIFY_REQUIRED_SCOPES')
     })
 
-@app.route('/callback/spotify')
+@app.route('/spotify_callback')
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def spotify_callback():
     if 'user_id' not in session:
