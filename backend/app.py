@@ -10,12 +10,6 @@ import requests
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY')
 
-
-SPOTIFY_CLIENT_ID = os.environ.get('SPOTIFY_CLIENT_ID')
-SPOTIFY_CLIENT_SECRET = os.environ.get('SPOTIFY_CLIENT_SECRET')
-SPOTIFY_REDIRECT_URI = os.environ.get('SPOTIFY_REDIRECT_URI')
-SPOTIFY_REQUIRED_SCOPES = os.environ.get('SPOTIFY_REQUIRED_SCOPES')
-
 # Configure database
 database_url = os.environ.get('CLEARDB_DATABASE_URL').replace('mysql://', 'mysql+pymysql://')
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
@@ -45,7 +39,27 @@ CORS(app, support_credentials=True, origins=["http://localhost:3000"])
 def home():
     return 'Welcome to the Echo App!'
 
+@app.route('/config')
+@cross_origin()
+def get_config():
+    client_id = os.environ.get('SPOTIFY_CLIENT_ID')
+    redirect_uri = os.environ.get('SPOTIFY_REDIRECT_URI')
+    scopes = os.environ.get('SPOTIFY_REQUIRED_SCOPES')
+
+    if not client_id or not redirect_uri or not scopes:
+        # If any are None, log the error and return a meaningful message
+        app.logger.error("Spotify configuration environment variables are not set correctly.")
+        return jsonify({
+            "error": "Configuration is incomplete. Check server logs for details."
+        }), 500
+    return jsonify({
+        "spotifyClientId": os.environ.get('SPOTIFY_CLIENT_ID'),
+        "spotifyRedirectUri": os.environ.get('SPOTIFY_REDIRECT_URI'),
+        "spotifyScopes": os.environ.get('SPOTIFY_REQUIRED_SCOPES')
+    })
+
 @app.route('/callback/spotify')
+@cross_origin()
 def spotify_callback():
     if 'user_id' not in session:
         return "User not logged in", 401
@@ -194,53 +208,6 @@ def delete_post(post_id):
     db.session.delete(post)
     db.session.commit()
     return jsonify({"message": "Post deleted successfully"}), 200
-
-        
-@app.route('/follow/<int:followed_id>', methods=['GET','POST','OPTIONS'])
-@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
-def follow_user(followed_id):
-    print("Session Data:", session)
-    if 'user_id' not in session:
-        return jsonify({"message": "Authentication required."}), 401
-
-    current_user_id = session['user_id']
-    current_user = User.query.get(current_user_id)
-    if not current_user:
-        return jsonify({"message": "Current user not found."}), 404
-
-    user_to_follow = User.query.get(followed_id)
-    if not user_to_follow:
-        return jsonify({"message": "User to follow not found."}), 404
-    
-    if current_user.is_following(user_to_follow):
-        return jsonify({"message": "Already following."}), 400
-    
-    current_user.follow(user_to_follow)
-    db.session.commit()
-    return jsonify({"message": "Now following."}), 200
-
-@app.route('/unfollow/<int:followed_id>', methods=['POST'])
-@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
-def unfollow_user(followed_id):
-    if 'user_id' not in session:
-        return jsonify({"message": "Authentication required."}), 401
-
-    current_user_id = session['user_id']
-    current_user = User.query.get(current_user_id)
-    if not current_user:
-        return jsonify({"message": "Current user not found."}), 404
-
-    user_to_unfollow = User.query.get(followed_id)
-    if not user_to_unfollow:
-        return jsonify({"message": "User to unfollow not found."}), 404
-    
-    if not current_user.is_following(user_to_unfollow):
-        return jsonify({"message": "Not following this user."}), 400
-    
-    current_user.unfollow(user_to_unfollow)
-    db.session.commit()
-    return jsonify({"message": "Unfollowed."}), 200
-
 
 if __name__ == '__main__':
      app.run()
