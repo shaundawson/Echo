@@ -7,43 +7,46 @@ import requests
 from flask_migrate import Migrate
 from urllib.parse import urlencode
 
-# Create the Flask application
+# Initialize Flask application with a secret key from environment variables
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY')
 
-# Configure database
+# Configure the SQLAlchemy database URI and settings
 database_url = os.environ.get('CLEARDB_DATABASE_URL').replace(
     'mysql://', 'mysql+pymysql://')
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
 app.config['SESSION_COOKIE_NAME'] = 'session'
-app.config['SESSION_COOKIE_SECURE'] = True  # True for prod, False for dev
-app.config['REMEMBER_COOKIE_SECURE'] = True  # True for prod, False for dev
-# Prevents JavaScript access to session cookie
+# Ensures cookies are only sent over HTTPS
+app.config['SESSION_COOKIE_SECURE'] = True
+# Ensures cookies are only sent over HTTPS
+app.config['REMEMBER_COOKIE_SECURE'] = True
+# Restricts JavaScript access to cookies
 app.config['SESSION_COOKIE_HTTPONLY'] = True
-# 'None' if cookies should be sent in all cross-origin requests
+# Allows cookies to be sent with cross-site requests
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'
 
-
-# Configure SQLAlchemy engine options
+# Configure additional options for the SQLAlchemy engine
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
     'pool_recycle': 299,
     'pool_pre_ping': True
 }
 
+# Initialize the database and apply migrations
 db.init_app(app)
 migrate = Migrate(app, db)
 
-# Configure CORS
+# Configure CORS to allow credentials for requests from the specified origin
 CORS(app, support_credentials=True, origins=["http://localhost:3000"])
 
-# App Routes
+# Home route just returns a welcome message
 
 
 @app.route('/')
 def home():
     return 'Welcome to the Echo App!'
+
+# Login route handles user authentication and redirects to Spotify for OAuth if login is successful
 
 
 @app.route('/login', methods=['POST'])
@@ -55,7 +58,7 @@ def login_route():
         user, status_code = login(username, password)
         if user:
             session['user_id'] = user['user_id']
-            # Construct Spotify Authorization URL
+            # Prepare Spotify authorization URL with required parameters
             query_params = {
                 'client_id': os.environ['SPOTIFY_CLIENT_ID'],
                 'response_type': 'code',
@@ -69,6 +72,8 @@ def login_route():
         else:
             return jsonify({"message": "Invalid username or password"}), status_code
 
+# Spotify callback route processes the OAuth response and stores tokens
+
 
 @app.route('/spotify_callback')
 def spotify_callback():
@@ -77,7 +82,7 @@ def spotify_callback():
     if error:
         return jsonify({'message': 'Authorization with Spotify failed.'}), 400
 
-    # Exchange code for access token
+    # Request to exchange the code for an access token
     token_data = {
         'grant_type': 'authorization_code',
         'code': code,
@@ -92,14 +97,13 @@ def spotify_callback():
     if response.status_code != 200:
         return jsonify({'message': 'Failed to retrieve access token from Spotify.'}), response.status_code
 
-    # Save tokens in the database
+    # Store Spotify tokens in the database linked to the user
     user_id = session.get('user_id')
     user = User.query.get(user_id)
     user.spotify_access_token = response_data['access_token']
     user.spotify_refresh_token = response_data['refresh_token']
     db.session.commit()
 
-    # Redirect to a safe, logged-in page
     return redirect('http://localhost:3000/')
 
 
