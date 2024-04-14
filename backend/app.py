@@ -110,7 +110,6 @@ def register_route():
         username = data.get('username')
         password = data.get('password')
         email = data.get('email')
-        bio = data.get('bio')
         spotify_access_token = data.get('spotifyAccessToken')
         spotify_refresh_token = data.get('spotifyRefreshToken')
         spotify_expires_in = data.get('spotifyExpiresIn')
@@ -133,7 +132,6 @@ def profile_route(user_id):
 
         data = request.get_json()
         bio = data.get('bio', None)  # Default to None if 'bio' not provided
-        profile_image = data.get('profile_image', None)  # Same for 'profile_image'
 
         try:
             user = User.query.get(user_id)
@@ -145,8 +143,6 @@ def profile_route(user_id):
 
             if bio is not None:
                 user.profile.bio = bio
-            if profile_image is not None:
-                user.profile.profile_image = profile_image
 
             db.session.commit()
             return jsonify({"message": "Profile updated successfully"}), 200
@@ -165,8 +161,7 @@ def profile_route(user_id):
 
             profile_data = {
                 'username': user.username,
-                'bio': user.profile.bio,
-                'profile_image': user.profile.profile_image
+                'bio': user.profile.bio
             }
             return jsonify(profile_data), 200
         except Exception as e:

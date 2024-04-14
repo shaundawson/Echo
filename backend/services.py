@@ -86,8 +86,7 @@ def get_profile(user_id):
             'username': user.username,
             'email': user.email,
             'bio': user.profile.bio,
-            'user_id': user.profile.user_id,
-            'profile_image': user.profile.profile_image,
+            'user_id': user.profile.user_id
         }
         return profile_data, 200  # Return a dictionary, not jsonify
     else:
@@ -99,8 +98,6 @@ def update_profile(user_id, bio, profile_image):
     if profile:
         if bio is not None:
             profile.bio = bio
-        if profile_image is not None:
-            profile.profile_image = profile_image
 
         # Check if any update was made
         if bio is None and profile_image is None:

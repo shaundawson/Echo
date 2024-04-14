@@ -6,9 +6,6 @@ import { useAuth } from '../AuthContext';
 function Profile() {
     const { currentUser } = useAuth();
     const [userData, setUserData] = useState({ username: '', bio: '', profile_picture: '' });
-    const [isFollowing, setIsFollowing] = useState(false);
-    const [followersCount, setFollowersCount] = useState(0);
-    const [followingCount, setFollowingCount] = useState(0);
     const [editMode, setEditMode] = useState(false);
     const { userId } = useParams();
 

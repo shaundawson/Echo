@@ -1,0 +1,18 @@
+import React from 'react';
+
+const SpotifyAuthButton = ({ spotifyConfig }) => {
+    const handleSpotifyAuth = () => {
+        if (!spotifyConfig.clientId || !spotifyConfig.redirectUri) {
+            console.error('Spotify config not loaded properly');
+            return;
+        }
+        const scopeUrlEncoded = encodeURIComponent(spotifyConfig.scopes);
+        window.location = `https://accounts.spotify.com/authorize?client_id=${spotifyConfig.clientId}&response_type=code&redirect_uri=${encodeURIComponent(spotifyConfig.redirectUri)}&scope=${scopeUrlEncoded}`;
+    };
+
+    return (
+        <button onClick={handleSpotifyAuth}>Connect to Spotify</button>
+    );
+};
+
+export default SpotifyAuthButton;
