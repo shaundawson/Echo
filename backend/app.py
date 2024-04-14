@@ -79,6 +79,29 @@ def register_route():
         return jsonify({"message": "GET method for registration is not supported."}), 405
 
 
+@app.route('/users')
+@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
+def get_users():
+    try:
+        # Query all users and their related profiles
+        users = User.query.all()
+        user_list = []
+        for user in users:
+            user_data = {
+                'username': user.username,
+                'email': user.email,
+                'bio': user.profile.bio if user.profile else 'No bio available',
+                # Include more fields as necessary
+            }
+            user_list.append(user_data)
+
+        return jsonify(user_list), 200
+    except Exception as e:
+        # Log the exception details for debugging purposes
+        print(f"Error fetching users: {str(e)}")
+        return jsonify({'message': 'Internal server error'}), 500
+
+
 @app.route('/profile/<int:user_id>', methods=['PUT', 'GET'])
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def profile_route(user_id):

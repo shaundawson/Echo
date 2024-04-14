@@ -10,6 +10,7 @@ import Profile from './components/Profile';
 import CreatePost from './components/CreatePost';
 import Feed from './components/Feed';
 import Post from './components/Post';
+import UserFeed from './components/Post';
 
 
 
@@ -30,6 +31,7 @@ function App() {
             <Route path="/create-post" element={<CreatePost />} />
             <Route path="/feed" element={<Feed />} />
             <Route path="/post" element={<Post />} />
+            <Route path="/users" element={<UserFeed />} />
           </Routes>
         </div>
       </Router>
