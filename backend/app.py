@@ -1,9 +1,11 @@
-from flask import Flask, request, jsonify, session
+from flask import Flask, request, jsonify, session, redirect
 from flask_cors import CORS, cross_origin
 from backend.models import db, User, Profile, Post
 from backend.services import login, register
 import os
+import requests
 from flask_migrate import Migrate
+from urllib.parse import urlencode
 
 # Create the Flask application
 app = Flask(__name__)
@@ -44,7 +46,7 @@ def home():
     return 'Welcome to the Echo App!'
 
 
-@app.route('/login', methods=['GET', 'POST', 'OPTIONS'])
+@app.route('/login', methods=['POST'])
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def login_route():
     if request.method == 'POST':
@@ -52,16 +54,53 @@ def login_route():
         password = request.json['password']
         user, status_code = login(username, password)
         if user:
-            # Store the user's ID in the session
             session['user_id'] = user['user_id']
-            print("Logged in user_id:", session['user_id'])  # Debug print
-            return jsonify({"user_id": user['user_id']}), 200
+            # Construct Spotify Authorization URL
+            query_params = {
+                'client_id': os.environ['SPOTIFY_CLIENT_ID'],
+                'response_type': 'code',
+                'redirect_uri': os.environ['SPOTIFY_REDIRECT_URI'],
+                'scope': os.environ['SPOTIFY_REQUIRED_SCOPES'],
+                'show_dialog': 'true'
+            }
+            spotify_auth_url = f"https://accounts.spotify.com/authorize?{
+                urlencode(query_params)}"
+            return redirect(spotify_auth_url)
         else:
             return jsonify({"message": "Invalid username or password"}), status_code
-    elif request.method == 'GET':
-        return jsonify({"message": "GET method is not supported for /login."}), 405
-    else:
-        return '', 204
+
+
+@app.route('/spotify_callback')
+def spotify_callback():
+    error = request.args.get('error')
+    code = request.args.get('code')
+    if error:
+        return jsonify({'message': 'Authorization with Spotify failed.'}), 400
+
+    # Exchange code for access token
+    token_data = {
+        'grant_type': 'authorization_code',
+        'code': code,
+        'redirect_uri': os.environ['SPOTIFY_REDIRECT_URI'],
+        'client_id': os.environ['SPOTIFY_CLIENT_ID'],
+        'client_secret': os.environ['SPOTIFY_CLIENT_SECRET'],
+    }
+    response = requests.post(
+        'https://accounts.spotify.com/api/token', data=token_data)
+    response_data = response.json()
+
+    if response.status_code != 200:
+        return jsonify({'message': 'Failed to retrieve access token from Spotify.'}), response.status_code
+
+    # Save tokens in the database
+    user_id = session.get('user_id')
+    user = User.query.get(user_id)
+    user.spotify_access_token = response_data['access_token']
+    user.spotify_refresh_token = response_data['refresh_token']
+    db.session.commit()
+
+    # Redirect to a safe, logged-in page
+    return redirect('http://localhost:3000/')
 
 
 @app.route('/register', methods=['POST', 'GET'])
