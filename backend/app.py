@@ -5,6 +5,7 @@ from backend.services import login, register
 import os
 import requests
 from flask_migrate import Migrate
+import urllib3
 from urllib.parse import urlencode
 
 # Initialize Flask application with a secret key from environment variables
