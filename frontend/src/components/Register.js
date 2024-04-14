@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../AuthContext'; // Import useAuth
+
 
 function Register() {
     const [formData, setFormData] = useState({
@@ -8,17 +10,8 @@ function Register() {
         password: '',
         email: '',
     });
-    const [isConnected, setIsConnected] = useState(false);
     const navigate = useNavigate();
-
-    useEffect(() => {
-        // Check if the user is connected to Spotify
-        axios.get('/api/check-spotify-connection')
-            .then(response => {
-                setIsConnected(response.data.isConnected);
-            })
-            .catch(error => console.log('Error checking Spotify connection', error));
-    }, []);
+    const { login } = useAuth(); // Destructure login from useAuth
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -30,29 +23,30 @@ function Register() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!isConnected) {
-            alert('Please connect to Spotify before registering.');
-            return;
-        }
-        // Proceed with registration using formData
-        // Assuming you have a backend endpoint to handle registration
-        axios.post('/api/register', formData)
-            .then(response => {
-                // Handle successful registration, navigate to profile or login
-                navigate('/profile');
-            })
-            .catch(error => {
-                console.error('Registration error:', error);
-            });
-    };
 
-    const handleConnectSpotify = () => {
-        window.location.href = '/register/spotify'; // Redirect to Spotify login
+        try {
+            const response = await axios.post('https://dry-dawn-86507-cc866b3e1665.herokuapp.com/register', formData, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.data.user_id) {
+                login(response.data); // Update login state
+                navigate(`/profile/${response.data.user_id}`);
+            } else {
+                console.log(response.data.message);
+            }
+        } catch (error) {
+            console.error('Registration failed:', error?.response?.data?.message || error.message);
+        }
     };
 
     return (
         <div>
-            <header><h1>Register</h1></header>
+            <header>
+                <h1>Register</h1>
+            </header>
             <div id="main-content">
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
@@ -67,13 +61,10 @@ function Register() {
                         <label htmlFor="email">Email:</label>
                         <input type="email" id="email" name="email" required value={formData.email} onChange={handleChange} />
                     </div>
-                    {isConnected ? (
-                        <p>Connected to Spotify</p>
-                    ) : (
-                        <button type="button" onClick={handleConnectSpotify}>Connect to Spotify</button>
-                    )}
                     <button type="submit" className="button">Register</button>
                 </form>
+                <p>Already have an account? <a href="/login">Login here</a>.</p>
+                <a href="/" className="button">Back to Homepage</a>
             </div>
         </div>
     );

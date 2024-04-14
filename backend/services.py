@@ -1,11 +1,7 @@
 from backend.models import db, User, Profile
-from flask import jsonify, session
+from flask import jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
-import logging 
-import os
 
-# Import the `spotify` object from where it is instantiated
-from backend.app import spotify
 
 def login(username, password):
     user = User.query.filter_by(username=username).first()
@@ -22,47 +18,22 @@ def register(username, password, email, bio):
 
     hashed_password = generate_password_hash(password)
     new_user = User(username=username, password=hashed_password, email=email)
-    db.session.add(new_user)
-    db.session.commit()
 
-    new_profile = Profile(user_id=new_user.id, bio=bio)
-    db.session.add(new_profile)
-    db.session.commit()
-    return {"message": "Registration successful.", "user_id": new_user.id}, 201
-
-def complete_registration(spotify_data):
-    reg_data = session.pop('reg_data', None)
-    if not reg_data:
-        return {"message": "Registration timeout or unauthorized access"}, 400
-
-    # Create new user with both form and Spotify data
-    new_user = User(
-        username=reg_data['username'],
-        password=reg_data['password'],
-        email=reg_data['email']
-    )
-    db.session.add(new_user)
-    
-    new_profile = Profile(
-        user_id=new_user.id,
-        bio=reg_data['bio'],
-        profile_image=spotify_data.get('images')[0]['url'] if spotify_data.get('images') else None
-    )
-    db.session.add(new_profile)
     try:
+        db.session.add(new_user)
         db.session.commit()
-        logging.info(f"New user registered with Spotify integration: {new_user.username}")
-        return {"message": "User registered successfully.", "user_id": new_user.id}, 201
-    except Exception as e:
-        db.session.rollback()
-        logging.error(f"Failed to complete registration for {new_user.username}: {e}")
-        return {"message": "Registration failed", "error": str(e)}, 500
 
-def spotify_callback_handler(code):
-    # Assume `spotify` is your OAuth client set up elsewhere in your services
-    token = spotify.authorize_access_token(code)
-    spotify_data = spotify.get('https://api.spotify.com/v1/me').json()
-    return complete_registration(spotify_data)
+        # Create a new Profile instance for the user.
+        new_profile = Profile(user_id=new_user.id, bio=bio)
+        db.session.add(new_profile)
+        db.session.commit()
+
+        return {"message": "Registration successful.", "user_id": new_user.id}, 201
+    except Exception as e:
+        print(f"Failed to add user {username}. Error: {e}")
+        db.session.rollback()
+        return {"message": "Failed to register user."}, 500
+
 
 def get_profile(user_id):
     user = User.query.get(user_id)

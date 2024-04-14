@@ -1,48 +1,42 @@
-from flask import Flask, request, jsonify, session, url_for, redirect, json, send_from_directory
+from flask import Flask, request, jsonify, session
 from flask_cors import CORS, cross_origin
 from backend.models import db, User, Profile, Post
 from backend.services import login, register
 import os
 from flask_migrate import Migrate
-from authlib.integrations.flask_client import OAuth
 
-app = Flask(__name__, static_folder='path_to_your_react_build')
+# Create the Flask application
+app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY')
-oauth = OAuth(app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('CLEARDB_DATABASE_URL').replace('mysql://', 'mysql+pymysql://')
+# Configure database
+database_url = os.environ.get('CLEARDB_DATABASE_URL').replace('mysql://', 'mysql+pymysql://')
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 app.config['SESSION_COOKIE_NAME'] = 'session'
-app.config['SESSION_COOKIE_SECURE'] = True
-app.config['REMEMBER_COOKIE_SECURE'] = True
-app.config['SESSION_COOKIE_HTTPONLY'] = True
-app.config['SESSION_COOKIE_SAMESITE'] = 'None'
-app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'pool_recycle': 299, 'pool_pre_ping': True}
+app.config['SESSION_COOKIE_SECURE'] = True # True for prod, False for dev
+app.config['REMEMBER_COOKIE_SECURE'] = True # True for prod, False for dev
+app.config['SESSION_COOKIE_HTTPONLY'] = True  # Prevents JavaScript access to session cookie
+app.config['SESSION_COOKIE_SAMESITE'] = 'None' # 'None' if cookies should be sent in all cross-origin requests
+
+
+# Configure SQLAlchemy engine options
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    'pool_recycle': 299,  
+    'pool_pre_ping': True
+}
 
 db.init_app(app)
 migrate = Migrate(app, db)
+
+# Configure CORS
 CORS(app, support_credentials=True, origins=["http://localhost:3000"])
 
-def get_spotify_oauth():
-    if 'spotify' not in oauth.clients:
-        oauth.register(
-            'spotify',
-            client_id=os.getenv('SPOTIFY_CLIENT_ID'),
-            client_secret=os.getenv('SPOTIFY_CLIENT_SECRET'),
-            authorize_url='https://accounts.spotify.com/authorize',
-            access_token_url='https://accounts.spotify.com/api/token',
-            redirect_uri=url_for('spotify_callback', _external=True),
-            client_kwargs={'scope': 'user-read-private user-read-email'},
-        )
-    return oauth.clients['spotify']
-
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def serve(path):
-    if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
-        return send_from_directory(app.static_folder, path)
-    else:
-        return send_from_directory(app.static_folder, 'index.html')
+# App Routes
+@app.route('/')
+def home():
+    return 'Welcome to the Echo App!'
 
 @app.route('/login', methods=['GET', 'POST', 'OPTIONS'])
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
@@ -52,7 +46,8 @@ def login_route():
         password = request.json['password']
         user, status_code = login(username, password)
         if user:
-            session['user_id'] = user['user_id']
+            session['user_id'] = user['user_id']  # Store the user's ID in the session
+            print("Logged in user_id:", session['user_id'])  # Debug print
             return jsonify({"user_id": user['user_id']}), 200
         else:
             return jsonify({"message": "Invalid username or password"}), status_code
@@ -60,39 +55,26 @@ def login_route():
         return jsonify({"message": "GET method is not supported for /login."}), 405
     else:
         return '', 204
-
-@app.route('/register', methods=['POST'])
-def register_route():
-    data = request.json
-    result, status = register(data['username'], data['password'], data['email'], data.get('bio', ''))
-    if status == 200:
-        return redirect(url_for('profile_route', user_id=result.get('user_id')))
-    return jsonify(result), status
     
-@app.route('/register/spotify')
-def register_spotify():
-    spotify_oauth = get_spotify_oauth()
-    return spotify_oauth.authorize_redirect()
+# @app.route('/logout', methods=['POST'])
+# def logout():
+#     session.pop('user_id', None)  # Clear the session
+#     return jsonify({"message": "Logged out successfully"}), 200
 
-@app.route('/api/check-spotify-connection')
-def check_spotify_connection():
-    # Add logic to check if the user is connected to Spotify
-    # Check if the user has a valid Spotify access token
-    if 'spotify_access_token' in session:
-        # User is connected to Spotify
-        return jsonify({'isConnected': True})
-    else:
-        # User is not connected to Spotify
-        return jsonify({'isConnected': False})
+@app.route('/register', methods=['POST', 'GET'])
+@cross_origin()
+def register_route():
+    if request.method == 'POST':
+        data = request.json
+        username = data.get('username')
+        password = data.get('password')
+        email = data.get('email')
+        bio = data.get('bio')  # Extract bio data from the request
+        response, status_code = register(username, password, email, bio)
+        return jsonify(response), status_code
+    elif request.method == 'GET':
+        return jsonify({"message": "GET method for registration is not supported."}), 405
 
-@app.route('/spotify_callback')
-def spotify_callback():
-    spotify_oauth = get_spotify_oauth()
-    token = spotify_oauth.authorize_access_token()
-    if not token:
-        return jsonify({"message": "Failed to authenticate with Spotify"}), 401
-    # Additional logic here to handle token and user data
-    return jsonify({"token": token})
 
 @app.route('/profile/<int:user_id>', methods=['PUT', 'GET'])
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
@@ -178,6 +160,51 @@ def delete_post(post_id):
     db.session.commit()
     return jsonify({"message": "Post deleted successfully"}), 200
 
+        
+@app.route('/follow/<int:followed_id>', methods=['GET','POST','OPTIONS'])
+@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
+def follow_user(followed_id):
+    print("Session Data:", session)
+    if 'user_id' not in session:
+        return jsonify({"message": "Authentication required."}), 401
+
+    current_user_id = session['user_id']
+    current_user = User.query.get(current_user_id)
+    if not current_user:
+        return jsonify({"message": "Current user not found."}), 404
+
+    user_to_follow = User.query.get(followed_id)
+    if not user_to_follow:
+        return jsonify({"message": "User to follow not found."}), 404
+    
+    if current_user.is_following(user_to_follow):
+        return jsonify({"message": "Already following."}), 400
+    
+    current_user.follow(user_to_follow)
+    db.session.commit()
+    return jsonify({"message": "Now following."}), 200
+
+@app.route('/unfollow/<int:followed_id>', methods=['POST'])
+@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
+def unfollow_user(followed_id):
+    if 'user_id' not in session:
+        return jsonify({"message": "Authentication required."}), 401
+
+    current_user_id = session['user_id']
+    current_user = User.query.get(current_user_id)
+    if not current_user:
+        return jsonify({"message": "Current user not found."}), 404
+
+    user_to_unfollow = User.query.get(followed_id)
+    if not user_to_unfollow:
+        return jsonify({"message": "User to unfollow not found."}), 404
+    
+    if not current_user.is_following(user_to_unfollow):
+        return jsonify({"message": "Not following this user."}), 400
+    
+    current_user.unfollow(user_to_unfollow)
+    db.session.commit()
+    return jsonify({"message": "Unfollowed."}), 200
 
 
 if __name__ == '__main__':
