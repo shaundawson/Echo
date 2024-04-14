@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 
+
 function Profile() {
     const { currentUser } = useAuth();
     const [userData, setUserData] = useState({ username: '', bio: '', profile_picture: '' });
@@ -10,20 +11,21 @@ function Profile() {
     const { userId } = useParams();
 
     useEffect(() => {
-        // Check if currentUser exists inside useEffect
         if (!currentUser) {
             console.log("No authenticated user.");
-            return;  // Just return early if no user
+            return;
         }
 
         const fetchUserData = async () => {
+            console.log("Fetching data for user:", userId);  // Additional logging
             try {
                 const response = await axios.get(`https://dry-dawn-86507-cc866b3e1665.herokuapp.com/profile/${userId}`, {
                     withCredentials: true
                 });
 
+                console.log("Profile data fetched:", response.data);  // Log fetched data
                 if (response.data) {
-                    setUserData(response.data); // Set the whole user data object
+                    setUserData(response.data);
                 }
             } catch (error) {
                 console.error('Error fetching user data:', error);
@@ -31,7 +33,8 @@ function Profile() {
         };
 
         fetchUserData();
-    }, [userId, currentUser]); // Include currentUser in the dependency array
+    }, [userId, currentUser]);  // Dependency on userId and currentUser
+
 
     if (!currentUser) {
         // Render this message outside of useEffect

@@ -114,18 +114,18 @@ def profile_route(user_id):
         try:
             user = User.query.get(user_id)
             if not user:
+                # Log for debugging
+                print(f"User with ID {user_id} not found.")
                 return jsonify({"message": "User not found"}), 404
-
-            if not user.profile:
-                return jsonify({"message": "Profile not found for this user"}), 404
 
             profile_data = {
                 'username': user.username,
-                'bio': user.profile.bio,
-                'profile_image': user.profile.profile_image
+                'bio': user.profile.bio if user.profile else ""
             }
             return jsonify(profile_data), 200
         except Exception as e:
+            print(f"Error fetching profile for user {
+                  user_id}: {e}")  # Log detailed error
             return jsonify({"message": "Internal server error"}), 500
 
     else:
@@ -190,53 +190,6 @@ def delete_post(post_id):
     db.session.delete(post)
     db.session.commit()
     return jsonify({"message": "Post deleted successfully"}), 200
-
-
-@app.route('/follow/<int:followed_id>', methods=['GET', 'POST', 'OPTIONS'])
-@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
-def follow_user(followed_id):
-    print("Session Data:", session)
-    if 'user_id' not in session:
-        return jsonify({"message": "Authentication required."}), 401
-
-    current_user_id = session['user_id']
-    current_user = User.query.get(current_user_id)
-    if not current_user:
-        return jsonify({"message": "Current user not found."}), 404
-
-    user_to_follow = User.query.get(followed_id)
-    if not user_to_follow:
-        return jsonify({"message": "User to follow not found."}), 404
-
-    if current_user.is_following(user_to_follow):
-        return jsonify({"message": "Already following."}), 400
-
-    current_user.follow(user_to_follow)
-    db.session.commit()
-    return jsonify({"message": "Now following."}), 200
-
-
-@app.route('/unfollow/<int:followed_id>', methods=['POST'])
-@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
-def unfollow_user(followed_id):
-    if 'user_id' not in session:
-        return jsonify({"message": "Authentication required."}), 401
-
-    current_user_id = session['user_id']
-    current_user = User.query.get(current_user_id)
-    if not current_user:
-        return jsonify({"message": "Current user not found."}), 404
-
-    user_to_unfollow = User.query.get(followed_id)
-    if not user_to_unfollow:
-        return jsonify({"message": "User to unfollow not found."}), 404
-
-    if not current_user.is_following(user_to_unfollow):
-        return jsonify({"message": "Not following this user."}), 400
-
-    current_user.unfollow(user_to_unfollow)
-    db.session.commit()
-    return jsonify({"message": "Unfollowed."}), 200
 
 
 if __name__ == '__main__':
