@@ -47,7 +47,6 @@ def get_config():
     scopes = os.environ.get('SPOTIFY_REQUIRED_SCOPES')
 
     if not client_id or not redirect_uri or not scopes:
-        # If any are None, log the error and return a meaningful message
         app.logger.error("Spotify configuration environment variables are not set correctly.")
         return jsonify({
             "error": "Configuration is incomplete. Check server logs for details."
@@ -74,7 +73,7 @@ def spotify_callback():
         'code': code,
         'redirect_uri': redirect_uri,
         'client_id': os.getenv('SPOTIFY_CLIENT_ID'),
-        'client_secret': os.getenv('SPOTIFY_CLIENT_SECRET'),
+        'client_secret': os.getenv('SPOTIFY_CLIENT_SECRET')
     })
     
     tokens = response.json()
