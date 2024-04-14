@@ -3,7 +3,6 @@ from flask import jsonify, session
 from werkzeug.security import check_password_hash, generate_password_hash
 import logging 
 import os
-import requests
 
 # Import the `spotify` object from where it is instantiated
 from backend.app import spotify
@@ -23,28 +22,13 @@ def register(username, password, email, bio):
 
     hashed_password = generate_password_hash(password)
     new_user = User(username=username, password=hashed_password, email=email)
+    db.session.add(new_user)
+    db.session.commit()
 
-    try:
-        db.session.add(new_user)
-        db.session.commit()
-
-        # Create a new Profile instance for the user.
-        new_profile = Profile(user_id=new_user.id, bio=bio)
-        db.session.add(new_profile)
-        
-        # Request Spotify data using the access token and update the profile
-        # Replace 'YOUR_ACCESS_TOKEN' with the actual access token obtained during the OAuth flow
-        spotify_data = get_spotify_data('YOUR_ACCESS_TOKEN')
-        if spotify_data:
-            new_profile.profile_image = spotify_data.get('images')[0]['url'] if spotify_data.get('images') else None
-        
-        db.session.commit()
-
-        return {"message": "Registration successful.", "user_id": new_user.id}, 201
-    except Exception as e:
-        logging.error(f"Failed to add user {username}. Error: {e}")
-        db.session.rollback()
-        return {"message": "Failed to register user."}, 500
+    new_profile = Profile(user_id=new_user.id, bio=bio)
+    db.session.add(new_profile)
+    db.session.commit()
+    return {"message": "Registration successful.", "user_id": new_user.id}, 201
 
 def complete_registration(spotify_data):
     reg_data = session.pop('reg_data', None)
@@ -111,15 +95,3 @@ def update_profile(user_id, bio, profile_image):
         return jsonify({"message": "Profile updated successfully"}), 200
     else:
         return jsonify({"message": "Profile not found for the user"}), 404
-    
-def get_spotify_data(access_token):
-    # Make a request to Spotify API to fetch user data using the access token
-    headers = {
-        'Authorization': f'Bearer {access_token}'
-    }
-    response = requests.get('https://api.spotify.com/v1/me', headers=headers)
-    if response.status_code == 200:
-        return response.json()
-    else:
-        logging.error(f"Failed to fetch Spotify data: {response.status_code} - {response.text}")
-        return None
