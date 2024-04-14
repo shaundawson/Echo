@@ -11,6 +11,7 @@ def load_key():
     key = os.environ.get('SECRET_KEY')
     if key is None:
         raise ValueError("No SECRET_KEY set in environment")
+    return key.encode()
 
 # Function to create a cipher object
 
