@@ -132,6 +132,7 @@ def profile_route(user_id):
 
         data = request.get_json()
         bio = data.get('bio', None)  # Default to None if 'bio' not provided
+        profile_image = data.get('profile_image', None)  # Same for 'profile_image'
 
         try:
             user = User.query.get(user_id)

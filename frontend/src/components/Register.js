@@ -25,7 +25,6 @@ function Register() {
     };
 
     const handleSpotifyAuth = async () => {
-        // This URL should be the one generated for Spotify authentication
         window.location = `https://accounts.spotify.com/authorize?client_id=SPOTIFY_CLIENT_ID&response_type=code&redirect_uri=SPOTIFY_REDIRECT_URI&scope=SPOTIFY_REQUIRED_SCOPES`;
     };
 

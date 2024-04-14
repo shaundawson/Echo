@@ -9,7 +9,7 @@ def generate_key():
     key = Fernet.generate_key()
     with open("secret.key", "wb") as key_file:
         key_file.write(key)
-print(generate_key())
+
 
 def load_key():
     return open("secret.key", "rb").read()
@@ -36,8 +36,8 @@ def save_spotify_tokens(user_id, access_token, refresh_token, expires_in):
     if user:
         user.spotify_access_token = encrypted_access_token
         user.spotify_refresh_token = encrypted_refresh_token
-        # Ensure expires_in is an integer before creating a timedelta
-        user.spotify_token_expiration = datetime.now(timezone.utc) + timedelta(seconds=int(expires_in))
+        # Store the token expiration with explicit UTC timezone
+        user.spotify_token_expiration = datetime.now(timezone.utc) + timedelta(seconds=int(expires_in)
         db.session.commit()
 
 def get_spotify_tokens(user_id):
@@ -55,7 +55,7 @@ def login(username, password):
     else:
         return {"message": "Invalid username or password"}, 401
     
-def register(username, password, email):
+def register(username, password, email, bio=None):
     existing_user = User.query.filter_by(username=username).first()
     if existing_user:
         return {"message": "An account with this username already exists."}, 409
@@ -68,7 +68,7 @@ def register(username, password, email):
         db.session.commit()
 
         # Create a new Profile instance for the user.
-        new_profile = Profile(user_id=new_user.id)
+        new_profile = Profile(user_id=new_user.id, bio=bio)
         db.session.add(new_profile)
         db.session.commit()
 
@@ -86,7 +86,8 @@ def get_profile(user_id):
             'username': user.username,
             'email': user.email,
             'bio': user.profile.bio,
-            'user_id': user.profile.user_id
+            'user_id': user.profile.user_id,
+            'profile_image': user.profile.profile_image,
         }
         return profile_data, 200  # Return a dictionary, not jsonify
     else:
