@@ -20,7 +20,8 @@ const Navbar = () => {
         <nav>
             <div>
                 <Link to="/">Home</Link> {/* Existing link */}
-                {currentUser && <Link to="/create-post">Create Post</Link>} {/* Add this line */}
+                {currentUser && <Link to="/create-post">Create Post</Link>} {/* Link for creating posts */}
+                {currentUser && <Link to="/feed">Your Posts</Link>} {/* Link to view all posts by the user */}
                 {currentUser ? (
                     <>
                         <Link to={`/profile/${currentUser.user_id}`}>Profile</Link>

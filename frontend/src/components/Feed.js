@@ -1,29 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useAuth } from '../AuthContext';
 
 function Feed() {
     const [posts, setPosts] = useState([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
     useEffect(() => {
-        const fetchPosts = async () => {
-            setLoading(true);
-            setError('');
-            try {
-                const response = await axios.get('https://dry-dawn-86507-cc866b3e1665.herokuapp.com/posts', {
-                    withCredentials: true
-                });
-                setPosts(response.data);
-            } catch (error) {
-                setError('Failed to fetch posts: ' + (error.response?.data?.message || error.message));
-            }
-            setLoading(false);
-        };
-
         fetchPosts();
     }, []);
+
+    const fetchPosts = async () => {
+        setLoading(true);
+        setError('');
+        try {
+            const response = await axios.get('https://dry-dawn-86507-cc866b3e1665.herokuapp.com/posts', {
+                withCredentials: true
+            });
+            setPosts(response.data);
+        } catch (error) {
+            setError('Failed to fetch posts: ' + (error.response?.data?.message || error.message));
+        }
+        setLoading(false);
+    };
+
+    const deletePost = async (id) => {
+        try {
+            await axios.delete(`https://dry-dawn-86507-cc866b3e1665.herokuapp.com/post/${id}`, {
+                withCredentials: true
+            });
+            // Filter out the deleted post from the state
+            setPosts(posts.filter(post => post.id !== id));
+            alert('Post deleted successfully');
+        } catch (error) {
+            setError('Failed to delete post: ' + (error.response?.data?.message || error.message));
+        }
+    };
 
     return (
         <div>
@@ -38,6 +50,7 @@ function Feed() {
                             <strong>{post.song_recommendation}</strong>
                             <p>{post.description}</p>
                             <small>Posted on: {new Date(post.created_at).toLocaleDateString()}</small>
+                            <button onClick={() => deletePost(post.id)}>Delete</button>
                         </li>
                     ))}
                 </ul>
