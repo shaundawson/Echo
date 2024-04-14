@@ -77,6 +77,7 @@ def login_route():
 
 
 @app.route('/spotify_callback')
+@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def spotify_callback():
     error = request.args.get('error')
     code = request.args.get('code')
