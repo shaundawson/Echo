@@ -1,5 +1,7 @@
 import React, { useState, useContext } from 'react';
-import { useAuth } from './AuthContext';
+import { useAuth } from '../AuthContext';
+import RobotitoImage2 from '../images/Robotito2.png'; // Adjust the path to where you have saved Robotito.png
+
 
 function CreatePost() {
     const [searchQuery, setSearchQuery] = useState('');
