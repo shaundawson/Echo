@@ -38,11 +38,11 @@ html, body {
 }
 
 .button:hover, .logout-button:hover {
-    background-color: #21a1f1; /* Darker shade of cyan for hover effect */
+    background-color: #8ed7dc; /* Darker shade of cyan for hover effect */
 }
 
 a {
-    color: #1e90ff;
+    color: #ffffff;
     text-decoration: none;
 }
 
