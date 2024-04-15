@@ -67,7 +67,7 @@ function CreatePost() {
         }
 
         try {
-            const response = await axios.post('/post', {  // Using a relative URL here
+            const response = await axios.post('https:/dry-dawn-86507-cc866b3e1665.herokuapp.com/post', {
                 song_recommendation: selectedSong.id,
                 song_url: songUrl,  // Include the song URL in the POST request
                 description: description
