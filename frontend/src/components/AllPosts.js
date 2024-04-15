@@ -7,7 +7,7 @@ function AllPosts() {
     useEffect(() => {
         const fetchPosts = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/all-posts');  // Adjust URL as needed
+                const response = await axios.get('https://dry-dawn-86507-cc866b3e1665.herokuapp.co/all-posts');
                 setPosts(response.data);
             } catch (error) {
                 console.error('Error fetching posts:', error);
