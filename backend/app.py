@@ -211,7 +211,7 @@ def create_post():
     
     user_id = session.get('user_id')
     data = request.get_json()
-    song_recommendation = data['song_recommendation']  # Assume this is the Spotify track ID
+    song_recommendation = data['song_recommendation']  
     description = data.get('description', '')
 
     new_post = Post(
