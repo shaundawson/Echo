@@ -155,6 +155,26 @@ def profile_route(user_id):
         return jsonify({"message": "Method not allowed"}), 405
 
 
+@app.route('/all-posts', methods=['GET'])
+def get_all_posts():
+    try:
+        # Fetch all posts including the user who made each post
+        posts = Post.query.join(User).all()
+        all_posts = [
+            {
+                "post_id": post.id,
+                "username": post.user.username,
+                "song_recommendation": post.song_recommendation,
+                "description": post.description,
+                "created_at": post.created_at.isoformat()
+            } for post in posts
+        ]
+        return jsonify(all_posts), 200
+    except Exception as e:
+        print(f"Error fetching all posts: {str(e)}")
+        return jsonify({"message": "Internal server error"}), 500
+
+
 @app.route('/posts', methods=['GET'])
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def get_posts():

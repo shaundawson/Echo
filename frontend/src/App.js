@@ -11,6 +11,7 @@ import CreatePost from './components/CreatePost';
 import Feed from './components/Feed';
 import Post from './components/Post';
 import UserFeed from './components/UserFeed';
+import AllPosts from './components/AllPosts';
 
 
 
@@ -32,6 +33,7 @@ function App() {
             <Route path="/feed" element={<Feed />} />
             <Route path="/post" element={<Post />} />
             <Route path="/users" element={<UserFeed />} />
+            <Route path="/all-posts" element={<AllPosts />} />
           </Routes>
         </div>
       </Router>
