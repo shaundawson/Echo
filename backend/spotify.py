@@ -45,3 +45,16 @@ def handle_spotify_callback(request):
 
     # Redirect back to a main or profile page
     return redirect('http://localhost:3000/')
+
+
+# Search functionality
+def search_spotify(query, token):
+    headers = {
+        'Authorization': f'Bearer {token}',
+    }
+    params = {
+        'q': query,
+        'type': 'track', # Search for a track
+    }
+    response = requests.get('https://api.spotify.com/v1/search', headers=headers, params=params)
+    return response.json() 
