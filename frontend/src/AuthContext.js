@@ -11,13 +11,13 @@ export const AuthProvider = ({ children }) => {
     const [token, setToken] = useState(localStorage.getItem('token'));
     const [spotifyToken, setSpotifyToken] = useState(localStorage.getItem('spotifyToken'));
 
-    const login = (userData, token) => {
+    const login = (userData, token, spotifyToken) => { // Added spotifyToken as an argument
         setCurrentUser(userData);
         setToken(token);
-        setSpotifyToken(spotifyToken);
+        setSpotifyToken(spotifyToken); // Now correctly sets the spotifyToken from the argument
         localStorage.setItem('user', JSON.stringify(userData)); // Persist user data
         localStorage.setItem('token', token); // Persist token
-        localStorage.setItem('spotifyToken', spotifyToken); // Persist spotifyToken
+        localStorage.setItem('spotifyToken', spotifyToken); // Persist spotifyToken correctly
     };
 
     const logout = () => {
@@ -26,6 +26,7 @@ export const AuthProvider = ({ children }) => {
         setSpotifyToken(null);
         localStorage.removeItem('user'); // Clear user data
         localStorage.removeItem('token'); // Clear token
+        localStorage.removeItem('spotifyToken'); // Clear spotifyToken
     };
 
     const value = {

@@ -253,17 +253,16 @@ def delete_post(post_id):
 
 
 @app.route('/api/search')
+@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def spotify_search_proxy():
-    query = request.args.get('q')
-    # Assuming your frontend sends the token
     token = request.headers.get('Authorization')
-
-    if not token:
+    if not token or not token.startswith('Bearer '):
         return jsonify({"error": "No authorization token provided"}), 401
-
+    token = token.split(' ')[1]
+    query = request.args.get('q')
     spotify_response = requests.get(
         'https://api.spotify.com/v1/search',
-        headers={'Authorization': token},
+        headers={'Authorization': f'Bearer {token}'},
         params={'q': query, 'type': 'track', 'limit': 10}
     )
     return jsonify(spotify_response.json()), spotify_response.status_code

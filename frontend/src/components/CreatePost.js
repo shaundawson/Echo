@@ -23,7 +23,7 @@ function CreatePost() {
 
         try {
             // Update the URL to your Flask backend endpoint
-            const response = await axios.get('https://dry-dawn-86507-cc866b3e1665.herokuapp.com//api/search', {
+            const response = await axios.get('https://dry-dawn-86507-cc866b3e1665.herokuapp.com/api/search', {
                 headers: {
                     'Authorization': `Bearer ${spotifyToken}`,  // Pass Spotify token here
                     'Content-Type': 'application/json'
