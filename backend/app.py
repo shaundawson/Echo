@@ -4,7 +4,7 @@ from backend.models import db, User, Profile, Post
 from backend.services import login, register
 import os
 from flask_migrate import Migrate
-from spotify import search_spotify
+from backend.spotify import search_spotify
 
 # Create the Flask application
 app = Flask(__name__)
@@ -208,10 +208,10 @@ def create_post():
     print("Session user_id at /post:", session.get('user_id'))  # Debug print
     if not user_id:
         return jsonify({"message": "Authentication required."}), 401
-    
+
     user_id = session.get('user_id')
     data = request.get_json()
-    song_recommendation = data['song_recommendation']  
+    song_recommendation = data['song_recommendation']
     description = data.get('description', '')
 
     new_post = Post(
@@ -244,7 +244,7 @@ def delete_post(post_id):
 @app.route('/search')
 def search():
     query = request.args.get('query')
-    token = request.cookies.get('spotifyToken')  
+    token = request.cookies.get('spotifyToken')
     results = search_spotify(query, token)
     return jsonify(results)
 
