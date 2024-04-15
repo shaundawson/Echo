@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import './UserFeed.css'; // This line imports the CSS from above
+
 
 function UserFeed() {
     const [users, setUsers] = useState([]);
@@ -15,13 +17,13 @@ function UserFeed() {
     }, []);
 
     return (
-        <div>
-            <h1>User Feed</h1>
+        <div className="user-feed-container">
+            <h1 className="user-feed-heading">User Feed</h1>
             <ul>
                 {users.map(user => (
-                    <li key={user.username}>
-                        <h2>{user.username}</h2>
-                        <p>{user.bio}</p>
+                    <li key={user.username} className="user-card">
+                        <h2 className="user-name">{user.username}</h2>
+                        <p className="user-bio">{user.bio}</p>
                     </li>
                 ))}
             </ul>

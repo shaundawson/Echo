@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import './AllPosts.css'; // Import the stylesheet
+
 
 function AllPosts() {
     const [posts, setPosts] = useState([]);
@@ -18,14 +20,14 @@ function AllPosts() {
     }, []);
 
     return (
-        <div>
-            <h1>All Posts</h1>
+        <div className="custom-container">
+            <h1 className="custom-heading">All Posts</h1>
             {posts.map(post => (
-                <div key={post.post_id}>
-                    <h2>{post.username}</h2>
-                    <p>{post.song_recommendation}</p>
-                    <p>{post.description}</p>
-                    <p>Posted on: {new Date(post.created_at).toLocaleDateString()}</p>
+                <div className="custom-post-box" key={post.post_id}>
+                    <h2 className="custom-post-title">{post.username}</h2>
+                    <p className="custom-post-content">{post.song_recommendation}</p>
+                    <p className="custom-post-content">{post.description}</p>
+                    <p className="custom-post-timestamp">Posted on: {new Date(post.created_at).toLocaleDateString()}</p>
                 </div>
             ))}
         </div>

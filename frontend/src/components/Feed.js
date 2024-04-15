@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import './Feed.css'; // Import the stylesheet
+
 
 function Feed() {
     const [posts, setPosts] = useState([]);
@@ -38,19 +40,21 @@ function Feed() {
     };
 
     return (
-        <div>
-            <h1>Your Posts</h1>
-            {loading && <p>Loading...</p>}
-            {error && <p style={{ color: 'red' }}>{error}</p>}
+        <div className="feed-container">
+            <h1 className="feed-heading">Your Posts</h1>
+            {loading && <p className="loading-message">Loading...</p>}
+            {error && <p className="error-message">{error}</p>}
             {!loading && posts.length === 0 && <p>No posts to show.</p>}
             {!loading && posts.length > 0 && (
                 <ul>
                     {posts.map(post => (
                         <li key={post.id}>
-                            <strong>{post.song_recommendation}</strong>
-                            <p>{post.description}</p>
-                            <small>Posted on: {new Date(post.created_at).toLocaleDateString()}</small>
-                            <button onClick={() => deletePost(post.id)}>Delete</button>
+                            <div className="post-box">
+                                <strong className="post-title">{post.song_recommendation}</strong>
+                                <p className="post-content">{post.description}</p>
+                                <small className="post-timestamp">Posted on: {new Date(post.created_at).toLocaleDateString()}</small>
+                                <button className="delete-button" onClick={() => deletePost(post.id)}>Delete</button>
+                            </div>
                         </li>
                     ))}
                 </ul>
