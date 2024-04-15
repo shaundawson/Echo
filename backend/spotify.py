@@ -48,7 +48,7 @@ def handle_spotify_callback(request):
 def refresh_spotify_token():
     spotify_refresh_token = request.cookies.get('spotifyRefreshToken')
     if not spotify_refresh_token:
-        return jsonify({"error": "Refresh token missing"}), 400
+        return {"error": "Refresh token missing"}, 400
 
     token_data = {
         'grant_type': 'refresh_token',

@@ -3,7 +3,7 @@ from flask_cors import CORS, cross_origin
 from backend.models import db, User, Profile, Post
 from backend.services import login, register
 import os
-from backend.spotify import search_spotify
+from backend.spotify import search_spotify, refresh_spotify_token
 import requests
 
 # Create the Flask application
@@ -283,7 +283,15 @@ def search():
         results = search_spotify(query, token, user_id)
         return jsonify(results)
     else:
-        return jsonify({"error": "Authentication required"}), 401
+        # Refresh Spotify token if necessary
+        refreshed_token = refresh_spotify_token()
+        if refreshed_token:
+            query = request.args.get('query')
+            user_id = session.get('user_id')
+            results = search_spotify(query, refreshed_token, user_id)
+            return jsonify(results)
+        else:
+            return jsonify({"error": "Authentication required"}), 401
 
 
 if __name__ == '__main__':
