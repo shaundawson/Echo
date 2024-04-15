@@ -6,16 +6,19 @@ import './Profile.css'; // This line imports the CSS from above
 
 
 function Profile() {
+    // Get current user from AuthContext
     const { currentUser } = useAuth();
+    // State variables for user data, edit mode, and URL parameter
     const [userData, setUserData] = useState({ username: '', bio: '', profile_picture: '' });
     const [editMode, setEditMode] = useState(false);
-    const { userId } = useParams();
+    const { userId } = useParams(); // Get user ID from URL parameter
 
+    // Fetch user data from API when component mounts or user ID changes
     useEffect(() => {
         // Check if currentUser exists inside useEffect
         if (!currentUser) {
             console.log("No authenticated user.");
-            return;  // Just return early if no user
+            return;  // Return early if no user
         }
 
         const fetchUserData = async () => {
@@ -25,7 +28,7 @@ function Profile() {
                 });
 
                 if (response.data) {
-                    console.log("API Response:", response.data);  // Log to see what the API is returning
+                    // console.log("API Response:", response.data);  // Log to see what the API is returning
                     setUserData(response.data); // Set the whole user data object
                 }
             } catch (error) {
@@ -36,16 +39,18 @@ function Profile() {
         fetchUserData();
     }, [userId, currentUser]); // Include currentUser in the dependency array
 
-
+    // Render a message prompting to log in if there's no authenticated user
     if (!currentUser) {
         // Render this message outside of useEffect
         return <div>Please log in to view this page.</div>;
     }
 
+    // Function to handle changes in user bio
     const handleBioChange = (event) => {
         setUserData({ ...userData, bio: event.target.value });
     };
 
+    // Function to submit edited user bio
     const handleEditSubmit = async () => {
         try {
             const config = {
@@ -61,12 +66,13 @@ function Profile() {
             );
 
             if (response.status === 200) {
-                console.log('Profile update response:', response.data);
+                // Update user data state with edited bio
+                // console.log('Profile update response:', response.data);
                 setUserData(prevState => ({
                     ...prevState,
                     bio: userData.bio
                 }));
-                setEditMode(false);
+                setEditMode(false); // Exit edit mode after successful update
             } else {
                 console.error('Profile update was not successful.');
             }

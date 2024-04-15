@@ -3,7 +3,6 @@ from flask_cors import CORS, cross_origin
 from backend.models import db, User, Profile, Post
 from backend.services import login, register
 import os
-from flask_migrate import Migrate
 from backend.spotify import search_spotify
 
 # Create the Flask application
@@ -32,19 +31,19 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
 }
 
 db.init_app(app)
-migrate = Migrate(app, db)
+
 
 # Configure CORS
 CORS(app, support_credentials=True, origins=["http://localhost:3000"])
 
+
 # App Routes
-
-
 @app.route('/')
 def home():
     return 'Welcome to the Echo App!'
 
 
+# Handles user login functionality
 @app.route('/login', methods=['GET', 'POST', 'OPTIONS'])
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def login_route():
@@ -64,6 +63,8 @@ def login_route():
     else:
         return '', 204
 
+ # Handles user registration functionality
+
 
 @app.route('/register', methods=['POST', 'GET'])
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
@@ -80,6 +81,7 @@ def register_route():
         return jsonify({"message": "GET method for registration is not supported."}), 405
 
 
+# Used to fetch or update a user's profile
 @app.route('/users')
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def get_users():
@@ -103,6 +105,7 @@ def get_users():
         return jsonify({'message': 'Internal server error'}), 500
 
 
+# User Profile Route
 @app.route('/profile/<int:user_id>', methods=['PUT', 'GET'])
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def profile_route(user_id):
@@ -156,6 +159,7 @@ def profile_route(user_id):
         return jsonify({"message": "Method not allowed"}), 405
 
 
+# Used to fetch all posts created by any user
 @app.route('/all-posts', methods=['GET'])
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def get_all_posts():
@@ -177,6 +181,7 @@ def get_all_posts():
         return jsonify({"message": "Internal server error"}), 500
 
 
+# Used to fetch posts created by a specific user.
 @app.route('/posts', methods=['GET'])
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def get_posts():
@@ -202,6 +207,7 @@ def get_posts():
         return jsonify({"message": "Internal server error", "error": str(e)}), 500
 
 
+# Route to create a new post
 @app.route('/post', methods=['POST'])
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def create_post():
@@ -228,6 +234,7 @@ def create_post():
         return jsonify({"message": "Failed to create post", "error": str(e)}), 500
 
 
+# Route to delete a post
 @app.route('/post/<int:post_id>', methods=['DELETE'])
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def delete_post(post_id):
@@ -241,6 +248,7 @@ def delete_post(post_id):
     return jsonify({"message": "Post deleted successfully"}), 200
 
 
+# Spotify Search Route
 @app.route('/search')
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def search():
