@@ -30,10 +30,10 @@ function App() {
             <Route path="/explore" element={<Explore />} />
             <Route path="/profile/:userId" element={<Profile />} />
             <Route path="/create-post" element={<CreatePost />} />
+            <Route path="/all-posts" element={<AllPosts />} />
             <Route path="/feed" element={<Feed />} />
             <Route path="/post" element={<Post />} />
             <Route path="/users" element={<UserFeed />} />
-            <Route path="/all-posts" element={<AllPosts />} />
           </Routes>
         </div>
       </Router>
