@@ -1,7 +1,6 @@
-# spotify.py
 import os
 import requests
-from flask import jsonify, session, redirect
+from flask import jsonify, request, make_response, redirect
 from urllib.parse import urlencode
 from backend.models import db, User
 
@@ -37,34 +36,33 @@ def handle_spotify_callback(request):
     if response.status_code != 200:
         return jsonify({'message': 'Failed to retrieve access token from Spotify.'}), response.status_code
 
-    user_id = session.get('user_id')
-    user = User.query.get(user_id)
-    user.spotify_access_token = response_data['access_token']
-    user.spotify_refresh_token = response_data['refresh_token']
-    db.session.commit()
+    # Setting cookies with HttpOnly, secure and appropriate SameSite attribute
+    resp = make_response(redirect('http://localhost:3000/'))
+    resp.set_cookie('spotifyToken',
+                    response_data['access_token'], httponly=True, secure=True, samesite='None')
+    resp.set_cookie('spotifyRefreshToken',
+                    response_data['refresh_token'], httponly=True, secure=True, samesite='None')
+    return resp
 
-    # Redirect back to a main or profile page
-    return redirect('http://localhost:3000/')
 
-
-def refresh_spotify_token(user_id):
-    user = User.query.get(user_id)
-    if not user or not user.spotify_refresh_token:
+def refresh_spotify_token():
+    spotify_refresh_token = request.cookies.get('spotifyRefreshToken')
+    if not spotify_refresh_token:
         return jsonify({"error": "Refresh token missing"}), 400
 
     token_data = {
         'grant_type': 'refresh_token',
-        'refresh_token': user.spotify_refresh_token,
+        'refresh_token': spotify_refresh_token,
         'client_id': os.environ['SPOTIFY_CLIENT_ID'],
         'client_secret': os.environ['SPOTIFY_CLIENT_SECRET'],
     }
     response = requests.post(
         'https://accounts.spotify.com/api/token', data=token_data)
+    response_data = response.json()
 
     if response.status_code == 200:
-        response_data = response.json()
-        user.spotify_access_token = response_data['access_token']
-        db.session.commit()
+        response.set_cookie(
+            'spotifyToken', response_data['access_token'], httponly=True, secure=True, samesite='None')
         return response_data['access_token']
     else:
         return None
@@ -72,14 +70,18 @@ def refresh_spotify_token(user_id):
 # Search functionality
 
 
-def search_spotify(query, token, user_id):
-    headers = {'Authorization': f'Bearer {token}'}
+def search_spotify(query):
+    spotify_access_token = request.cookies.get('spotifyToken')
+    if not spotify_access_token:
+        return jsonify({"error": "Access token missing"}), 401
+
+    headers = {'Authorization': f'Bearer {spotify_access_token}'}
     params = {'q': query, 'type': 'track'}
     response = requests.get(
         'https://api.spotify.com/v1/search', headers=headers, params=params)
 
     if response.status_code == 401:  # Token may be expired
-        new_token = refresh_spotify_token(user_id)
+        new_token = refresh_spotify_token()
         if new_token:
             headers['Authorization'] = f'Bearer {new_token}'
             response = requests.get(

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../AuthContext';
 import RobotitoImage2 from '../images/Robotito2.png';
@@ -15,17 +15,27 @@ function CreatePost() {
     const [error, setError] = useState('');
     const { spotifyToken } = useAuth();
 
+    useEffect(() => {
+        console.log("Spotify Token updated in component:", spotifyToken);
+    }, [spotifyToken]);
+
     // Function to handle song search using your backend as a proxy
     const handleSearch = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
         setError('');
 
+        const spotifyToken = localStorage.getItem('spotifyToken'); // Retrieve from localStorage
+        if (!spotifyToken) {
+            setError('No Spotify access token available.');
+            setIsSubmitting(false);
+            return;
+        }
+
         try {
-            // Update the URL to your Flask backend endpoint
-            const response = await axios.get('https://dry-dawn-86507-cc866b3e1665.herokuapp.com/api/search', {
+            const response = await axios.get('https://api.spotify.com/v1/search', {
                 headers: {
-                    'Authorization': `Bearer ${spotifyToken}`,  // Pass Spotify token here
+                    'Authorization': `Bearer ${spotifyToken}`,
                     'Content-Type': 'application/json'
                 },
                 params: {

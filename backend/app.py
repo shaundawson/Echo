@@ -52,7 +52,7 @@ def login_route():
         username = request.json['username']
         password = request.json['password']
         user, status_code = login(username, password)
-        if user:
+        if user.get('user_id'):  # Check if 'user_id' is in the dictionary
             # Store the user's ID in the session
             session['user_id'] = user['user_id']
             print("Logged in user_id:", session['user_id'])  # Debug print
@@ -272,21 +272,18 @@ def spotify_search_proxy():
 @app.route('/search')
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def search():
-    token = request.headers.get('Authorization')
+    token = request.cookies.get('spotifyToken')
     if token:
-        # This splits "Bearer <token>" and takes the token part
-        token = token.split(" ")[1]
+        query = request.args.get('query')
+        # Ensure user_id is also correctly managed
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({"error": "User session not found"}), 401
+
+        results = search_spotify(query, token, user_id)
+        return jsonify(results)
     else:
         return jsonify({"error": "Authentication required"}), 401
-
-    query = request.args.get('query')
-    # Ensure user_id is also correctly managed
-    user_id = session.get('user_id')
-    if not user_id:
-        return jsonify({"error": "User session not found"}), 401
-
-    results = search_spotify(query, token, user_id)
-    return jsonify(results)
 
 
 if __name__ == '__main__':
