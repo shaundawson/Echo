@@ -37,7 +37,8 @@ def handle_spotify_callback(request):
         return jsonify({'message': 'Failed to retrieve access token from Spotify.'}), response.status_code
 
     # Setting cookies with HttpOnly, secure and appropriate SameSite attribute
-    resp = make_response(redirect('http://localhost:3000/'))
+    resp = make_response(
+        redirect('dry-dawn-86507-cc866b3e1665.herokuapp.com/'))
     resp.set_cookie('spotifyToken',
                     response_data['access_token'], httponly=True, secure=True, samesite='None')
     resp.set_cookie('spotifyRefreshToken',
