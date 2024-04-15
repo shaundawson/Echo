@@ -4,7 +4,7 @@
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
-    background-color: #ffffff; /* White background color */
+    background-color: white; /* White background color */
     border-radius: 8px; /* Rounded corners */
     border: 1px solid #ffffff; /* Add a border for separation */
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); /* Add a subtle box shadow */

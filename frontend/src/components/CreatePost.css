@@ -75,16 +75,8 @@
 }
 
 .createPostContainer p {
-    color: #dc3545; /* Bootstrap danger color for error messages */
+    color: #ffffff; /* Bootstrap danger color for error messages */
     text-align: center; /* Centering error message */
-}
-
-.robot-image2 {
-    max-width: 200px;
-    height: auto;
-    display: block;
-    margin: 0 auto;
-    margin-top: 50px;
 }
 
 @keyframes floatAnimation {
@@ -112,4 +104,18 @@
     -webkit-animation: floatAnimation 8s ease-in-out infinite; /* Chrome, Safari, Opera */
     -moz-animation: floatAnimation 8s ease-in-out infinite; /* Firefox */
     -o-animation: floatAnimation 8s ease-in-out infinite; /* Opera < 12.0 */
+}
+
+footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    padding: 10px 0;
+    background-color: #1a1a1a 100%; /* Ensure gradient shows through */
+    color: white;
+    font-size: 16px;
+    z-index: 1000;
+    text-shadow: 0px 4px 6px rgba(0,0,0,0.2);
 }

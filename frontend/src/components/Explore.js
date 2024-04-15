@@ -37,7 +37,7 @@ function Explore() {
 
                 </form>
                 <div id="search-results">
-                    
+
                     {/* Search results would be displayed here */}
 
                 </div>
@@ -48,6 +48,7 @@ function Explore() {
             </div>
 
             </main>
+            <footer><p>Copyright &#169; 2024 Echo. All Rights Reserved.</p></footer>
         </div>
     );
 }

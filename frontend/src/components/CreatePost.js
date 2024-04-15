@@ -88,7 +88,7 @@ function CreatePost() {
     return (
         <div className="createPostContainer">
 
-            <h1>Create Song Recommendation</h1>
+            <h1>It's time to recommend a song</h1>
             <form onSubmit={handleSearch}>
                 <input
                     type="text"
@@ -120,6 +120,8 @@ function CreatePost() {
             <div className="robotContainer">
                 <img src={RobotitoImage2} alt="Cute robot with headphones2" className="robot-image2" />
             </div>
+
+            <footer ><p>Copyright &#169; 2024 Echo. All Rights Reserved.</p></footer>
         </div>
     );
 }
