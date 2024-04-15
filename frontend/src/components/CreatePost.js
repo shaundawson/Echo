@@ -1,10 +1,12 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
+import axios from 'axios';
 import { useAuth } from '../AuthContext';
 import RobotitoImage2 from '../images/Robotito2.png'; // Adjust the path to where you have saved Robotito.png
 import './CreatePost.css'; // Import the stylesheet
 
 
 function CreatePost() {
+    const [songRecommendation, setSongRecommendation] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [selectedSong, setSelectedSong] = useState(null);
@@ -13,33 +15,37 @@ function CreatePost() {
     const [error, setError] = useState('');
     const { spotifyToken } = useAuth();
 
-    const handleSearch = async (event) => {
-        event.preventDefault();
-        setError('');  // Clear previous errors
-        if (!spotifyToken) {
-            setError('Authentication token is missing.');
-            return;
-        }
+    const handleSearch = async (e) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        setError('');
 
         try {
-            const response = await fetch(`/search?query=${encodeURIComponent(searchQuery)}`, {
-                headers: { Authorization: `Bearer ${spotifyToken}` }
+            const response = await axios.get('https://api.spotify.com/v1/search', {
+                headers: {
+                    'Authorization': `Bearer ${spotifyToken}`,
+                    'Content-Type': 'application/json'
+                },
+                params: {
+                    q: searchQuery,
+                    type: 'track',
+                    limit: 10
+                }
             });
-            if (!response.ok) {
-                throw new Error('Failed to fetch results');
-            }
-            const data = await response.json();
-            setSearchResults(data.tracks.items);
+            setSearchResults(response.data.tracks.items);
         } catch (error) {
             console.error('Search error:', error);
-            setError('Failed to fetch search results.');
+            setError('Failed to fetch search results: ' + (error.response?.data?.message || error.message));
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
+    // Function to handle the submission of the selected song and description
     const handleSubmit = async (event) => {
         event.preventDefault();
         setIsSubmitting(true);
-        setError('');  // Clear previous errors
+        setError('');
 
         if (!spotifyToken) {
             setError('Authentication token is missing.');
@@ -48,32 +54,29 @@ function CreatePost() {
         }
 
         try {
-            const response = await fetch('/post', {
-                method: 'POST',
+            const response = await axios.post('https://dry-dawn-86507-cc866b3e1665.herokuapp.com/post', {
+                song_recommendation: selectedSong ? selectedSong.id : null,  // Ensure you send the ID
+                description: description
+            }, {
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${spotifyToken}`
-                },
-                body: JSON.stringify({
-                    song_recommendation: selectedSong ? selectedSong.id : null, // Ensure you send the ID
-                    description: description
-                })
+                    'Authorization': `Bearer ${spotifyToken}`
+                }
             });
-            if (!response.ok) {
+            if (response.status !== 201) {
                 throw new Error('Failed to create post');
             }
-            // Optionally handle a successful response
             alert('Post created successfully!');
-            // Reset form
             setSearchQuery('');
             setDescription('');
             setSelectedSong(null);
             setSearchResults([]);
         } catch (error) {
             console.error('Post error:', error);
-            setError(`Failed to create post: ${error.message}`);
+            setError(`Failed to create post: ${error.response?.data?.message || error.message}`);
+        } finally {
+            setIsSubmitting(false);
         }
-        setIsSubmitting(false);
     };
 
     return (
@@ -110,16 +113,8 @@ function CreatePost() {
 
             <div className = "robotContainer">
                 <img src={RobotitoImage2} alt="Cute robot with headphones2" className="robot-image2"/>
-            
-            
             </div>
-
-
-        </div>
-
-        
-
-        
+        </div> 
     );
 }
 
