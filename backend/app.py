@@ -156,6 +156,7 @@ def profile_route(user_id):
 
 
 @app.route('/all-posts', methods=['GET'])
+@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def get_all_posts():
     try:
         # Fetch all posts including the user who made each post
