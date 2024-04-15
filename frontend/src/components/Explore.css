@@ -1,54 +1,100 @@
 /* Explore.css - Modern and sleek styling for the Explore component */
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to bottom, #00bcd4 0%, #22ffe2 100%);
+    color: white;
+    transition: background-color 0.3s;
+}
+
+
 .explore-container {
-    display: flex; /* Continue using flexbox */
-    flex-direction: row; /* Align children horizontally */
-    justify-content: flex-start; /* Align children to the start of the container */
-    align-items: flex-start; /* Align items from the top */
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: center; /* Center the main content horizontally in the container */
+    align-items: flex-start;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: white;
     max-width: 900px;
     margin: 50px auto;
-    padding: 20px;
+    padding: 30px;
     background: linear-gradient(to bottom, #00bcd4 0%, #22ffe2 100%);
     box-shadow: 0 10px 25px rgba(0,0,0,0.3);
 }
 
-#Explore-main-content {
-    padding: 30px;
+.robot-image3 {
+    max-width: 450px; /* Increased width */
+    height: auto; /* Maintain aspect ratio */
+    display: block;
+    margin-top: 70px;
+    order:2;
+    animation: floatAnimation2 8s ease-in-out infinite; /* Apply the updated animation */
+    -webkit-animation: floatAnimation2 8s ease-in-out infinite; /* Chrome, Safari, Opera */
+    -moz-animation: floatAnimation2 8s ease-in-out infinite; /* Firefox */
+    -o-animation: floatAnimation2 8s ease-in-out infinite; /* Opera < 12.0 */
+}
+
+
+.explore-header {
+    font-family: 'Arial', sans-serif;
+    align-self: flex-start; /* Keeps the item aligned to the start (left) of its flex container */
+    width: 40%; /* Ensures it spans an appropriate width, helpful for alignment */
+    margin-left: 250px; /* Adds left margin to push the header to the right */
+    text-shadow: 0 1px 2px rgba(0,0,0,0.6); /* Subtle shadow for better legibility */
+    transition: color 0.3s ease; /* Smooth transition for any color change */
+}
+
+
+.explore-main-content {
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; /* Align all items to the right */
+    justify-content: center; /* Center items vertically */
+    padding: 20px;
     background-color: transparent;
     border-radius: 8px;
+    max-width: 400px;
+    order: 1;
+    margin: auto; /* Center the box and remove additional auto margin */
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    flex-grow: 1; /* Allow this box to take up remaining space */
+    
 }
 
-.Explore-form-group {
+.explore-form-group {
+    font-family: 'Arial', sans-serif;
+    width: 100%; /* Ensure form groups take full width of the main content */
     margin: 20px 0;
-
 }
 
-.Explore-form-group label {
-    font-size: 16px;
+.explore-form-group label {
+    font-family: 'Arial', sans-serif;
     display: block;
     margin-bottom: 10px;
+    font-size: 16px; /* Increase the font size for better readability */
+    font-weight: 500; /* Medium weight for better visibility */
+    color: #ffffff; /* Ensure it's white */
+    text-shadow: 0 1px 2px rgba(0,0,0,0.6); /* Subtle shadow for better legibility */
+    transition: color 0.3s ease; /* Smooth transition for any color change */
 }
 
-.Explore-form-group input[type="text"] {
+.explore-form-group input[type="text"] {
     width: 100%;
     padding: 12px;
-    border: 2px solid #ccc; /* Slight contrast for input border */
+    border: 2px solid #ccc;
     border-radius: 4px;
-    background: rgba(255, 255, 255, 0.1); /* Light transparent background */
-    color: white; /* Text color for input */
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
     transition: border-color 0.3s, background-color 0.3s;
 }
 
-.Explore-form-group input[type="text"]:focus {
-    border-color: #61dafb; /* Bright focus color */
-    background: rgba(255, 255, 255, 0.3); /* Increase transparency on focus */
+.explore-form-group input[type="text"]:focus {
+    border-color: #61dafb;
+    background: rgba(255, 255, 255, 0.3);
     outline: none;
 }
 
-.Explore-button {
+.explore-button {
     display: block;
     width: 100%;
     padding: 15px 0px;
@@ -63,31 +109,36 @@
     text-align: center;
 }
 
-.Explore-button:hover {
+.explore-button:hover {
     background-color: #22ffe2; /* Secondary gradient color for hover effect */
 }
 
 @keyframes floatAnimation2 {
     0%, 100% {
-        transform: translate(0, 0); /* Start and end in the original position */
+        transform: translate(-60px, -50px); /* Start and end in the original position */
     }
     25% {
-        transform: translate(30px, 30px); /* Move up and to the right */
+        transform: translate(-90px, -30px); /* Move up and to the right */
     }
     50% {
-        transform: translate(0, 0); /* Return to center */
+        transform: translate(-120px, -50px); /* Return to center */
     }
     75% {
-        transform: translate(50px, -30px); /* Move up and to the left */
+        transform: translate(-90px, -30px); /* Move up and to the left */
     }
 }
 
-.robot-image3 {
-    max-width: 300px; /* Increased width */
-    height: auto; /* Maintain aspect ratio */
-    display: block;
-    animation: floatAnimation2 8s ease-in-out infinite; /* Apply the updated animation */
-    -webkit-animation: floatAnimation 8s ease-in-out infinite; /* Chrome, Safari, Opera */
-    -moz-animation: floatAnimation 8s ease-in-out infinite; /* Firefox */
-    -o-animation: floatAnimation 8s ease-in-out infinite; /* Opera < 12.0 */
+
+footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    padding: 10px 0;
+    background-color: #1a1a1a 100%; /* Ensure gradient shows through */
+    color: white;
+    font-size: 16px;
+    z-index: 1000;
+    text-shadow: 0px 4px 6px rgba(0,0,0,0.2);
 }

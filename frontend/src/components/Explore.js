@@ -15,14 +15,14 @@ function Explore() {
 
     return (
         <div className="explore-container">
-            <header>
+            <header class = "explore-header">
                 <h1>Explore Music</h1>
                 <img src={RobotitoImage3} alt="Cute robot with headphones3" className="robot-image3"/>
 
             </header>
-            <main id="Explore-main-content">
+            <main id="explore-main-content">
                 <form onSubmit={handleSearch}>
-                    <div className="Explore-form-group">
+                    <div className="explore-form-group">
                         <label htmlFor="search">Search for Music:</label>
                         <input
                             type="text"
@@ -32,12 +32,15 @@ function Explore() {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                    <button type="submit" className="Explore-button">Search</button>
+                    <button type="submit" className="explore-button">Search</button>
+                    <button href="/" className="explore-button">Back to Homepage</button>
+
                 </form>
                 <div id="search-results">
-                    {/* Place for displaying search results */}
+                    
+                    {/* Search results would be displayed here */}
+
                 </div>
-                <Link to="/" className="Explore-button">Back to Homepage</Link>
  <div >
                
             
