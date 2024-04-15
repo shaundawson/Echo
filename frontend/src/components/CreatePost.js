@@ -6,6 +6,7 @@ import './CreatePost.css'; // Import the stylesheet
 
 
 function CreatePost() {
+    // State variables to manage form inputs, search results, submission status, and errors
     const [songRecommendation, setSongRecommendation] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
@@ -13,14 +14,16 @@ function CreatePost() {
     const [description, setDescription] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
-    const { spotifyToken } = useAuth();
+    const { spotifyToken } = useAuth(); // Get Spotify authentication token from context
 
+    // Function to handle song search
     const handleSearch = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
         setError('');
 
         try {
+            // Make GET request to Spotify API to search for tracks
             const response = await axios.get('https://api.spotify.com/v1/search', {
                 headers: {
                     'Authorization': `Bearer ${spotifyToken}`,
@@ -32,7 +35,7 @@ function CreatePost() {
                     limit: 10
                 }
             });
-            setSearchResults(response.data.tracks.items);
+            setSearchResults(response.data.tracks.items);  // Update search results state
         } catch (error) {
             console.error('Search error:', error);
             setError('Failed to fetch search results: ' + (error.response?.data?.message || error.message));
@@ -47,6 +50,7 @@ function CreatePost() {
         setIsSubmitting(true);
         setError('');
 
+        // Check if Spotify token is available
         if (!spotifyToken) {
             setError('Authentication token is missing.');
             setIsSubmitting(false);
@@ -54,6 +58,7 @@ function CreatePost() {
         }
 
         try {
+            // Make POST request to create a new post with selected song and description
             const response = await axios.post('https://dry-dawn-86507-cc866b3e1665.herokuapp.com/post', {
                 song_recommendation: selectedSong ? selectedSong.id : null,  // Ensure you send the ID
                 description: description
@@ -67,6 +72,7 @@ function CreatePost() {
                 throw new Error('Failed to create post');
             }
             alert('Post created successfully!');
+            // Clear form inputs and reset state
             setSearchQuery('');
             setDescription('');
             setSelectedSong(null);
@@ -81,7 +87,7 @@ function CreatePost() {
 
     return (
         <div className="createPostContainer">
-            
+
             <h1>Create Song Recommendation</h1>
             <form onSubmit={handleSearch}>
                 <input
@@ -111,10 +117,10 @@ function CreatePost() {
                 <button type="submit" disabled={isSubmitting}>Post Recommendation</button>
             </form>
 
-            <div className = "robotContainer">
-                <img src={RobotitoImage2} alt="Cute robot with headphones2" className="robot-image2"/>
+            <div className="robotContainer">
+                <img src={RobotitoImage2} alt="Cute robot with headphones2" className="robot-image2" />
             </div>
-        </div> 
+        </div>
     );
 }
 

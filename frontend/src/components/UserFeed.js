@@ -1,20 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import './UserFeed.css'; // This line imports the CSS from above
+import './UserFeed.css';
 
 
 function UserFeed() {
+    // State variable to hold the user data
     const [users, setUsers] = useState([]);
 
+    // useEffect hook to fetch user data when component mounts
     useEffect(() => {
+        // Fetch user data from the backend API
         axios.get('https://dry-dawn-86507-cc866b3e1665.herokuapp.com/users', { withCredentials: true })
             .then(response => {
+                // Update users state with fetched data
                 setUsers(response.data);
             })
             .catch(error => {
+                // Log and handle any errors that occur during fetching
                 console.error('There was an error fetching the user data:', error);
             });
-    }, []);
+    }, []); // Empty dependency array to make sure this effect runs only once on mount
 
     return (
         <div className="user-feed-container">

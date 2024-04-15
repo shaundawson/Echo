@@ -24,11 +24,9 @@ function Login() {
                 navigate(`/profile/${response.data.user_id}`); // Navigate to user's profile
             } else {
                 console.error('User ID not found in response data');
-                // Handle error, perhaps show a message to the user
             }
         } catch (error) {
             console.error('Login failed:', error);
-            // Handle error, perhaps show a message to the user
         }
     };
 

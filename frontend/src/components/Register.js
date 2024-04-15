@@ -8,39 +8,47 @@ import RobotitoImage5 from '../images/Robotito5.png'; // Adjust the path to wher
 
 
 function Register() {
+    // State variable to hold form data
     const [formData, setFormData] = useState({
         username: '',
         password: '',
         email: '',
     });
+    // Navigate function from React Router for redirection
     const navigate = useNavigate();
     const { login } = useAuth(); // Destructure login from useAuth
 
+    // Function to handle changes in form inputs
     const handleChange = (e) => {
         const { name, value } = e.target;
+        // Update form data state with new input values
         setFormData(prevState => ({
             ...prevState,
             [name]: value
         }));
     };
 
+    // Function to handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         try {
+            // Make POST request to register a new user
             const response = await axios.post('https://dry-dawn-86507-cc866b3e1665.herokuapp.com/register', formData, {
                 headers: {
                     'Content-Type': 'application/json'
                 }
             });
 
+            // If registration is successful, update login state and navigate to profile page
             if (response.data.user_id) {
-                login(response.data); // Update login state
+                login(response.data);
                 navigate(`/profile/${response.data.user_id}`);
             } else {
                 console.log(response.data.message);
             }
         } catch (error) {
+            // Log and handle registration failure
             console.error('Registration failed:', error?.response?.data?.message || error.message);
         }
     };
