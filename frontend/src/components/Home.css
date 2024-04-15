@@ -1,0 +1,64 @@
+html, body {
+    height: 100%; /* This ensures they take the full height of the viewport */
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to bottom, #00bcd4 0%, #1a1a1a 100%);
+    color: white;
+    font-size: smaller;
+    transition: background-color 0.3s;
+}
+
+.home-container {
+    text-align: center;
+    padding: 20px;
+    /* Transparent background to let body gradient show through */
+    background-color: transparent;
+}
+
+.home-header {
+    color: rgb(255, 255, 255);
+    padding: 20px 0;
+}
+
+#main-content {
+    margin-top: 20px;
+}
+
+.button, .logout-button {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 10px;
+    background-color: #000000; /* Light cyan, simplifying since gradients on buttons can be visually complex */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.button:hover, .logout-button:hover {
+    background-color: #21a1f1; /* Darker shade of cyan for hover effect */
+}
+
+a {
+    color: #1e90ff;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    padding: 10px 0;
+    background-color: #1a1a1a 100%; /* Ensure gradient shows through */
+    color: white;
+    font-size: 16px;
+    z-index: 1000;
+}

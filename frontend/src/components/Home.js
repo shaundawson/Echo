@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react'; // Import useEffect and useState
 import { Link } from 'react-router-dom';
+import './Home.css'; // Import the stylesheet
+
 
 function Home() {
     return (
-        <div>
-            <header>
-                <h1>Welcome to Our Music Player App</h1>
+        <div className = "home-container">
+            <header className="home-header">
+                <h1>Welcome to Echo Our Music Player App</h1>
             </header>
             <div id="main-content">
                 <h2>Discover and Enjoy Music</h2>
@@ -13,6 +15,14 @@ function Home() {
                 <Link to="/explore" className="button">Explore Music</Link>
                 <br />
                 <Link to="/login" className="button">Login/Create Account</Link>
+
+                
+
+      <p>Copyright &#169; 2024 Echo. All Rights Reserved.</p>
+
+      
+
+
             </div>
         </div>
     );
