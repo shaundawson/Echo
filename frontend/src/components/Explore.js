@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-// import './styles.css'; // Ensure you have the correct path to your CSS
+import './Explore.css'; // Import the stylesheet
+import RobotitoImage3 from '../images/Robotito3.png'; // Adjust the path to where you have saved Robotito.png
+
 
 function Explore() {
     const [searchTerm, setSearchTerm] = useState('');
@@ -12,23 +14,37 @@ function Explore() {
     };
 
     return (
-        <div>
+        <div className="explore-container">
             <header>
                 <h1>Explore Music</h1>
+                <img src={RobotitoImage3} alt="Cute robot with headphones3" className="robot-image3"/>
+
             </header>
-            <div id="main-content">
+            <main id="Explore-main-content">
                 <form onSubmit={handleSearch}>
-                    <div className="form-group">
+                    <div className="Explore-form-group">
                         <label htmlFor="search">Search for Music:</label>
-                        <input type="text" id="search" name="search" placeholder="Enter song, artist, or genre" onChange={(e) => setSearchTerm(e.target.value)} />
+                        <input
+                            type="text"
+                            id="search"
+                            name="search"
+                            placeholder="Enter song, artist, or genre"
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
                     </div>
-                    <button type="submit" className="button">Search</button>
+                    <button type="submit" className="Explore-button">Search</button>
                 </form>
                 <div id="search-results">
-                    {/* Search results would be displayed here */}
+                    {/* Place for displaying search results */}
                 </div>
-                <Link to="/" className="button">Back to Homepage</Link> {/* Use Link for SPA internal navigation */}
+                <Link to="/" className="Explore-button">Back to Homepage</Link>
+ <div >
+               
+            
+            
             </div>
+
+            </main>
         </div>
     );
 }

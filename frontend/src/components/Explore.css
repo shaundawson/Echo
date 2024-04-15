@@ -1,0 +1,93 @@
+/* Explore.css - Modern and sleek styling for the Explore component */
+.explore-container {
+    display: flex; /* Continue using flexbox */
+    flex-direction: row; /* Align children horizontally */
+    justify-content: flex-start; /* Align children to the start of the container */
+    align-items: flex-start; /* Align items from the top */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: white;
+    max-width: 900px;
+    margin: 50px auto;
+    padding: 20px;
+    background: linear-gradient(to bottom, #00bcd4 0%, #22ffe2 100%);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+#Explore-main-content {
+    padding: 30px;
+    background-color: transparent;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    flex-grow: 1; /* Allow this box to take up remaining space */
+}
+
+.Explore-form-group {
+    margin: 20px 0;
+
+}
+
+.Explore-form-group label {
+    font-size: 16px;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.Explore-form-group input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #ccc; /* Slight contrast for input border */
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1); /* Light transparent background */
+    color: white; /* Text color for input */
+    transition: border-color 0.3s, background-color 0.3s;
+}
+
+.Explore-form-group input[type="text"]:focus {
+    border-color: #61dafb; /* Bright focus color */
+    background: rgba(255, 255, 255, 0.3); /* Increase transparency on focus */
+    outline: none;
+}
+
+.Explore-button {
+    display: block;
+    width: 100%;
+    padding: 15px 0px;
+    margin-top: 10px;
+    background-color: #ce5050; /* Primary gradient color for button */
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    text-align: center;
+}
+
+.Explore-button:hover {
+    background-color: #22ffe2; /* Secondary gradient color for hover effect */
+}
+
+@keyframes floatAnimation2 {
+    0%, 100% {
+        transform: translate(0, 0); /* Start and end in the original position */
+    }
+    25% {
+        transform: translate(30px, 30px); /* Move up and to the right */
+    }
+    50% {
+        transform: translate(0, 0); /* Return to center */
+    }
+    75% {
+        transform: translate(50px, -30px); /* Move up and to the left */
+    }
+}
+
+.robot-image3 {
+    max-width: 300px; /* Increased width */
+    height: auto; /* Maintain aspect ratio */
+    display: block;
+    animation: floatAnimation2 8s ease-in-out infinite; /* Apply the updated animation */
+    -webkit-animation: floatAnimation 8s ease-in-out infinite; /* Chrome, Safari, Opera */
+    -moz-animation: floatAnimation 8s ease-in-out infinite; /* Firefox */
+    -o-animation: floatAnimation 8s ease-in-out infinite; /* Opera < 12.0 */
+}
