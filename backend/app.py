@@ -242,6 +242,7 @@ def delete_post(post_id):
 
 
 @app.route('/search')
+@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def search():
     query = request.args.get('query')
     token = request.cookies.get('spotifyToken')
