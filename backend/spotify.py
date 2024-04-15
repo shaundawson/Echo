@@ -6,6 +6,7 @@ from backend.models import db, User
 
 
 def create_spotify_oauth_url():
+    # Constructs the URL for OAuth authentication with Spotify using query parameters.
     query_params = {
         'client_id': os.environ['SPOTIFY_CLIENT_ID'],
         'response_type': 'code',
@@ -17,6 +18,7 @@ def create_spotify_oauth_url():
 
 
 def handle_spotify_callback(request):
+    # Handles the callback from Spotify authentication, checking for errors and exchanging the code for tokens.
     error = request.args.get('error')
     code = request.args.get('code')
     if error:
@@ -36,17 +38,17 @@ def handle_spotify_callback(request):
     if response.status_code != 200:
         return jsonify({'message': 'Failed to retrieve access token from Spotify.'}), response.status_code
 
-    # Setting cookies with HttpOnly, secure and appropriate SameSite attribute
-    resp = make_response(
-        redirect('dry-dawn-86507-cc866b3e1665.herokuapp.com/'))
-    resp.set_cookie('spotifyToken',
-                    response_data['access_token'], httponly=True, secure=True, samesite='None')
+    # Successful authentication redirects to application and sets cookies with tokens.
+    resp = make_response(redirect('http://localhost:3000/'))
+    resp.set_cookie(
+        'spotifyToken', response_data['access_token'], httponly=True, secure=True, samesite='None')
     resp.set_cookie('spotifyRefreshToken',
                     response_data['refresh_token'], httponly=True, secure=True, samesite='None')
     return resp
 
 
 def refresh_spotify_token():
+    # Refreshes the Spotify token using the stored refresh token.
     spotify_refresh_token = request.cookies.get('spotifyRefreshToken')
     if not spotify_refresh_token:
         return {"error": "Refresh token missing"}, 400
@@ -68,10 +70,9 @@ def refresh_spotify_token():
     else:
         return None
 
-# Search functionality
-
 
 def search_spotify(query):
+    # Searches Spotify's API for tracks based on the provided query and handles token refresh if needed.
     spotify_access_token = request.cookies.get('spotifyToken')
     if not spotify_access_token:
         return jsonify({"error": "Access token missing"}), 401
