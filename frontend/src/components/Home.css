@@ -20,8 +20,38 @@ html, body {
     padding: 20px 0;
 }
 
+.home-header h1 {
+    font-family: 'Arial', sans-serif;
+    color: #ffffff;
+    text-transform: uppercase;
+    font-size: 2.5rem;
+    letter-spacing: 1.5px;
+    text-shadow: 0px 4px 6px rgba(0,0,0,0.2);
+    text-align: center;
+    margin-bottom: 0; /* No space below */
+}
+
 #main-content {
-    margin-top: 20px;
+    margin-top: 10px;
+}
+
+#main-content h2 {
+    font-family: 'Arial', sans-serif;
+    color: #ffffff;
+    font-size: 2rem;
+    text-align: center;
+    margin-top: 0; /* No space above */
+    margin-bottom: 0; /* No space below */
+}
+
+#main-content p {
+    font-family: 'Arial', sans-serif;
+    color: #ffffff;
+    font-size: 1rem;
+    line-height: 1.6;
+    max-width: 600px;
+    margin: 0 auto; /* No space above, auto centers it horizontally */
+    text-align: center;
 }
 
 .button, .logout-button {
@@ -50,15 +80,33 @@ a:hover {
     text-decoration: underline;
 }
 
+@keyframes floatAnimation {
+    0%, 100% {
+        transform: translate(0, 0); /* Start and end in the original position */
+    }
+    25% {
+        transform: translate(30px, -30px); /* Move up and to the right */
+    }
+    50% {
+        transform: translate(0, 0); /* Return to center */
+    }
+    75% {
+        transform: translate(-30px, -30px); /* Move up and to the left */
+    }
+}
 
 .robot-image {
-    max-width: 200px; /* Or any other size */
+    max-width: 200px;
     height: auto;
     display: block;
-    margin: 0 auto; /* This will center the image */
-    margin-top: 50px; /* Adjust this value as needed to move the image down */
+    margin: 0 auto;
+    margin-top: 50px;
+    animation: floatAnimation 8s ease-in-out infinite; /* Apply the updated animation */
+    -webkit-animation: floatAnimation 8s ease-in-out infinite; /* Chrome, Safari, Opera */
+    -moz-animation: floatAnimation 8s ease-in-out infinite; /* Firefox */
+    -o-animation: floatAnimation 8s ease-in-out infinite; /* Opera < 12.0 */
+}
 
-  }
 
 footer {
     position: fixed;

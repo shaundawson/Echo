@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 //import { useAuth } from '../AuthContext';
-//import './index.css'; // Ensure this path is correct
+import './CreatePost.css'; // Assuming the CSS file is in the same directory
+import RobotitoImage2 from '../images/Robotito2.png'; // Adjust the path to where you have saved Robotito.png
+
 
 
 function CreatePost() {
@@ -65,7 +67,19 @@ function CreatePost() {
                 {error && <p style={{ color: 'red' }}>{error}</p>}
                 <button type="submit" disabled={isSubmitting}>Post</button>
             </form>
+
+            <div >
+                <img src={RobotitoImage2} alt="Cute robot with headphones2" className="robot-image2"/>
+            
+            
+            </div>
+
+
         </div>
+
+        
+
+        
     );
 }
 

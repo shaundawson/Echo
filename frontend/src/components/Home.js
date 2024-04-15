@@ -17,8 +17,10 @@ function Home() {
                 <br />
                 <Link to="/login" className="button">Login/Create Account</Link>
 
- <div>
+ <div >
                 <img src={RobotitoImage} alt="Cute robot with headphones" className="robot-image"/>
+            
+            
             </div>
 
 
