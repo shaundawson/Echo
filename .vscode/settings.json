@@ -1,0 +1,47 @@
+{
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "default",
+                "enableSsl": "Disabled"
+            },
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 3000,
+            "driver": "MySQL",
+            "name": "EchoAppDB",
+            "group": "Development",
+            "database": "mysql+pymysql://",
+            "username": "CAP2003"
+        },
+        {
+            "mysqlOptions": {
+                "authProtocol": "default",
+                "enableSsl": "Disabled"
+            },
+            "previewLimit": 50,
+            "server": "us-cluster-east-01.k8s.cleardb.net",
+            "port": 3306,
+            "driver": "MySQL",
+            "name": "MySQL Local",
+            "username": "b707039873a8fc",
+            "database": "heroku_597213c21f99e7b",
+            "password": "1f73c1da",
+            "connectionTimeout": 30
+        },
+        {
+            "mysqlOptions": {
+                "authProtocol": "default",
+                "enableSsl": "Disabled"
+            },
+            "previewLimit": 50,
+            "server": "http://us-cluster-east-01.k8s.cleardb.net",
+            "port": 3306,
+            "driver": "MySQL",
+            "name": "MySQL",
+            "database": "heroku_597213c21f99e7b",
+            "username": "b707039873a8fc",
+            "password": "1f73c1da"
+        }
+    ]
+}

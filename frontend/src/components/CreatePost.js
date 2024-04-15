@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useAuth } from '../AuthContext';
+//import { useAuth } from '../AuthContext';
+//import './index.css'; // Ensure this path is correct
+
 
 function CreatePost() {
     const [songRecommendation, setSongRecommendation] = useState('');
@@ -40,7 +42,7 @@ function CreatePost() {
     };
 
     return (
-        <div>
+            <div className="createPostContainer">
             <h2>Create a New Post</h2>
             <form onSubmit={handleSubmit}>
                 <div>

@@ -39,15 +39,27 @@
 }
 
 .navbar {
+  background-color: #333;
+  padding: 10px 20px; /* Adjust padding as needed */
   display: flex;
-  justify-content: space-between;
+  justify-content: space-between; /* Aligns children (content and logout button) on opposite ends */
   align-items: center;
-  padding: 0 20px;
+  width: 100%; /* Ensures the navbar spans the full width */
 }
 
 .navbar-content {
-  width: 100%;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start; /* Aligns nav items to the left */
   align-items: center;
+  gap: 20px; /* Optional: adds space between nav items */
+}
+
+.logout-button {
+  background-color: #f44336; /* Red button for logout */
+  color: white;
+  padding: 8px 16px;
+  text-decoration: none;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }

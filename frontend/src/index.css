@@ -1,3 +1,9 @@
+
+
+/*
+
+Thats how it was before
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -10,4 +16,98 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+
+
+*/
+
+/*New one*/
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #121212; /* Dark background */
+  color: white; /* White text */
+  transition: background-color 0.3s; /* Smooth transition for background */
+  font-size: smaller;
+}
+
+input, textarea, button {
+  background-color: #333;
+  color: white;
+  border: 1px solid #444;
+  transition: background-color 0.3s; /* Smooth transitions for form elements */
+}
+
+button {
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #555;
+}
+
+a {
+  color: #1e90ff;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Navbar Container */
+.header-container {
+  display: flex;
+  justify-content: space-between; /* This will place the nav and button on opposite ends */
+  align-items: center; /* This will vertically align them in the center */
+  padding: 10px 20px; /* Add padding on the sides */
+  background-color: #282c34; /* Optional: background color for the header */
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+}
+
+.logout-button {
+  background-color: #f44336; /* Red button for logout */
+  color: white;
+  padding: 8px 16px;
+  text-decoration: none;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .create-post-container {
+    padding: 10px;
+    margin: 10px;
+  }
+
+  .header-container {
+    flex-direction: column; /* Stack navbar and logout button vertically on smaller screens */
+  }
+}
+
+.createPostContainer {
+  position: relative; /* Needed to position the button absolutely within the container */
+  height: 100vh; /* Full height of the viewport */
+  padding: 20px;
+}
+
+.postButton {
+  position: absolute; /* Positioning the button */
+  bottom: 20px; /* 20px from the bottom */
+  right: 20px; /* 20px from the right */
+  padding: 10px 20px; /* Padding for the button */
+  cursor: pointer; /* Cursor changes to pointer when hovered */
+  background-color: #333; /* Dark background for the button */
+  color: white; /* White text color */
+  border: none; /* No border */
+  border-radius: 5px; /* Rounded corners */
 }
