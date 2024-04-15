@@ -50,6 +50,14 @@ a:hover {
     text-decoration: underline;
 }
 
+
+.robotito-image {
+    max-width: 200px; /* Or any other size */
+    height: auto;
+    display: block;
+    margin: 0 auto; /* This will center the image */
+  }
+
 footer {
     position: fixed;
     left: 0;
@@ -62,3 +70,5 @@ footer {
     font-size: 16px;
     z-index: 1000;
 }
+
+

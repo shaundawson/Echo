@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom';
 import './Home.css'; // Import the stylesheet
 
 
+
+
+
 function Home() {
     return (
         <div className = "home-container">
@@ -16,16 +19,35 @@ function Home() {
                 <br />
                 <Link to="/login" className="button">Login/Create Account</Link>
 
+                {/* ... other components ... */}
+            
+            {/* ... rest of your component ... */}
                 
 
       <p>Copyright &#169; 2024 Echo. All Rights Reserved.</p>
+
+<div>
+
+<img src = "./images/Robotito.png" alt="" />
+
+</div>
+
+      
+
+
+
 
       
 
 
             </div>
+
+            
         </div>
     );
 }
+
+
+
 
 export default Home;

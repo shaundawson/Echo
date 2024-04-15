@@ -25,4 +25,10 @@ code {
 /*New one*/
 
 
-
+.robotito-image {
+  max-width: 100%; /* Ensures the image is responsive */
+  height: auto; /* Keeps the image aspect ratio */
+  display: block; /* To prevent inline default space */
+  margin: 0 auto; /* Centers the image if it's not full-width */
+  /* Add any additional styling such as borders, shadows, etc. */
+}
