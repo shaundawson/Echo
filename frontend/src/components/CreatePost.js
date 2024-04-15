@@ -34,6 +34,7 @@ function CreatePost() {
 
         try {
             const response = await axios.get('https://api.spotify.com/v1/search', {
+                withCredentials: true,
                 headers: {
                     'Authorization': `Bearer ${spotifyToken}`,
                     'Content-Type': 'application/json'

@@ -11,7 +11,7 @@ export const AuthProvider = ({ children }) => {
     const [token, setToken] = useState(localStorage.getItem('token'));
     const [spotifyToken, setSpotifyToken] = useState(localStorage.getItem('spotifyToken'));
 
-    const login = (userData, token, spotifyToken) => { // Added spotifyToken as an argument
+    const login = (userData, token, spotifyToken) => {
         console.log("Logging in with:", { userData, token, spotifyToken });
         if (!spotifyToken) {
             console.error("Spotify token is undefined at login.");
