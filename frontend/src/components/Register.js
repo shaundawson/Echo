@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext'; // Import useAuth
+import './Register.css'; // Import the stylesheet
+import RobotitoImage5 from '../images/Robotito5.png'; // Adjust the path to where you have saved Robotito.png
+
 
 
 function Register() {
@@ -43,28 +46,32 @@ function Register() {
     };
 
     return (
-        <div>
-            <header>
+        <div className="register-container">
+            <header class = "register-header">
+            
                 <h1>Register</h1>
+                <img src={RobotitoImage5} alt="Cute robot with headphones5" className="robot-image5"/>
+
             </header>
-            <div id="main-content">
+
+            <div id="register-main-content">
                 <form onSubmit={handleSubmit}>
-                    <div className="form-group">
+                    <div className="register-form-group">
                         <label htmlFor="username">Username:</label>
                         <input type="text" id="username" name="username" required value={formData.username} onChange={handleChange} />
                     </div>
-                    <div className="form-group">
+                    <div className="register-form-group">
                         <label htmlFor="password">Password:</label>
                         <input type="password" id="password" name="password" required value={formData.password} onChange={handleChange} />
                     </div>
-                    <div className="form-group">
+                    <div className="register-form-group">
                         <label htmlFor="email">Email:</label>
                         <input type="email" id="email" name="email" required value={formData.email} onChange={handleChange} />
                     </div>
-                    <button type="submit" className="button">Register</button>
+                    <button type="submit" className="register-button">Register</button>
                 </form>
                 <p>Already have an account? <a href="/login">Login here</a>.</p>
-                <a href="/" className="button">Back to Homepage</a>
+                <button><a href="/" className="register-button">Back to Homepage</a></button>
             </div>
         </div>
     );
