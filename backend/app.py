@@ -4,6 +4,7 @@ from backend.models import db, User, Profile, Post
 from backend.services import login, register
 import os
 from backend.spotify import search_spotify
+import requests
 
 # Create the Flask application
 app = Flask(__name__)
@@ -247,6 +248,25 @@ def delete_post(post_id):
     db.session.delete(post)
     db.session.commit()
     return jsonify({"message": "Post deleted successfully"}), 200
+
+ # This acts as a proxy to the Spotify API.
+
+
+@app.route('/api/search')
+def spotify_search_proxy():
+    query = request.args.get('q')
+    # Assuming your frontend sends the token
+    token = request.headers.get('Authorization')
+
+    if not token:
+        return jsonify({"error": "No authorization token provided"}), 401
+
+    spotify_response = requests.get(
+        'https://api.spotify.com/v1/search',
+        headers={'Authorization': token},
+        params={'q': query, 'type': 'track', 'limit': 10}
+    )
+    return jsonify(spotify_response.json()), spotify_response.status_code
 
 
 # Spotify Search Route

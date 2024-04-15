@@ -15,16 +15,17 @@ function CreatePost() {
     const [error, setError] = useState('');
     const { spotifyToken } = useAuth();
 
-    // Function to handle song search
+    // Function to handle song search using your backend as a proxy
     const handleSearch = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
         setError('');
 
         try {
-            const response = await axios.get('https://api.spotify.com/v1/search', {
+            // Update the URL to your Flask backend endpoint
+            const response = await axios.get('https://dry-dawn-86507-cc866b3e1665.herokuapp.com//api/search', {
                 headers: {
-                    'Authorization': `Bearer ${spotifyToken}`,
+                    'Authorization': `Bearer ${spotifyToken}`,  // Pass Spotify token here
                     'Content-Type': 'application/json'
                 },
                 params: {
