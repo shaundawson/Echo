@@ -1,0 +1,43 @@
+.custom-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: white; /* White background color */
+    border-radius: 8px; /* Add border radius for rounded corners */
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); /* Add box shadow for depth */
+}
+
+.custom-heading {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+    padding: 10px; /* Add padding for spacing */
+    text-align: center; /* Center align text */
+}
+
+.custom-post-box {
+    background-color: #fff;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.custom-post-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #333; /* Change font color to black */
+}
+
+.custom-post-content {
+    font-size: 16px;
+    color: #555; /* Change font color to black */
+    margin-bottom: 10px;
+}
+
+.custom-post-timestamp {
+    font-size: 14px;
+    color: #777; /* Change font color to black */
+}

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
+import './Profile.css'; // This line imports the CSS from above
 
 
 function Profile() {
@@ -75,24 +76,23 @@ function Profile() {
     };
 
     return (
-        <div>
-            <header></header>
-            <div id="main-content">
-                <h2>{userData.username}</h2>
-                <div>
-                    {editMode ? (
-                        <>
-                            <textarea value={userData.bio} onChange={handleBioChange}></textarea>
-                            <button onClick={handleEditSubmit}>Save</button>
-                            <button onClick={() => setEditMode(false)}>Cancel</button>
-                        </>
-                    ) : (
-                        <>
-                            <p>Bio: {userData.bio}</p>
-                            <button onClick={() => setEditMode(true)}>Edit Bio</button>
-                        </>
-                    )}
-                </div>
+        <div className="profile-container">
+            <header className="profile-header">
+                <h2 className="profile-username">{userData.username}</h2>
+            </header>
+            <div className="profile-bio">
+                {editMode ? (
+                    <>
+                        <textarea value={userData.bio} onChange={handleBioChange}></textarea>
+                        <button onClick={handleEditSubmit}>Save</button>
+                        <button onClick={() => setEditMode(false)}>Cancel</button>
+                    </>
+                ) : (
+                    <>
+                        <p>Bio: {userData.bio}</p>
+                        <button onClick={() => setEditMode(true)}>Edit Bio</button>
+                    </>
+                )}
             </div>
         </div>
     );
