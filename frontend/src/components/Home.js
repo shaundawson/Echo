@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react'; // Import useEffect and useState
 import { Link } from 'react-router-dom';
 import './Home.css'; // Import the stylesheet
-
-
-
+import RobotitoImage from '../images/Robotito.png'; // Adjust the path to where you have saved Robotito.png
 
 
 function Home() {
@@ -19,35 +17,18 @@ function Home() {
                 <br />
                 <Link to="/login" className="button">Login/Create Account</Link>
 
-                {/* ... other components ... */}
-            
-            {/* ... rest of your component ... */}
-                
-
-      <p>Copyright &#169; 2024 Echo. All Rights Reserved.</p>
-
-<div>
-
-<img src = "./images/Robotito.png" alt="" />
-
-</div>
-
-      
-
-
-
-
-      
+ <div>
+                <img src={RobotitoImage} alt="Cute robot with headphones" className="robot-image"/>
+            </div>
 
 
             </div>
 
+            <footer><p>Copyright &#169; 2024 Echo. All Rights Reserved.</p></footer>
+      
             
         </div>
     );
 }
-
-
-
 
 export default Home;
