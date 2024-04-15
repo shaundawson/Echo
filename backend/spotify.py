@@ -47,14 +47,48 @@ def handle_spotify_callback(request):
     return redirect('http://localhost:3000/')
 
 
+def refresh_spotify_token(user_id):
+    user = User.query.get(user_id)
+    if not user or not user.spotify_refresh_token:
+        return jsonify({"error": "Refresh token missing"}), 400
+
+    token_data = {
+        'grant_type': 'refresh_token',
+        'refresh_token': user.spotify_refresh_token,
+        'client_id': os.environ['SPOTIFY_CLIENT_ID'],
+        'client_secret': os.environ['SPOTIFY_CLIENT_SECRET'],
+    }
+    response = requests.post(
+        'https://accounts.spotify.com/api/token', data=token_data)
+
+    if response.status_code == 200:
+        response_data = response.json()
+        user.spotify_access_token = response_data['access_token']
+        db.session.commit()
+        return response_data['access_token']
+    else:
+        return None
+
 # Search functionality
-def search_spotify(query, token):
-    headers = {
-        'Authorization': f'Bearer {token}',
-    }
-    params = {
-        'q': query,
-        'type': 'track', # Search for a track
-    }
-    response = requests.get('https://api.spotify.com/v1/search', headers=headers, params=params)
-    return response.json() 
+
+
+def search_spotify(query, token, user_id):
+    headers = {'Authorization': f'Bearer {token}'}
+    params = {'q': query, 'type': 'track'}
+    response = requests.get(
+        'https://api.spotify.com/v1/search', headers=headers, params=params)
+
+    if response.status_code == 401:  # Token may be expired
+        new_token = refresh_spotify_token(user_id)
+        if new_token:
+            headers['Authorization'] = f'Bearer {new_token}'
+            response = requests.get(
+                'https://api.spotify.com/v1/search', headers=headers, params=params)
+            if response.status_code == 200:
+                return response.json()
+        return {"error": "Failed to refresh token", "status": 401}
+
+    elif response.status_code == 200:
+        return response.json()
+    else:
+        return {"error": "Failed to fetch data", "status": response.status_code, "message": response.text}

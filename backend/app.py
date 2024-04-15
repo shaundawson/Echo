@@ -211,19 +211,20 @@ def get_posts():
 @app.route('/post', methods=['POST'])
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def create_post():
-    print("Session user_id at /post:", session.get('user_id'))  # Debug print
+    user_id = session.get('user_id')
     if not user_id:
         return jsonify({"message": "Authentication required."}), 401
 
-    user_id = session.get('user_id')
     data = request.get_json()
     song_recommendation = data['song_recommendation']
+    song_url = data.get('song_url', '')  # Get song URL from request
     description = data.get('description', '')
 
     new_post = Post(
-        user_id=session['user_id'],
-        song_recommendation=data['song_recommendation'],
-        description=data.get('description', '')
+        user_id=user_id,
+        song_recommendation=song_recommendation,
+        song_url=song_url,  # Save song URL in the database
+        description=description
     )
     db.session.add(new_post)
     try:
@@ -252,9 +253,20 @@ def delete_post(post_id):
 @app.route('/search')
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def search():
+    token = request.headers.get('Authorization')
+    if token:
+        # This splits "Bearer <token>" and takes the token part
+        token = token.split(" ")[1]
+    else:
+        return jsonify({"error": "Authentication required"}), 401
+
     query = request.args.get('query')
-    token = request.cookies.get('spotifyToken')
-    results = search_spotify(query, token)
+    # Ensure user_id is also correctly managed
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"error": "User session not found"}), 401
+
+    results = search_spotify(query, token, user_id)
     return jsonify(results)
 
 
