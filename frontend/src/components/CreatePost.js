@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { useAuth } from '../AuthContext';
 import RobotitoImage2 from '../images/Robotito2.png'; // Adjust the path to where you have saved Robotito.png
+import './CreatePost.css'; // Import the stylesheet
 
 
 function CreatePost() {
@@ -76,7 +77,8 @@ function CreatePost() {
     };
 
     return (
-        <div>
+        <div className="createPostContainer">
+            
             <h1>Create Song Recommendation</h1>
             <form onSubmit={handleSearch}>
                 <input
@@ -106,7 +108,7 @@ function CreatePost() {
                 <button type="submit" disabled={isSubmitting}>Post Recommendation</button>
             </form>
 
-            <div >
+            <div className = "robotContainer">
                 <img src={RobotitoImage2} alt="Cute robot with headphones2" className="robot-image2"/>
             
             

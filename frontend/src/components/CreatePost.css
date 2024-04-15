@@ -1,38 +1,32 @@
 .createPostContainer {
+    
+    
+
     background-color: #f8f9fa; /* Light grey background to simulate cloud color */
     padding: 20px;
     border-radius: 50px; /* Increased to give a more fluffy cloud appearance */
     box-shadow: 0 4px 15px rgba(0,0,0,0.2), 0 10px 20px rgba(0,0,0,0.1); /* Deeper shadows for more depth */
-    max-width: 800px;
+    max-width: 600px; /* Increased width */
     margin: 40px auto;
     position: relative; /* Needed for pseudo-elements */
     text-align: center; /* Centering text inside the container */
 }
 
-
-
-.createPostContainer h2 {
+.createPostContainer h1 {
     color: #333; /* Dark grey for text, adds contrast */
     text-align: center; /* Centers the header */
-    font-size: 24px; /* Increase font size for emphasis */
-    margin-bottom: 20px; /* Add some space below the header */
-    font-family: 'Arial', sans-serif; /* Choose a font that matches your aesthetic */
-    letter-spacing: 1px; /* Add some space between letters for readability */
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); /* Add a subtle shadow for depth */
+    margin-bottom: 20px; /* Add space below the header */
 }
 
-.createPostContainer label {
-    display: block; /* Makes each label appear on a new line */
-    margin-bottom: 8px; /* Increase space between the label and input */
-    color: #ae3c3c; /* Lighter text color for the label */
-    font-size: 10px; /* Adjust font size for better readability */
-    font-weight: bold; /* Make the label text bold for emphasis */
-    text-transform: uppercase; /* Convert text to uppercase for a bold look */
-    letter-spacing: 1px; /* Add some space between letters for readability */
+.createPostContainer input::placeholder,
+.createPostContainer textarea::placeholder {
+    font-family: sans-serif; /* Inherit font family from parent element */
+    font-size: 16px; /* Set font size */
+    color: #999; /* Define placeholder text color */
 }
 
-.createPostContainer input, 
-.createPostContainer textarea {
+.createPostContainer input[type="text"] {
+    
     width: 80%; /* Reducing width from 100% to 80% */
     padding: 10px;
     margin: 0 auto 20px auto; /* Updated margin for auto horizontal margins */
@@ -51,8 +45,29 @@
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s;
-    margin: 0 auto; /* Center the button */
+    margin: 20px auto 30px auto; /* Center the button */
     display: block; /* Necessary for margin auto to work */
+}
+
+.createPostContainer input,
+.createPostContainer textarea {
+    
+    width: calc(100% - 120px); /* Adjust the width as needed */
+    padding: 10px;
+    margin-bottom: 20px; /* Increase space between textarea and other elements */
+    border: 1px solid #6b5f5f; /* Define border color */
+    border-radius: 8px; /* Adjust the border radius for a softer look */
+    box-sizing: border-box; /* Ensure padding and border are included in the width */
+    font-size: 16px; /* Increase font size for better readability */
+    line-height: 1.5; /* Increase line height for better spacing */
+    resize: vertical; /* Allow vertical resizing for textareas */
+}
+
+.createPostContainer input:focus,
+.createPostContainer textarea:focus {
+    border-color: #ce5050; /* Change border color on focus */
+    outline: none; /* Remove default focus outline */
+    box-shadow: 0 0 0 2px rgba(206, 80, 80, 0.3); /* Add a subtle box shadow on focus */
 }
 
 .createPostContainer button:hover {
@@ -62,6 +77,14 @@
 .createPostContainer p {
     color: #dc3545; /* Bootstrap danger color for error messages */
     text-align: center; /* Centering error message */
+}
+
+.robot-image2 {
+    max-width: 200px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    margin-top: 50px;
 }
 
 @keyframes floatAnimation {
