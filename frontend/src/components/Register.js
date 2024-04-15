@@ -62,9 +62,11 @@ function Register() {
 
             </header>
 
-            <div id="register-main-content">
-                <form onSubmit={handleSubmit}>
-                    <div className="register-form-group">
+            <main id="register-main-content">
+            <form onSubmit={handleSubmit}>
+            <div className="register-form-group">
+                
+                    
                         <label htmlFor="username">Username:</label>
                         <input type="text" id="username" name="username" required value={formData.username} onChange={handleChange} />
                     </div>
@@ -77,11 +79,18 @@ function Register() {
                         <input type="email" id="email" name="email" required value={formData.email} onChange={handleChange} />
                     </div>
                     <button type="submit" className="register-button">Register</button>
+                    <button href="/" className="register-button">Back to Homepage</button>
                 </form>
-                <p>Already have an account? <a href="/login">Login here</a>.</p>
-                <button><a href="/" className="register-button">Back to Homepage</a></button>
-            </div>
+                
+                
+                <div className="register-form-group"><label>Already have an account? <a href="/login">Login here</a>.</label> </div>
+                
+            </main>
+
+            <footer><p>Copyright &#169; 2024 Echo. All Rights Reserved.</p></footer>
         </div>
+
+        
     );
 }
 

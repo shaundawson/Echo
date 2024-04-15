@@ -41,9 +41,6 @@ function Login() {
 
             </header>
 
-                      
-
-
             <main id="login-main-content">
 
                 <form onSubmit={handleSubmit}>
@@ -63,6 +60,8 @@ function Login() {
                
             
             </main>
+
+            <footer><p>Copyright &#169; 2024 Echo. All Rights Reserved.</p></footer>
         </div>
     );
 }
