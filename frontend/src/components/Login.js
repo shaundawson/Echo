@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../AuthContext';
+import './Login.css'; // Import the stylesheet
+import RobotitoImage4 from '../images/Robotito4.png'; // Adjust the path to where you have saved Robotito.png
+
 
 
 function Login() {
@@ -28,25 +31,38 @@ function Login() {
     };
 
     return (
-        <div>
-            <header>
+        
+           
+            <div className="login-container">
+            <header class = "login-header">
                 <h1>Login to Your Account</h1>
+                <img src={RobotitoImage4} alt="Cute robot with headphones4" className="robot-image4"/>
+
+
             </header>
-            <div id="main-content">
+
+                      
+
+
+            <main id="login-main-content">
+
                 <form onSubmit={handleSubmit}>
-                    <div className="form-group">
+                    <div className="login-form-group">
                         <label htmlFor="username">Username:</label>
                         <input type="text" id="username" name="username" required onChange={(e) => setUsername(e.target.value)} autoComplete="off" />
                     </div>
-                    <div className="form-group">
+                    <div className="login-form-group">
                         <label htmlFor="password">Password:</label>
                         <input type="password" id="password" name="password" required onChange={(e) => setPassword(e.target.value)} autoComplete="off" />
                     </div>
-                    <button type="submit" className="button">Login</button>
+                    <button type="submit" className="login-button">Login</button>
+                     <button href="/" className="login-button">Back to Homepage</button>
                 </form>
-                <p>Don't have an account? <a href="/register">Create one now</a>.</p>
-                <a href="/" className="button">Back to Homepage</a>
-            </div>
+                <div className="login-form-group">                <label>Don't have an account? <a href="/register">Create one now</a>.</label>
+</div>
+               
+            
+            </main>
         </div>
     );
 }

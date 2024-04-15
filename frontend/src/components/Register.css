@@ -1,0 +1,130 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to bottom, #00bcd4 0%, #22ffe2 100%);
+    color: white;
+    transition: background-color 0.3s;
+}
+
+.register-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center; /* Center the main content horizontally in the container */
+    align-items: flex-start;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: white;
+    max-width: 900px;
+    margin: 50px auto;
+    padding: 20px;
+    background: linear-gradient(to bottom, #00bcd4 0%, #22ffe2 100%);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+.register-header {
+    font-family: 'Arial', sans-serif;
+    align-self: flex-start; /* Align this item to the start (left) of its flex container */
+    width: 40%; /* Ensures it spans the full width, helpful for alignment */
+    text-shadow: 0 1px 2px rgba(0,0,0,0.6); /* Subtle shadow for better legibility */
+    transition: color 0.3s ease; /* Smooth transition for any color change */
+}
+
+
+.register-main-content {
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; /* Align all items to the right */
+    justify-content: center; /* Center items vertically */
+    padding: 20px;
+    background-color: transparent;
+    border-radius: 8px;
+    max-width: 400px;
+    margin: auto; /* Center the box and remove additional auto margin */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    
+}
+
+.register-form-group {
+    font-family: 'Arial', sans-serif;
+    width: 100%; /* Ensure form groups take full width of the main content */
+    margin: 20px 0;
+}
+
+.register-form-group label {
+    font-family: 'Arial', sans-serif;
+    display: block;
+    margin-bottom: 10px;
+    font-size: 16px; /* Increase the font size for better readability */
+    font-weight: 500; /* Medium weight for better visibility */
+    color: #ffffff; /* Ensure it's white */
+    text-shadow: 0 1px 2px rgba(0,0,0,0.6); /* Subtle shadow for better legibility */
+    transition: color 0.3s ease; /* Smooth transition for any color change */
+}
+
+.register-form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    transition: border-color 0.3s, background-color 0.3s;
+}
+
+.register-form-group input:focus {
+    border-color: #61dafb;
+    background: rgba(255, 255, 255, 0.3);
+    outline: none;
+}
+
+.register-button {
+    font-family: 'Arial', sans-serif;
+    width: calc(100% - 20px); /* Adjust width to allow for horizontal margins */
+    padding: 15px 0px;
+    margin: 10px 0px; /* Adjusted for uniform vertical margins */
+    background-color: #ce5050;
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.register-button:hover {
+    background-color: #22ffe2;
+}
+
+a {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+@keyframes floatAnimation5 {
+    0%, 100% {
+        transform: translate(-100px, 0); /* Start and end in the original position */
+    }
+    25% {
+        transform: translate(-80px, -40px); /* Move up and to the right */
+    }
+    50% {
+        transform: translate(-100px, 0); /* Return to center */
+    }
+    75% {
+        transform: translate(-140px, -40px); /* Move up and to the left */
+    }
+}
+
+.robot-image5 {
+    max-width: 450px; /* Increased width */
+    height: auto; /* Maintain aspect ratio */
+    display: block;
+    margin-top: 70px;
+    animation: floatAnimation5 8s ease-in-out infinite; /* Apply the updated animation */
+    -webkit-animation: floatAnimation5 8s ease-in-out infinite; /* Chrome, Safari, Opera */
+    -moz-animation: floatAnimation5 8s ease-in-out infinite; /* Firefox */
+    -o-animation: floatAnimation5 8s ease-in-out infinite; /* Opera < 12.0 */
+}
