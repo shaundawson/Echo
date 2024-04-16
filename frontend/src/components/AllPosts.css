@@ -2,7 +2,7 @@
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
-    background: linear-gradient(to bottom, #00bcd4 0%, #22ffe2 100%);
+    background: transparent;
     border-radius: 8px; /* Add border radius for rounded corners */
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); /* Add box shadow for depth */
     font-family: 'Arial', sans-serif;
