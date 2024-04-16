@@ -29,6 +29,7 @@ function AllPosts() {
     }, []);
 
     return (
+        <>
         <div className="custom-container">
             <h1 className="custom-heading">All Posts</h1>
             {posts.map(post => (
@@ -37,9 +38,21 @@ function AllPosts() {
                     <p className="custom-post-content">{post.song_recommendation}</p>
                     <p className="custom-post-content">{post.description}</p>
                     <p className="custom-post-timestamp">Posted on: {new Date(post.created_at).toLocaleDateString()}</p>
+
+
                 </div>
             ))}
+
+
+
         </div>
+        <footer>
+        © 2024 Your Company. All rights reserved.
+    </footer>
+
+        
+        </>
+
     );
 }
 

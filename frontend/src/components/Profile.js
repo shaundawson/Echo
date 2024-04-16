@@ -85,7 +85,12 @@ function Profile() {
         <div className="profile-container">
             <header className="profile-header">
                 <h2 className="profile-username">{userData.username}</h2>
+                
             </header>
+
+             
+
+
             <div className="profile-bio">
                 {editMode ? (
                     <>
@@ -100,6 +105,9 @@ function Profile() {
                     </>
                 )}
             </div>
+            <footer>
+        © 2024 Your Company. All rights reserved.
+    </footer>
         </div>
     );
 }
