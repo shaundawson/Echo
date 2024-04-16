@@ -30,25 +30,25 @@ function AllPosts() {
 
     return (
         <>
-        <div className="custom-container">
-            <h1 className="custom-heading">All Posts</h1>
-            {posts.map(post => (
-                <div className="custom-post-box" key={post.post_id}>
-                    <h2 className="custom-post-title">{post.username}</h2>
-                    <p className="custom-post-content">{post.song_recommendation}</p>
-                    <p className="custom-post-content">{post.description}</p>
-                    <p className="custom-post-timestamp">Posted on: {new Date(post.created_at).toLocaleDateString()}</p>
+            <div className="custom-container">
+                <h1 className="custom-heading">Friend Activity</h1>
+                {posts.map(post => (
+                    <div className="custom-post-box" key={post.post_id}>
+                        <h2 className="custom-post-title">{post.username}</h2>
+                        <p className="custom-post-content">{post.song_recommendation}</p>
+                        <p className="custom-post-content">{post.description}</p>
+                        <p className="custom-post-timestamp">Posted on: {new Date(post.created_at).toLocaleDateString()}</p>
 
 
-                </div>
-            ))}
+                    </div>
+                ))}
 
 
 
-        </div>
-        <footer><p>Copyright &#169; 2024 Echo. All Rights Reserved.</p></footer>
+            </div>
+            <footer><p>Copyright &#169; 2024 Echo. All Rights Reserved.</p></footer>
 
-        
+
         </>
 
     );
