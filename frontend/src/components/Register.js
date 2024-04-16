@@ -53,6 +53,11 @@ function Register() {
         }
     };
 
+    const handleBackToHome = () => {
+        navigate('/');
+    };
+
+
     return (
         <div className="register-container">
             <header class = "register-header">
@@ -79,7 +84,7 @@ function Register() {
                         <input type="email" id="email" name="email" required value={formData.email} onChange={handleChange} />
                     </div>
                     <button type="submit" className="register-button">Register</button>
-                    <button href="/" className="register-button">Back to Homepage</button>
+                    <button type="button" onClick={handleBackToHome} className="register-button">Back to Homepage</button>
                 </form>
                 
                 

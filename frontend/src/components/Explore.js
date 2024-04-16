@@ -13,6 +13,10 @@ function Explore() {
         console.log(`Searching for: ${searchTerm}`);
     };
 
+    const handleBackToHome = () => {
+        navigate('/');
+    };
+
     return (
         <div className="explore-container">
             <header class = "explore-header">
@@ -33,7 +37,7 @@ function Explore() {
                         />
                     </div>
                     <button type="submit" className="explore-button">Search</button>
-                    <button href="/" className="explore-button">Back to Homepage</button>
+                    <button type="button" onClick={handleBackToHome} className="explore-button">Back to Homepage</button>
 
                 </form>
                 <div id="search-results">

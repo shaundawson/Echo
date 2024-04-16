@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './UserFeed.css'; // This line imports the CSS from above
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
+
 
 function UserFeed() {
     const [users, setUsers] = useState([]);
@@ -31,6 +33,9 @@ function UserFeed() {
             .catch(error => {
                 console.error(`Error ${isCurrentlyFollowing ? 'unfollowing' : 'following'} user:`, error);
             });
+
+            
+
     };
 
     return (

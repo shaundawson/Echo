@@ -30,6 +30,10 @@ function Login() {
         }
     };
 
+    const handleBackToHome = () => {
+        navigate('/');
+    };
+
     return (
         
            
@@ -53,7 +57,8 @@ function Login() {
                         <input type="password" id="password" name="password" required onChange={(e) => setPassword(e.target.value)} autoComplete="off" />
                     </div>
                     <button type="submit" className="login-button">Login</button>
-                     <button href="/" className="login-button">Back to Homepage</button>
+                    <button type="button" onClick={handleBackToHome} className="login-button">Back to Homepage</button>
+
                 </form>
                 <div className="login-form-group">                <label>Don't have an account? <a href="/register">Create one now</a>.</label>
 </div>
