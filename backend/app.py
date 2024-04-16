@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, session
 from flask_cors import CORS, cross_origin
-from backend.models import db, User, Profile, Post
+from backend.models import db, User, Profile, Post, Follow
 from backend.services import login, register
 import os
 from backend.spotify import search_spotify, refresh_spotify_token
@@ -86,24 +86,25 @@ def register_route():
 @app.route('/users')
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def get_users():
-    try:
-        # Query all users and their related profiles
-        users = User.query.all()
-        user_list = []
-        for user in users:
-            user_data = {
-                'username': user.username,
-                'email': user.email,
-                'bio': user.profile.bio if user.profile else 'No bio available',
-                # Include more fields as necessary
-            }
-            user_list.append(user_data)
+    current_user_id = session.get('user_id')
+    if not current_user_id:
+        return jsonify({"message": "Authentication required."}), 401
 
-        return jsonify(user_list), 200
-    except Exception as e:
-        # Log the exception details for debugging purposes
-        print(f"Error fetching users: {str(e)}")
-        return jsonify({'message': 'Internal server error'}), 500
+    users = User.query.all()
+    user_list = []
+    for user in users:
+        is_following = Follow.query.filter_by(
+            follower_id=current_user_id, followed_id=user.id).first() is not None
+        user_data = {
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'bio': user.bio,
+            'is_following': is_following
+        }
+        user_list.append(user_data)
+
+    return jsonify(user_list), 200
 
 
 # User Profile Route
@@ -160,26 +161,27 @@ def profile_route(user_id):
         return jsonify({"message": "Method not allowed"}), 405
 
 
-# Used to fetch all posts created by any user
-@app.route('/all-posts', methods=['GET'])
+# Used to fetch posts only from followed users
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
+@app.route('/all-posts', methods=['GET'])
 def get_all_posts():
-    try:
-        # Fetch all posts including the user who made each post
-        posts = Post.query.join(User).all()
-        all_posts = [
-            {
-                "post_id": post.id,
-                "username": post.user.username,
-                "song_recommendation": post.song_recommendation,
-                "description": post.description,
-                "created_at": post.created_at.isoformat()
-            } for post in posts
-        ]
-        return jsonify(all_posts), 200
-    except Exception as e:
-        print(f"Error fetching all posts: {str(e)}")
-        return jsonify({"message": "Internal server error"}), 500
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"message": "Authentication required."}), 401
+
+    followed_users = User.query.get(user_id).followed.all()
+    followed_user_ids = [user.followed_id for user in followed_users]
+    posts = Post.query.filter(Post.user_id.in_(followed_user_ids)).all()
+
+    all_posts = [{
+        "post_id": post.id,
+        "username": post.user.username,
+        "song_recommendation": post.song_recommendation,
+        "description": post.description,
+        "created_at": post.created_at.isoformat()
+    } for post in posts]
+
+    return jsonify(all_posts), 200
 
 
 # Used to fetch posts created by a specific user.
@@ -292,6 +294,35 @@ def search():
             return jsonify(results)
         else:
             return jsonify({"error": "Authentication required"}), 401
+
+
+# Route for follow
+@app.route('/follow/<int:user_id>', methods=['POST'])
+def follow(user_id):
+    if 'user_id' not in session:
+        return jsonify({"message": "Authentication required."}), 401
+    current_user = User.query.get(session['user_id'])
+    user_to_follow = User.query.get(user_id)
+    if user_to_follow is None:
+        return jsonify({"message": "User not found"}), 404
+    current_user.followed.append(Follow(followed=user_to_follow))
+    db.session.commit()
+    return jsonify({"message": "Followed successfully"}), 200
+
+
+# Route for unfollow
+@app.route('/unfollow/<int:user_id>', methods=['POST'])
+def unfollow(user_id):
+    if 'user_id' not in session:
+        return jsonify({"message": "Authentication required."}), 401
+    current_user = User.query.get(session['user_id'])
+    user_to_unfollow = User.query.get(user_id)
+    if user_to_unfollow is None:
+        return jsonify({"message": "User not found"}), 404
+    current_user.followed.remove(
+        Follow.query.filter_by(followed_id=user_id).first())
+    db.session.commit()
+    return jsonify({"message": "Unfollowed successfully"}), 200
 
 
 if __name__ == '__main__':
