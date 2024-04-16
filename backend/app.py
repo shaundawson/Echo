@@ -173,6 +173,7 @@ def get_all_posts():
     followed_users = [follow.followed_id for follow in Follow.query.filter_by(
         follower_id=user_id).all()]
     posts = Post.query.filter(Post.user_id.in_(followed_users)).all()
+    print("Followed Users:", followed_users)
 
     all_posts = [{
         "post_id": post.id,
@@ -181,6 +182,7 @@ def get_all_posts():
         "description": post.description,
         "created_at": post.created_at.isoformat()
     } for post in posts]
+    print("Posts being returned:", all_posts)
 
     return jsonify(all_posts), 200
 
