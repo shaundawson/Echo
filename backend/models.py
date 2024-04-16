@@ -35,6 +35,7 @@ class Post(db.Model):
     created_at = db.Column(
         db.DateTime, default=lambda: datetime.now(timezone.utc))
 
+
 class Follow(db.Model):
     follower_id = db.Column(
         db.Integer, db.ForeignKey('user.id'), primary_key=True)
