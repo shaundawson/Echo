@@ -297,6 +297,7 @@ def search():
 
 # Route for follow
 @app.route('/follow/<int:user_id>', methods=['POST'])
+@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def follow(user_id):
     current_user_id = session.get('user_id')
     if not current_user_id:
@@ -314,23 +315,9 @@ def follow(user_id):
     return jsonify({"message": "Already following"}), 409
 
 
-@app.route('/unfollow/<int:user_id>', methods=['POST'])
-def unfollow(user_id):
-    current_user_id = session.get('user_id')
-    if not current_user_id:
-        return jsonify({"message": "Authentication required."}), 401
-
-    follow_relation = Follow.query.filter_by(
-        follower_id=current_user_id, followed_id=user_id).first()
-    if follow_relation:
-        db.session.delete(follow_relation)
-        db.session.commit()
-        return jsonify({"message": "Unfollowed successfully"}), 200
-    return jsonify({"message": "Not following"}), 404
-
-
 # Route for unfollow
 @app.route('/unfollow/<int:user_id>', methods=['POST'])
+@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def unfollow(user_id):
     current_user_id = session.get('user_id')
     if not current_user_id:
