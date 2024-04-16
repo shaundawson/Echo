@@ -252,52 +252,9 @@ def delete_post(post_id):
     db.session.commit()
     return jsonify({"message": "Post deleted successfully"}), 200
 
- # This acts as a proxy to the Spotify API.
-
-
-@app.route('/api/search')
-@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
-def spotify_search_proxy():
-    token = request.headers.get('Authorization')
-    if not token or not token.startswith('Bearer '):
-        return jsonify({"error": "No authorization token provided"}), 401
-    token = token.split(' ')[1]
-    query = request.args.get('q')
-    spotify_response = requests.get(
-        'https://api.spotify.com/v1/search',
-        headers={'Authorization': f'Bearer {token}'},
-        params={'q': query, 'type': 'track', 'limit': 10}
-    )
-    return jsonify(spotify_response.json()), spotify_response.status_code
-
-
-# Spotify Search Route
-@app.route('/search')
-@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
-def search():
-    token = request.cookies.get('spotifyToken')
-    if token:
-        query = request.args.get('query')
-        # Ensure user_id is also correctly managed
-        user_id = session.get('user_id')
-        if not user_id:
-            return jsonify({"error": "User session not found"}), 401
-
-        results = search_spotify(query, token, user_id)
-        return jsonify(results)
-    else:
-        # Refresh Spotify token if necessary
-        refreshed_token = refresh_spotify_token()
-        if refreshed_token:
-            query = request.args.get('query')
-            user_id = session.get('user_id')
-            results = search_spotify(query, refreshed_token, user_id)
-            return jsonify(results)
-        else:
-            return jsonify({"error": "Authentication required"}), 401
-
-
 # Route for follow
+
+
 @app.route('/follow/<int:user_id>', methods=['POST'])
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def follow(user_id):

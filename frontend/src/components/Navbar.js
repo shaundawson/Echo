@@ -26,7 +26,7 @@ const Navbar = () => {
                     <>
                         <Link to="/create-post">Create Post</Link> {/* Link for creating posts */}
                         <Link to="/feed">Your Posts</Link> {/* Link to view all posts by the user */}
-                        <Link to="/all-posts">All Posts</Link> {/* Link to view all posts from all users */}
+                        <Link to="/all-posts">Friend Activity</Link> {/* Link to view all posts from all users */}
                         <Link to="/users">All Users</Link> {/* Link to view all users and their bios */}
                         <Link to={`/profile/${currentUser.user_id}`}>Profile</Link>
                         <button onClick={handleLogout}>Log Out</button>
