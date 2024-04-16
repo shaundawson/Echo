@@ -170,9 +170,9 @@ def get_all_posts():
     if not user_id:
         return jsonify({"message": "Authentication required."}), 401
 
-    followed_users = User.query.get(user_id).followed.all()
-    followed_user_ids = [user.followed_id for user in followed_users]
-    posts = Post.query.filter(Post.user_id.in_(followed_user_ids)).all()
+    followed_users = [follow.followed_id for follow in Follow.query.filter_by(
+        follower_id=user_id).all()]
+    posts = Post.query.filter(Post.user_id.in_(followed_users)).all()
 
     all_posts = [{
         "post_id": post.id,
@@ -298,30 +298,51 @@ def search():
 # Route for follow
 @app.route('/follow/<int:user_id>', methods=['POST'])
 def follow(user_id):
-    if 'user_id' not in session:
+    current_user_id = session.get('user_id')
+    if not current_user_id:
         return jsonify({"message": "Authentication required."}), 401
-    current_user = User.query.get(session['user_id'])
-    user_to_follow = User.query.get(user_id)
-    if user_to_follow is None:
-        return jsonify({"message": "User not found"}), 404
-    current_user.followed.append(Follow(followed=user_to_follow))
-    db.session.commit()
-    return jsonify({"message": "Followed successfully"}), 200
+    if current_user_id == user_id:
+        return jsonify({"message": "Cannot follow yourself."}), 400
+
+    # Check if already followed
+    if not Follow.query.filter_by(follower_id=current_user_id, followed_id=user_id).first():
+        follow_relation = Follow(
+            follower_id=current_user_id, followed_id=user_id)
+        db.session.add(follow_relation)
+        db.session.commit()
+        return jsonify({"message": "Followed successfully"}), 200
+    return jsonify({"message": "Already following"}), 409
+
+
+@app.route('/unfollow/<int:user_id>', methods=['POST'])
+def unfollow(user_id):
+    current_user_id = session.get('user_id')
+    if not current_user_id:
+        return jsonify({"message": "Authentication required."}), 401
+
+    follow_relation = Follow.query.filter_by(
+        follower_id=current_user_id, followed_id=user_id).first()
+    if follow_relation:
+        db.session.delete(follow_relation)
+        db.session.commit()
+        return jsonify({"message": "Unfollowed successfully"}), 200
+    return jsonify({"message": "Not following"}), 404
 
 
 # Route for unfollow
 @app.route('/unfollow/<int:user_id>', methods=['POST'])
 def unfollow(user_id):
-    if 'user_id' not in session:
+    current_user_id = session.get('user_id')
+    if not current_user_id:
         return jsonify({"message": "Authentication required."}), 401
-    current_user = User.query.get(session['user_id'])
-    user_to_unfollow = User.query.get(user_id)
-    if user_to_unfollow is None:
-        return jsonify({"message": "User not found"}), 404
-    current_user.followed.remove(
-        Follow.query.filter_by(followed_id=user_id).first())
-    db.session.commit()
-    return jsonify({"message": "Unfollowed successfully"}), 200
+
+    follow_relation = Follow.query.filter_by(
+        follower_id=current_user_id, followed_id=user_id).first()
+    if follow_relation:
+        db.session.delete(follow_relation)
+        db.session.commit()
+        return jsonify({"message": "Unfollowed successfully"}), 200
+    return jsonify({"message": "Not following"}), 404
 
 
 if __name__ == '__main__':
