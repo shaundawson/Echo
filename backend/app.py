@@ -3,7 +3,8 @@ from flask_cors import CORS, cross_origin
 from backend.models import db, User, Profile, Post
 from backend.services import login, register
 import os
-from backend.spotify import search_spotify
+from backend.spotify import search_spotify, refresh_spotify_token
+import requests
 
 # Create the Flask application
 app = Flask(__name__)
@@ -51,7 +52,7 @@ def login_route():
         username = request.json['username']
         password = request.json['password']
         user, status_code = login(username, password)
-        if user:
+        if user.get('user_id'):  # Check if 'user_id' is in the dictionary
             # Store the user's ID in the session
             session['user_id'] = user['user_id']
             print("Logged in user_id:", session['user_id'])  # Debug print
@@ -211,19 +212,20 @@ def get_posts():
 @app.route('/post', methods=['POST'])
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def create_post():
-    print("Session user_id at /post:", session.get('user_id'))  # Debug print
+    user_id = session.get('user_id')
     if not user_id:
         return jsonify({"message": "Authentication required."}), 401
 
-    user_id = session.get('user_id')
     data = request.get_json()
     song_recommendation = data['song_recommendation']
+    song_url = data.get('song_url', '')  # Get song URL from request
     description = data.get('description', '')
 
     new_post = Post(
-        user_id=session['user_id'],
-        song_recommendation=data['song_recommendation'],
-        description=data.get('description', '')
+        user_id=user_id,
+        song_recommendation=song_recommendation,
+        song_url=song_url,  # Save song URL in the database
+        description=description
     )
     db.session.add(new_post)
     try:
@@ -247,15 +249,49 @@ def delete_post(post_id):
     db.session.commit()
     return jsonify({"message": "Post deleted successfully"}), 200
 
+ # This acts as a proxy to the Spotify API.
+
+
+@app.route('/api/search')
+@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
+def spotify_search_proxy():
+    token = request.headers.get('Authorization')
+    if not token or not token.startswith('Bearer '):
+        return jsonify({"error": "No authorization token provided"}), 401
+    token = token.split(' ')[1]
+    query = request.args.get('q')
+    spotify_response = requests.get(
+        'https://api.spotify.com/v1/search',
+        headers={'Authorization': f'Bearer {token}'},
+        params={'q': query, 'type': 'track', 'limit': 10}
+    )
+    return jsonify(spotify_response.json()), spotify_response.status_code
+
 
 # Spotify Search Route
 @app.route('/search')
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def search():
-    query = request.args.get('query')
     token = request.cookies.get('spotifyToken')
-    results = search_spotify(query, token)
-    return jsonify(results)
+    if token:
+        query = request.args.get('query')
+        # Ensure user_id is also correctly managed
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({"error": "User session not found"}), 401
+
+        results = search_spotify(query, token, user_id)
+        return jsonify(results)
+    else:
+        # Refresh Spotify token if necessary
+        refreshed_token = refresh_spotify_token()
+        if refreshed_token:
+            query = request.args.get('query')
+            user_id = session.get('user_id')
+            results = search_spotify(query, refreshed_token, user_id)
+            return jsonify(results)
+        else:
+            return jsonify({"error": "Authentication required"}), 401
 
 
 if __name__ == '__main__':

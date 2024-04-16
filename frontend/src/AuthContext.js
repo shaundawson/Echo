@@ -11,13 +11,17 @@ export const AuthProvider = ({ children }) => {
     const [token, setToken] = useState(localStorage.getItem('token'));
     const [spotifyToken, setSpotifyToken] = useState(localStorage.getItem('spotifyToken'));
 
-    const login = (userData, token) => {
+    const login = (userData, token, spotifyToken) => {
+        console.log("Logging in with:", { userData, token, spotifyToken });
+        if (!spotifyToken) {
+            console.error("Spotify token is undefined at login.");
+        }
         setCurrentUser(userData);
         setToken(token);
         setSpotifyToken(spotifyToken);
         localStorage.setItem('user', JSON.stringify(userData)); // Persist user data
         localStorage.setItem('token', token); // Persist token
-        localStorage.setItem('spotifyToken', spotifyToken); // Persist spotifyToken
+        localStorage.setItem('spotifyToken', spotifyToken);
     };
 
     const logout = () => {
@@ -26,6 +30,7 @@ export const AuthProvider = ({ children }) => {
         setSpotifyToken(null);
         localStorage.removeItem('user'); // Clear user data
         localStorage.removeItem('token'); // Clear token
+        localStorage.removeItem('spotifyToken'); // Clear spotifyToken
     };
 
     const value = {
