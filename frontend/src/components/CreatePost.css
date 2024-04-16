@@ -10,17 +10,21 @@
     margin: 40px auto;
     position: relative; /* Needed for pseudo-elements */
     text-align: center; /* Centering text inside the container */
+    font-family: 'Arial', sans-serif;
+
 }
 
 .createPostContainer h1 {
     color: #333; /* Dark grey for text, adds contrast */
     text-align: center; /* Centers the header */
     margin-bottom: 20px; /* Add space below the header */
+    font-family: 'Arial', sans-serif;
+
 }
 
 .createPostContainer input::placeholder,
 .createPostContainer textarea::placeholder {
-    font-family: sans-serif; /* Inherit font family from parent element */
+    font-family: 'Arial', sans-serif;
     font-size: 16px; /* Set font size */
     color: #999; /* Define placeholder text color */
 }
@@ -34,6 +38,8 @@
     border: 1px solid #6b5f5f; /* Subtle border for inputs */
     border-radius: 4px; /* Rounded corners for input fields */
     box-sizing: border-box; /* Ensures padding does not affect the width */
+    font-family: 'Arial', sans-serif;
+
 }
 
 .createPostContainer button {
@@ -47,6 +53,8 @@
     transition: background-color 0.3s;
     margin: 20px auto 30px auto; /* Center the button */
     display: block; /* Necessary for margin auto to work */
+    font-family: 'Arial', sans-serif;
+
 }
 
 .createPostContainer input,
@@ -61,6 +69,8 @@
     font-size: 16px; /* Increase font size for better readability */
     line-height: 1.5; /* Increase line height for better spacing */
     resize: vertical; /* Allow vertical resizing for textareas */
+    font-family: 'Arial', sans-serif;
+
 }
 
 .createPostContainer input:focus,
@@ -68,6 +78,8 @@
     border-color: #ce5050; /* Change border color on focus */
     outline: none; /* Remove default focus outline */
     box-shadow: 0 0 0 2px rgba(206, 80, 80, 0.3); /* Add a subtle box shadow on focus */
+    font-family: 'Arial', sans-serif;
+
 }
 
 .createPostContainer button:hover {
@@ -77,6 +89,8 @@
 .createPostContainer p {
     color: #ffffff; /* Bootstrap danger color for error messages */
     text-align: center; /* Centering error message */
+    font-family: 'Arial', sans-serif;
+
 }
 
 @keyframes floatAnimation {

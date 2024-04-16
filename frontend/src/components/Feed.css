@@ -4,17 +4,20 @@
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
+    background: linear-gradient(to bottom, #00bcd4);
+    border-radius: 8px; /* Add border radius for rounded corners */
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); /* Add box shadow for depth */
+    font-family: 'Arial', sans-serif;
 }
 
 .feed-heading {
-    font-size: 24px;
-    color: #333;
-    margin-bottom: 20px;
-    background-color: white; /* White background color */
-    padding: 10px; /* Add padding for spacing */
-    border-radius: 8px; /* Add border radius for rounded corners */
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); /* Add box shadow for depth */
-    text-align: center; /* Center align text */
+    font-family: 'Arial', sans-serif;
+    color: #ffffff;
+    font-size: 2.5rem;
+    letter-spacing: 1.5px;
+    text-shadow: 0px 4px 6px rgba(0,0,0,0.2);
+    text-align: center;
+    margin-bottom: 10; /* No space below */
 }
 
 .loading-message {
@@ -27,6 +30,7 @@
 
 .post-box {
     background-color: #fff;
+    font-family: 'Arial', sans-serif;
     border-radius: 8px;
     border: 1px solid #ccc;
     padding: 15px;
@@ -36,12 +40,14 @@
 
 .post-box:hover {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    font-family: 'Arial', sans-serif;
 }
 
 .post-title {
     font-size: 18px;
     font-weight: bold;
     margin-bottom: 10px;
+    font-family: 'Arial', sans-serif;
     color: black; /* Change font color to black */
 }
 
@@ -49,11 +55,13 @@
     font-size: 16px;
     color: black; /* Change font color to black */
     margin-bottom: 10px;
+    font-family: 'Arial', sans-serif;
 }
 
 .post-timestamp {
     font-size: 14px;
     color: black; /* Change font color to black */
+    font-family: 'Arial', sans-serif;
 }
 
 .delete-button {
@@ -65,9 +73,24 @@
     cursor: pointer;
     transition: background-color 0.3s;
     display: block; /* Ensure the button takes up full width */
+    font-family: 'Arial', sans-serif;
     margin-top: 10px; /* Add space between content and button */
 }
 
 .delete-button:hover {
     background-color: #6c2a2a;
+}
+
+footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    padding: 10px 0;
+    background-color: #1a1a1a 100%; /* Ensure gradient shows through */
+    color: white;
+    font-size: 16px;
+    z-index: 1000;
+    text-shadow: 0px 4px 6px rgba(0,0,0,0.2);
 }

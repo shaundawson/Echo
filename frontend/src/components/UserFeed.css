@@ -2,21 +2,24 @@
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
+    background: transparent;
+    border-radius: 8px; /* Add border radius for rounded corners */
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); /* Add box shadow for depth */
+    font-family: 'Arial', sans-serif;
 }
 
 .user-feed-heading {
-    font-size: 24px;
-    color: #333;
-    margin-bottom: 20px;
-    background-color: white; /* White background color */
-    padding: 15px; /* Add padding for spacing */
-    border-radius: 8px; /* Add border radius for rounded corners */
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); /* Add box shadow for depth */
-    text-align: center; /* Center align text */
+    font-family: 'Arial', sans-serif;
+    color: #ffffff;
+    font-size: 2.5rem;
+    letter-spacing: 1.5px;
+    text-shadow: 0px 4px 6px rgba(0,0,0,0.2);
+    text-align: center;
+    margin-bottom: 10; /* No space below */
 }
 
 .user-card {
-    background-color: #fff;
+    background-color: #a4f2f6;
     border-radius: 8px;
     border: 1px solid #ccc;
     padding: 15px;
@@ -35,4 +38,18 @@
     font-size: 16px;
     color: #555; /* Change font color to black */
     margin-bottom: 10px;
+}
+
+footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    padding: 10px 0;
+    background-color: #1a1a1a 100%; /* Ensure gradient shows through */
+    color: white;
+    font-size: 16px;
+    z-index: 1000;
+    text-shadow: 0px 4px 6px rgba(0,0,0,0.2);
 }
