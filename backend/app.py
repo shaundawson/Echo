@@ -3,7 +3,6 @@ from flask_cors import CORS, cross_origin
 from backend.models import db, User, Profile, Post, Follow
 from backend.services import login, register
 import os
-from backend.spotify import search_spotify, refresh_spotify_token
 import requests
 
 # Create the Flask application
@@ -34,8 +33,10 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
 db.init_app(app)
 
 
-# Configure CORS
-CORS(app, support_credentials=True, origins=["http://localhost:3000"])
+# Dynamic CORS configuration
+# Default to localhost if not set
+allowed_origin = os.environ.get('REACT_APP_URL', 'http://localhost:3000')
+CORS(app, support_credentials=True, origins=[allowed_origin])
 
 
 # App Routes
@@ -46,7 +47,6 @@ def home():
 
 # Handles user login functionality
 @app.route('/login', methods=['GET', 'POST', 'OPTIONS'])
-@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def login_route():
     if request.method == 'POST':
         username = request.json['username']
@@ -68,7 +68,6 @@ def login_route():
 
 
 @app.route('/register', methods=['POST', 'GET'])
-@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def register_route():
     if request.method == 'POST':
         data = request.json
@@ -83,7 +82,6 @@ def register_route():
 
 
 @app.route('/users')
-@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def get_users():
     current_user_id = session.get('user_id')
     if not current_user_id:
@@ -110,7 +108,6 @@ def get_users():
 
 # User Profile Route
 @app.route('/profile/<int:user_id>', methods=['PUT', 'GET'])
-@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def profile_route(user_id):
     if request.method == 'PUT':
         if not request.is_json:
@@ -164,7 +161,6 @@ def profile_route(user_id):
 
 # Used to fetch posts only from followed users
 @app.route('/all-posts', methods=['GET'])
-@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def get_all_posts():
     user_id = session.get('user_id')
     if not user_id:
@@ -189,7 +185,6 @@ def get_all_posts():
 
 # Used to fetch posts created by a specific user.
 @app.route('/posts', methods=['GET'])
-@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def get_posts():
     user_id = session.get('user_id')
     if not user_id:
@@ -215,7 +210,6 @@ def get_posts():
 
 # Route to create a new post
 @app.route('/post', methods=['POST'])
-@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def create_post():
     user_id = session.get('user_id')
     if not user_id:
@@ -241,7 +235,6 @@ def create_post():
 
 # Route to delete a post
 @app.route('/post/<int:post_id>', methods=['DELETE'])
-@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def delete_post(post_id):
     post = Post.query.get(post_id)
     if not post:
@@ -256,7 +249,6 @@ def delete_post(post_id):
 
 
 @app.route('/follow/<int:user_id>', methods=['POST'])
-@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def follow(user_id):
     current_user_id = session.get('user_id')
     if not current_user_id:
@@ -276,7 +268,6 @@ def follow(user_id):
 
 # Route for unfollow
 @app.route('/unfollow/<int:user_id>', methods=['POST'])
-@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def unfollow(user_id):
     current_user_id = session.get('user_id')
     if not current_user_id:

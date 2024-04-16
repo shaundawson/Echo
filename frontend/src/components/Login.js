@@ -16,7 +16,7 @@ function Login() {
     const handleSubmit = async (event) => {
         event.preventDefault(); // Prevent default form submission behavior
         try {
-            const response = await axios.post('https://dry-dawn-86507-cc866b3e1665.herokuapp.com/login', { username, password }, {
+            const response = await axios.post('https://spotify-activity-app-274c06e33742.herokuapp.com/login', { username, password }, {
                 withCredentials: true
             });
             if (response.data.user_id) {
@@ -35,12 +35,12 @@ function Login() {
     };
 
     return (
-        
-           
-            <div className="login-container">
-            <header class = "login-header">
+
+
+        <div className="login-container">
+            <header class="login-header">
                 <h1>Login to Your Account</h1>
-                <img src={RobotitoImage4} alt="Cute robot with headphones4" className="robot-image4"/>
+                <img src={RobotitoImage4} alt="Cute robot with headphones4" className="robot-image4" />
 
 
             </header>
@@ -61,9 +61,9 @@ function Login() {
 
                 </form>
                 <div className="login-form-group">                <label>Don't have an account? <a href="/register">Create one now</a>.</label>
-</div>
-               
-            
+                </div>
+
+
             </main>
 
             <footer><p>Copyright &#169; 2024 Echo. All Rights Reserved.</p></footer>

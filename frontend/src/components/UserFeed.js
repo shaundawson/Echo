@@ -8,7 +8,7 @@ function UserFeed() {
     const [users, setUsers] = useState([]);
 
     useEffect(() => {
-        axios.get('https://dry-dawn-86507-cc866b3e1665.herokuapp.com/users', { withCredentials: true })
+        axios.get('https://spotify-activity-app-274c06e33742.herokuapp.com/users', { withCredentials: true })
             .then(response => {
                 setUsers(response.data);
             })
@@ -19,7 +19,7 @@ function UserFeed() {
 
     const handleFollowToggle = (userId, isCurrentlyFollowing) => {
         const endpoint = isCurrentlyFollowing ? 'unfollow' : 'follow';
-        axios.post(`https://dry-dawn-86507-cc866b3e1665.herokuapp.com/${endpoint}/${userId}`, {}, { withCredentials: true })
+        axios.post(`https://spotify-activity-app-274c06e33742.herokuapp.com/${endpoint}/${userId}`, {}, { withCredentials: true })
             .then(() => {
                 // Update the local state to reflect the new follow status
                 const updatedUsers = users.map(user => {
@@ -34,7 +34,7 @@ function UserFeed() {
                 console.error(`Error ${isCurrentlyFollowing ? 'unfollowing' : 'following'} user:`, error);
             });
 
-            
+
 
     };
 

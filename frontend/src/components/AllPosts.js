@@ -13,7 +13,7 @@ function AllPosts() {
         const fetchPosts = async () => {
             try {
                 // Make GET request to fetch all posts data
-                const response = await axios.get('https://dry-dawn-86507-cc866b3e1665.herokuapp.com/all-posts', {
+                const response = await axios.get('https://spotify-activity-app-274c06e33742.herokuapp.com/all-posts', {
                     // Include credentials in the request for session management
                     withCredentials: true
                 });

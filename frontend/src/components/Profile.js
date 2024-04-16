@@ -23,7 +23,7 @@ function Profile() {
 
         const fetchUserData = async () => {
             try {
-                const response = await axios.get(`https://dry-dawn-86507-cc866b3e1665.herokuapp.com/profile/${userId}`, {
+                const response = await axios.get(`https://spotify-activity-app-274c06e33742.herokuapp.com/profile/${userId}`, {
                     withCredentials: true
                 });
 
@@ -60,7 +60,7 @@ function Profile() {
             };
             const body = JSON.stringify({ bio: userData.bio });
             const response = await axios.put(
-                `https://dry-dawn-86507-cc866b3e1665.herokuapp.com/profile/${userId}`,
+                `https://spotify-activity-app-274c06e33742.herokuapp.com/profile/${userId}`,
                 body,
                 config
             );

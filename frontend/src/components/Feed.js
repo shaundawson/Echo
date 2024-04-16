@@ -16,7 +16,7 @@ function Feed() {
         setLoading(true);
         setError('');
         try {
-            const response = await axios.get('https://dry-dawn-86507-cc866b3e1665.herokuapp.com/posts', {
+            const response = await axios.get('https://spotify-activity-app-274c06e33742.herokuapp.com/posts', {
                 withCredentials: true
             });
             setPosts(response.data);
@@ -28,7 +28,7 @@ function Feed() {
 
     const deletePost = async (id) => {
         try {
-            await axios.delete(`https://dry-dawn-86507-cc866b3e1665.herokuapp.com/post/${id}`, {
+            await axios.delete(`https://spotify-activity-app-274c06e33742.herokuapp.com/post/${id}`, {
                 withCredentials: true
             });
             // Filter out the deleted post from the state
@@ -59,7 +59,7 @@ function Feed() {
                     ))}
                 </ul>
             )}
-                        <footer><p>Copyright &#169; 2024 Echo. All Rights Reserved.</p></footer>
+            <footer><p>Copyright &#169; 2024 Echo. All Rights Reserved.</p></footer>
         </div>
     );
 }

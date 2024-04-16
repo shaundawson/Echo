@@ -34,7 +34,7 @@ function Register() {
 
         try {
             // Make POST request to register a new user
-            const response = await axios.post('https://dry-dawn-86507-cc866b3e1665.herokuapp.com/register', formData, {
+            const response = await axios.post('https://spotify-activity-app-274c06e33742.herokuapp.com/register', formData, {
                 headers: {
                     'Content-Type': 'application/json'
                 }
@@ -60,18 +60,18 @@ function Register() {
 
     return (
         <div className="register-container">
-            <header class = "register-header">
-            
+            <header class="register-header">
+
                 <h1>Register</h1>
-                <img src={RobotitoImage5} alt="Cute robot with headphones5" className="robot-image5"/>
+                <img src={RobotitoImage5} alt="Cute robot with headphones5" className="robot-image5" />
 
             </header>
 
             <main id="register-main-content">
-            <form onSubmit={handleSubmit}>
-            <div className="register-form-group">
-                
-                    
+                <form onSubmit={handleSubmit}>
+                    <div className="register-form-group">
+
+
                         <label htmlFor="username">Username:</label>
                         <input type="text" id="username" name="username" required value={formData.username} onChange={handleChange} />
                     </div>
@@ -86,16 +86,16 @@ function Register() {
                     <button type="submit" className="register-button">Register</button>
                     <button type="button" onClick={handleBackToHome} className="register-button">Back to Homepage</button>
                 </form>
-                
-                
+
+
                 <div className="register-form-group"><label>Already have an account? <a href="/login">Login here</a>.</label> </div>
-                
+
             </main>
 
             <footer><p>Copyright &#169; 2024 Echo. All Rights Reserved.</p></footer>
         </div>
 
-        
+
     );
 }
 

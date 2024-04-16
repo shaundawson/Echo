@@ -17,7 +17,7 @@ function CreatePost() {
         setError('');
 
         try {
-            const response = await axios.post('https://dry-dawn-86507-cc866b3e1665.herokuapp.com/post', {
+            const response = await axios.post('https://spotify-activity-app-274c06e33742.herokuapp.com/post', {
                 song_recommendation: songRecommendation,
                 description: description
             }, {
