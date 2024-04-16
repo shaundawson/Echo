@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import './UserFeed.css';
+import './UserFeed.css'; // This line imports the CSS from above
 
 
 function UserFeed() {
@@ -36,5 +36,4 @@ function UserFeed() {
         </div>
     );
 }
-
 export default UserFeed;
