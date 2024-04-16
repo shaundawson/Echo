@@ -82,7 +82,6 @@ def register_route():
         return jsonify({"message": "GET method for registration is not supported."}), 405
 
 
-# Used to fetch or update a user's profile
 @app.route('/users')
 @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def get_users():
@@ -93,13 +92,15 @@ def get_users():
     users = User.query.all()
     user_list = []
     for user in users:
+        profile = Profile.query.filter_by(user_id=user.id).first()
+        bio = profile.bio if profile else "No bio available"
         is_following = Follow.query.filter_by(
             follower_id=current_user_id, followed_id=user.id).first() is not None
         user_data = {
             'id': user.id,
             'username': user.username,
             'email': user.email,
-            'bio': user.bio,
+            'bio': bio,
             'is_following': is_following
         }
         user_list.append(user_data)
