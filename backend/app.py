@@ -220,13 +220,11 @@ def create_post():
 
     data = request.get_json()
     song_recommendation = data['song_recommendation']
-    song_url = data.get('song_url', '')  # Get song URL from request
     description = data.get('description', '')
 
     new_post = Post(
         user_id=user_id,
         song_recommendation=song_recommendation,
-        song_url=song_url,  # Save song URL in the database
         description=description
     )
     db.session.add(new_post)
