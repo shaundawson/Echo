@@ -59,9 +59,7 @@ function Feed() {
                     ))}
                 </ul>
             )}
-            <footer>
-        © 2024 Your Company. All rights reserved.
-    </footer>
+                        <footer><p>Copyright &#169; 2024 Echo. All Rights Reserved.</p></footer>
         </div>
     );
 }
