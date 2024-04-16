@@ -163,8 +163,8 @@ def profile_route(user_id):
 
 
 # Used to fetch posts only from followed users
-@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 @app.route('/all-posts', methods=['GET'])
+@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def get_all_posts():
     user_id = session.get('user_id')
     if not user_id:
