@@ -82,31 +82,31 @@ function Profile() {
     };
 
     return (
-        <div className="profile-container">
-            <header className="profile-header">
-                <h2 className="profile-username">{userData.username}</h2>
-                
-            </header>
-
-             
-
-
-            <div className="profile-bio">
-                {editMode ? (
-                    <>
-                        <textarea value={userData.bio} onChange={handleBioChange}></textarea>
-                        <button onClick={handleEditSubmit}>Save</button>
-                        <button onClick={() => setEditMode(false)}>Cancel</button>
-                    </>
-                ) : (
-                    <>
-                        <p>Bio: {userData.bio}</p>
-                        <button onClick={() => setEditMode(true)}>Edit Bio</button>
-                    </>
-                )}
+        <>
+            <div className="profile-heading"><h1>Profile</h1></div>
+            <div className="profile-container">
+                <header className="profile-username2">
+                    <h2 className="profile-username">{userData.username}</h2>
+                </header>
+                <div className="profile-bio">
+                    {editMode ? (
+                        <>
+                            <textarea value={userData.bio} onChange={handleBioChange}></textarea>
+                            <button onClick={handleEditSubmit}>Save</button>
+                            <button onClick={() => setEditMode(false)}>Cancel</button>
+                        </>
+                    ) : (
+                        <>
+                            <p>Bio: {userData.bio}</p>
+                            <button onClick={() => setEditMode(true)}>Edit Bio</button>
+                        </>
+                    )}
+                </div>
             </div>
-            <footer><p>Copyright &#169; 2024 Echo. All Rights Reserved.</p></footer>
-        </div>
+            <footer>
+                <p>Copyright &#169; 2024 Echo. All Rights Reserved.</p>
+            </footer>
+        </>
     );
 }
 
