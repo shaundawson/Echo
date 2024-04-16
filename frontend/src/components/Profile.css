@@ -1,20 +1,30 @@
 /* Profile.css */
 
 .profile-container {
-    font-family: 'Arial', sans-serif;
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
-    background-color: #a4f2f6; /* White background color */
-    border-radius: 8px; /* Rounded corners */
-    border: 1px solid #a4f2f6; /* Add a border for separation */
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); /* Add a subtle box shadow */
+    background:  #ffffff;
+    border-radius: 8px; /* Add border radius for rounded corners */
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); /* Add box shadow for depth */
+    font-family: 'Arial', sans-serif;
+   
 }
 
-.profile-header {
+.profile-heading {
     font-family: 'Arial', sans-serif;
+    color: #ffffff;
+    font-size: 1.3rem;
+    letter-spacing: 1.5px;
+    text-shadow: 0px 4px 6px rgba(0,0,0,0.2);
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 20px; /* No space below */
+}
+
+@media (max-width: 800px) {
+    .profile-heading {
+        margin-top: 40px; /* Less space on smaller screens */
+    }
 }
 
 .profile-username {
